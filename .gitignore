@@ -1,0 +1,22 @@
+# Bỏ qua các file/thư mục không cần thiết
+__pycache__/
+*.pyc
+*.pyo
+
+# Thư mục tạm
+temp_chunks/
+
+# File test
+test_*.mp3
+test_*.py
+call_api_test.py
+mau_giong_nam.mp3
+
+# File audio sinh ra bởi user (quá lớn, không nên đẩy lên git)
+static/audio/*.mp3
+
+# Giữ thư mục audio rỗng
+!static/audio/.gitkeep
+
+# File 0 byte lỗi
+*.mp3.tmp

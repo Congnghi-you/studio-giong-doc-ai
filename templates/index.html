@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Giọng Đọc AI Tiếng Việt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --accent: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.15);
+            --success: #34d399;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.12) 0px, transparent 50%);
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .main-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #e2e8f0;
+        }
+
+        .section-title span.hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Voice Cards Grid */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+
+        .voice-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .voice-card:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .voice-card.active {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.08);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .voice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .voice-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+
+        .voice-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .tag-nam {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+
+        .tag-nu {
+            background: rgba(244, 114, 182, 0.2);
+            color: #f472b6;
+        }
+
+        .voice-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .voice-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-play-sample {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-play-sample:hover {
+            background: var(--accent);
+            color: #0f172a;
+        }
+
+        .btn-play-sample.playing {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        /* Editor Area */
+        .editor-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .insert-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-tag {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-tag:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .word-stats {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .word-stats span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            color: var(--text-main);
+            font-size: 15px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+        }
+
+        /* Controls Grid */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 18px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .control-item label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .control-item select, .control-item input[type="range"] {
+            width: 100%;
+        }
+
+        .control-item select {
+            background: #1e293b;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        /* Generate Button */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 12px;
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.45);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Audio Player Box */
+        .result-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #22c55e;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-download:hover {
+            background: #16a34a;
+        }
+
+        .spinner {
+            border: 3px solid rgba(15, 23, 42, 0.3);
+            border-top: 3px solid #0f172a;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="badge">🎙️ MICROSOFT NEURAL AI • TIẾNG VIỆT</span>
+            <h1>Studio Giọng Đọc AI</h1>
+            <p class="subtitle">Chuyển văn bản dài (20+ phút) thành âm thanh sống động, tự nhiên, mượt mà và ngắt nghỉ theo nhịp điệu</p>
+        </header>
+
+        <div class="main-card">
+            <div class="section-title">
+                <span>1. Chọn Giọng Đọc & Nghe Thử 6 Giọng Mẫu</span>
+                <span class="hint">Bấm nút "🔊 Nghe thử" trên từng thẻ để nghe</span>
+            </div>
+            
+            <div class="voice-grid">
+                {% for key, item in presets.items() %}
+                <div class="voice-card {% if loop.first %}active{% endif %}" onclick="selectVoice('{{ key }}', this)">
+                    <div>
+                        <div class="voice-header">
+                            <span class="voice-name">{{ item.name }}</span>
+                            <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+                        </div>
+                        <div class="voice-desc">{{ item.desc }}</div>
+                    </div>
+                    <div class="voice-footer">
+                        <span style="font-size:12px; color: var(--text-muted);">Mẫu giọng:</span>
+                        <button type="button" class="btn-play-sample" onclick="playSample(event, '{{ item.sample }}', this)">
+                            ▶ Nghe thử giọng này
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="section-title">
+                <span>2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
+            </div>
+
+            <div class="editor-wrapper">
+                <div class="quick-actions">
+                    <div class="insert-btns">
+                        <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Chèn ngắt nghỉ:</span>
+                        <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
+                        <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
+                        <button type="button" class="btn-tag" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
+                    </div>
+                    <div class="word-stats">
+                        Số từ: <span id="wordCount">0</span> từ | Ước tính thời lượng: <span id="timeEst">0.0</span> phút
+                    </div>
+                </div>
+
+                <textarea id="textContent" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với phòng thu giọng đọc AI. 
+Bạn có thể điều chỉnh tốc độ, cao độ và chèn các khoảng lặng để bài đọc có cảm xúc và nhịp điệu tự nhiên nhất.
+[nghỉ 1s]
+Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!</textarea>
+            </div>
+
+            <div class="controls-grid">
+                <div class="control-item">
+                    <label>Chế độ ngắt nhịp dấu câu:</label>
+                    <select id="pauseStyle">
+                        <option value="standard">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
+                        <option value="deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label>Tốc độ đọc (Speed): <span id="rateVal" style="color:var(--accent);">0%</span></label>
+                    <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
+                </div>
+                <div class="control-item">
+                    <label>Cao độ giọng (Pitch): <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
+                    <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
+                </div>
+            </div>
+
+            <button class="btn-submit" id="btnSubmit" onclick="generateSpeech()">
+                <div class="spinner" id="loadingSpinner"></div>
+                <span id="btnText">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
+            </button>
+
+            <!-- Khối kết quả phát Audio -->
+            <div class="result-box" id="resultBox">
+                <div class="result-header">
+                    <span class="result-title">
+                        ✓ Đã tạo thành công file âm thanh!
+                    </span>
+                    <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
+                </div>
+                <audio id="audioPlayer" controls></audio>
+                <div>
+                    <a href="#" id="downloadLink" class="btn-download" download>
+                        ⬇ Tải File MP3 Về Máy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio player ngầm cho tính năng nghe thử -->
+    <audio id="samplePlayer"></audio>
+
+    <script>
+        let selectedPreset = 'nam_truyencam';
+        let currentSampleBtn = null;
+        const sampleAudio = document.getElementById('samplePlayer');
+
+        function selectVoice(key, element) {
+            selectedPreset = key;
+            document.querySelectorAll('.voice-card').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function playSample(event, url, btn) {
+            event.stopPropagation(); // Không kích hoạt click card
+            
+            if (currentSampleBtn === btn && !sampleAudio.paused) {
+                sampleAudio.pause();
+                btn.classList.remove('playing');
+                btn.innerHTML = '▶ Nghe thử giọng này';
+                return;
+            }
+
+            if (currentSampleBtn) {
+                currentSampleBtn.classList.remove('playing');
+                currentSampleBtn.innerHTML = '▶ Nghe thử giọng này';
+            }
+
+            sampleAudio.src = url;
+            sampleAudio.play();
+            btn.classList.add('playing');
+            btn.innerHTML = '⏸ Đang phát... (Dừng)';
+            currentSampleBtn = btn;
+
+            sampleAudio.onended = () => {
+                btn.classList.remove('playing');
+                btn.innerHTML = '▶ Nghe thử giọng này';
+                currentSampleBtn = null;
+            };
+        }
+
+        function insertTag(tag) {
+            const textarea = document.getElementById('textContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + ' ' + tag + ' ' + text.substring(end);
+            textarea.focus();
+            textarea.selectionEnd = start + tag.length + 2;
+            updateStats();
+        }
+
+        function updateRateLabel(val) {
+            document.getElementById('rateVal').innerText = (val >= 0 ? '+' : '') + val + '%';
+        }
+
+        function updatePitchLabel(val) {
+            document.getElementById('pitchVal').innerText = (val >= 0 ? '+' : '') + val + 'Hz';
+        }
+
+        function updateStats() {
+            const text = document.getElementById('textContent').value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            const minutes = (words / 145).toFixed(1);
+            document.getElementById('wordCount').innerText = words.toLocaleString();
+            document.getElementById('timeEst').innerText = minutes;
+        }
+
+        document.getElementById('textContent').addEventListener('input', updateStats);
+        updateStats();
+
+        async function generateSpeech() {
+            const text = document.getElementById('textContent').value.trim();
+            if (!text) {
+                alert('Vui lòng nhập văn bản cần đọc!');
+                return;
+            }
+
+            // Dừng sample nếu đang phát
+            if (!sampleAudio.paused) {
+                sampleAudio.pause();
+                if (currentSampleBtn) {
+                    currentSampleBtn.classList.remove('playing');
+                    currentSampleBtn.innerHTML = '▶ Nghe thử giọng này';
+                }
+            }
+
+            const btn = document.getElementById('btnSubmit');
+            const spinner = document.getElementById('loadingSpinner');
+            const btnText = document.getElementById('btnText');
+            const resultBox = document.getElementById('resultBox');
+
+            const rateVal = document.getElementById('rateSlider').value;
+            const pitchVal = document.getElementById('pitchSlider').value;
+            const pauseStyle = document.getElementById('pauseStyle').value;
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.innerText = 'Đang chuyển đổi văn bản sang âm thanh... Xin chờ';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        preset: selectedPreset,
+                        rate: (rateVal >= 0 ? '+' : '') + rateVal + '%',
+                        pitch: (pitchVal >= 0 ? '+' : '') + pitchVal + 'Hz',
+                        pause_style: pauseStyle
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const player = document.getElementById('audioPlayer');
+                    const downloadLink = document.getElementById('downloadLink');
+
+                    player.src = data.audio_url;
+                    player.play();
+                    downloadLink.href = data.audio_url;
+                    downloadLink.setAttribute('download', data.filename);
+
+                    document.getElementById('audioStats').innerText = 
+                        `${data.voice_name} • ${data.word_count} từ (~${data.est_minutes} phút)`;
+
+                    resultBox.style.display = 'block';
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể tạo âm thanh!'));
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra: ' + err);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+            }
+        }
+    </script>
+</body>
+</html>
