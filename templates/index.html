@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Giọng Đọc AI Tiếng Việt</title>
+    <title>AI Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0f172a;
+            --bg-primary: #0b1120;
             --bg-secondary: #1e293b;
-            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card: rgba(30, 41, 59, 0.75);
             --accent: #38bdf8;
             --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: rgba(148, 163, 184, 0.15);
             --success: #34d399;
+            --warning: #fbbf24;
         }
 
         * {
@@ -36,15 +37,15 @@
         }
 
         .container {
-            max-width: 1050px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 25px 20px;
             width: 100%;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .badge {
@@ -73,13 +74,67 @@
             font-size: 15px;
         }
 
+        /* TAB NAVIGATION */
+        .tab-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gradient);
+            color: #0b1120;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD STYLE */
         .main-card {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 28px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 26px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
             margin-bottom: 30px;
         }
 
@@ -99,12 +154,12 @@
             font-weight: 400;
         }
 
-        /* Voice Cards Grid */
+        /* TAB 1: TTS VOICE CARDS */
         .voice-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
             gap: 14px;
-            margin-bottom: 26px;
+            margin-bottom: 24px;
         }
 
         .voice-card {
@@ -114,7 +169,6 @@
             padding: 16px;
             cursor: pointer;
             transition: all 0.25s ease;
-            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -186,14 +240,11 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
         }
 
         .btn-play-sample:hover {
             background: var(--accent);
-            color: #0f172a;
+            color: #0b1120;
         }
 
         .btn-play-sample.playing {
@@ -202,7 +253,7 @@
             color: white;
         }
 
-        /* Editor Area */
+        /* TEXTAREA & CONTROLS */
         .editor-wrapper {
             position: relative;
             margin-bottom: 20px;
@@ -252,7 +303,7 @@
 
         textarea {
             width: 100%;
-            height: 220px;
+            height: 200px;
             background: rgba(15, 23, 42, 0.8);
             border: 1.5px solid var(--border);
             border-radius: 14px;
@@ -269,11 +320,10 @@
             border-color: var(--accent);
         }
 
-        /* Controls Grid */
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 18px;
+            gap: 16px;
             background: rgba(15, 23, 42, 0.5);
             padding: 18px;
             border-radius: 14px;
@@ -303,14 +353,14 @@
             font-size: 13px;
         }
 
-        /* Generate Button */
+        /* BUTTON SUBMIT */
         .btn-submit {
             width: 100%;
             padding: 16px;
             background: var(--accent-gradient);
             border: none;
             border-radius: 12px;
-            color: #0f172a;
+            color: #0b1120;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
@@ -333,7 +383,7 @@
             transform: none;
         }
 
-        /* Audio Player Box */
+        /* RESULT BOX */
         .result-box {
             display: none;
             margin-top: 25px;
@@ -341,57 +391,164 @@
             background: rgba(56, 189, 248, 0.08);
             border: 1px solid rgba(56, 189, 248, 0.3);
             border-radius: 16px;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            animation: fadeIn 0.4s ease;
         }
 
         .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
         .result-title {
             font-weight: 600;
             font-size: 15px;
             color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         audio {
             width: 100%;
             margin-bottom: 12px;
-            border-radius: 8px;
         }
 
-        .btn-download {
+        .btn-action {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             background: #22c55e;
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
+            border: none;
+            cursor: pointer;
             transition: background 0.2s;
         }
 
-        .btn-download:hover {
+        .btn-action:hover {
             background: #16a34a;
         }
 
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* TAB 2: SPEECH TO TEXT (STT) STYLES */
+        .stt-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stt-option-btn {
+            flex: 1;
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .stt-option-btn.active {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(56, 189, 248, 0.4);
+            border-radius: 16px;
+            padding: 35px 20px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.4);
+            cursor: pointer;
+            transition: all 0.25s;
+            margin-bottom: 20px;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .dropzone-icon {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .dropzone-text {
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .dropzone-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .yt-input-wrapper {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .yt-input-wrapper input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .yt-input-wrapper input:focus {
+            border-color: var(--accent);
+        }
+
+        .transcribe-result-box {
+            display: none;
+            margin-top: 25px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .transcribe-output {
+            width: 100%;
+            min-height: 180px;
+            max-height: 400px;
+            background: rgba(11, 17, 32, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            color: var(--text-main);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
         .spinner {
-            border: 3px solid rgba(15, 23, 42, 0.3);
-            border-top: 3px solid #0f172a;
+            border: 3px solid rgba(11, 17, 32, 0.3);
+            border-top: 3px solid #0b1120;
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -408,106 +565,177 @@
 <body>
     <div class="container">
         <header>
-            <span class="badge">🎙️ MICROSOFT NEURAL AI • TIẾNG VIỆT</span>
-            <h1>Studio Giọng Đọc AI</h1>
-            <p class="subtitle">Chuyển văn bản dài (20+ phút) thành âm thanh sống động, tự nhiên, mượt mà và ngắt nghỉ theo nhịp điệu</p>
+            <span class="badge">🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT</span>
+            <h1>AI Voice & Transcribe Studio</h1>
+            <p class="subtitle">Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn</p>
         </header>
 
-        <div class="main-card">
-            <div class="section-title">
-                <span>1. Chọn Giọng Đọc & Nghe Thử 6 Giọng Mẫu</span>
-                <span class="hint">Bấm nút "🔊 Nghe thử" trên từng thẻ để nghe</span>
-            </div>
-            
-            <div class="voice-grid">
-                {% for key, item in presets.items() %}
-                <div class="voice-card {% if loop.first %}active{% endif %}" onclick="selectVoice('{{ key }}', this)">
-                    <div>
-                        <div class="voice-header">
-                            <span class="voice-name">{{ item.name }}</span>
-                            <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+        <!-- CHUYỂN ĐỔI TAB -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('ttsTab', this)">
+                🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)
+            </button>
+            <button class="tab-btn" onclick="switchTab('sttTab', this)">
+                📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: TẠO GIỌNG ĐỌC AI ==================== -->
+        <div id="ttsTab" class="tab-content active">
+            <div class="main-card">
+                <div class="section-title">
+                    <span>1. Chọn Giọng Đọc (7 Phong Cách Đã Tinh Chỉnh)</span>
+                    <span class="hint">Bấm nút "🔊 Nghe thử" trên từng thẻ để nghe</span>
+                </div>
+                
+                <div class="voice-grid">
+                    {% for key, item in presets.items() %}
+                    <div class="voice-card {% if loop.first %}active{% endif %}" onclick="selectVoice('{{ key }}', this)">
+                        <div>
+                            <div class="voice-header">
+                                <span class="voice-name">{{ item.name }}</span>
+                                <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+                            </div>
+                            <div class="voice-desc">{{ item.desc }}</div>
                         </div>
-                        <div class="voice-desc">{{ item.desc }}</div>
+                        <div class="voice-footer">
+                            <span style="font-size:12px; color: var(--text-muted);">Mẫu giọng:</span>
+                            <button type="button" class="btn-play-sample" onclick="playSample(event, '{{ item.sample }}', this)">
+                                ▶ Nghe thử giọng này
+                            </button>
+                        </div>
                     </div>
-                    <div class="voice-footer">
-                        <span style="font-size:12px; color: var(--text-muted);">Mẫu giọng:</span>
-                        <button type="button" class="btn-play-sample" onclick="playSample(event, '{{ item.sample }}', this)">
-                            ▶ Nghe thử giọng này
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="section-title">
-                <span>2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
-            </div>
-
-            <div class="editor-wrapper">
-                <div class="quick-actions">
-                    <div class="insert-btns">
-                        <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Chèn ngắt nghỉ:</span>
-                        <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
-                        <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
-                        <button type="button" class="btn-tag" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
-                    </div>
-                    <div class="word-stats">
-                        Số từ: <span id="wordCount">0</span> từ | Ước tính thời lượng: <span id="timeEst">0.0</span> phút
-                    </div>
+                    {% endfor %}
                 </div>
 
-                <textarea id="textContent" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với phòng thu giọng đọc AI. 
-Bạn có thể điều chỉnh tốc độ, cao độ và chèn các khoảng lặng để bài đọc có cảm xúc và nhịp điệu tự nhiên nhất.
+                <div class="section-title">
+                    <span>2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
+                </div>
+
+                <div class="editor-wrapper">
+                    <div class="quick-actions">
+                        <div class="insert-btns">
+                            <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Chèn ngắt nghỉ:</span>
+                            <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
+                            <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
+                            <button type="button" class="btn-tag" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
+                        </div>
+                        <div class="word-stats">
+                            Số từ: <span id="wordCount">0</span> từ | Ước tính thời lượng: <span id="timeEst">0.0</span> phút
+                        </div>
+                    </div>
+
+                    <textarea id="textContent" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với AI Voice Studio. 
+Hệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.
 [nghỉ 1s]
 Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!</textarea>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-item">
+                        <label>Chế độ ngắt nhịp dấu câu:</label>
+                        <select id="pauseStyle">
+                            <option value="standard">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
+                            <option value="deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label>Tốc độ đọc (Speed): <span id="rateVal" style="color:var(--accent);">0%</span></label>
+                        <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
+                    </div>
+                    <div class="control-item">
+                        <label>Cao độ giọng (Pitch): <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
+                        <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
+                    </div>
+                </div>
+
+                <button class="btn-submit" id="btnSubmitTTS" onclick="generateSpeech()">
+                    <div class="spinner" id="spinnerTTS"></div>
+                    <span id="btnTextTTS">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
+                </button>
+
+                <div class="result-box" id="resultBoxTTS">
+                    <div class="result-header">
+                        <span class="result-title">✓ Đã tạo thành công file âm thanh!</span>
+                        <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
+                    </div>
+                    <audio id="audioPlayer" controls></audio>
+                    <div>
+                        <a href="#" id="downloadLink" class="btn-action" download>⬇ Tải File MP3 Về Máy</a>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="controls-grid">
-                <div class="control-item">
-                    <label>Chế độ ngắt nhịp dấu câu:</label>
-                    <select id="pauseStyle">
-                        <option value="standard">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
-                        <option value="deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
-                    </select>
+        <!-- ==================== TAB 2: SPEECH TO TEXT (STT) ==================== -->
+        <div id="sttTab" class="tab-content">
+            <div class="main-card">
+                <div class="section-title">
+                    <span>1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản</span>
+                    <span class="hint">Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)</span>
                 </div>
-                <div class="control-item">
-                    <label>Tốc độ đọc (Speed): <span id="rateVal" style="color:var(--accent);">0%</span></label>
-                    <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
-                </div>
-                <div class="control-item">
-                    <label>Cao độ giọng (Pitch): <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
-                    <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
-                </div>
-            </div>
 
-            <button class="btn-submit" id="btnSubmit" onclick="generateSpeech()">
-                <div class="spinner" id="loadingSpinner"></div>
-                <span id="btnText">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
-            </button>
-
-            <!-- Khối kết quả phát Audio -->
-            <div class="result-box" id="resultBox">
-                <div class="result-header">
-                    <span class="result-title">
-                        ✓ Đã tạo thành công file âm thanh!
-                    </span>
-                    <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
+                <div class="stt-options">
+                    <button type="button" class="stt-option-btn active" id="btnModeFile" onclick="setSTTMode('file')">
+                        📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)
+                    </button>
+                    <button type="button" class="stt-option-btn" id="btnModeYT" onclick="setSTTMode('youtube')">
+                        ▶ Dán Đường Link YouTube Trực Tiếp
+                    </button>
                 </div>
-                <audio id="audioPlayer" controls></audio>
-                <div>
-                    <a href="#" id="downloadLink" class="btn-download" download>
-                        ⬇ Tải File MP3 Về Máy
-                    </a>
+
+                <!-- KHU VỰC UPLOAD FILE -->
+                <div id="fileUploadArea">
+                    <div class="dropzone" id="dropArea" onclick="document.getElementById('audioVideoFile').click()">
+                        <div class="dropzone-icon">📥</div>
+                        <div class="dropzone-text" id="selectedFileName">Bấm để chọn file hoặc Kéo & Thả file vào đây</div>
+                        <div class="dropzone-hint">Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)</div>
+                        <input type="file" id="audioVideoFile" accept="audio/*,video/*" style="display:none" onchange="handleFileSelected(this)">
+                    </div>
+                </div>
+
+                <!-- KHU VỰC DÁN LINK YOUTUBE -->
+                <div id="ytInputArea" class="yt-input-wrapper">
+                    <input type="text" id="youtubeUrl" placeholder="Dán đường link YouTube vào đây... (Ví dụ: https://www.youtube.com/watch?v=...)">
+                </div>
+
+                <button class="btn-submit" id="btnSubmitSTT" onclick="transcribeAudio()">
+                    <div class="spinner" id="spinnerSTT"></div>
+                    <span id="btnTextSTT">📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)</span>
+                </button>
+
+                <!-- KHU VỰC KẾT QUẢ VĂN BẢN -->
+                <div class="transcribe-result-box" id="resultBoxSTT">
+                    <div class="result-header">
+                        <span class="result-title">✓ Đã chuyển đổi hoàn tất!</span>
+                        <span id="sttStats" style="font-size: 13px; color: var(--text-muted);"></span>
+                    </div>
+
+                    <div class="transcribe-output" id="transcribeText"></div>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-action" onclick="copyTranscribeText()">📋 Sao Chép Văn Bản</button>
+                        <button class="btn-action btn-secondary" onclick="sendToTTS()">🎙️ Đưa Sang Tab Giọng Đọc AI</button>
+                        <button class="btn-action btn-secondary" onclick="downloadTextFile()">💾 Tải File Văn Bản (.txt)</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Audio player ngầm cho tính năng nghe thử -->
     <audio id="samplePlayer"></audio>
 
     <script>
-        let selectedPreset = 'nam_truyencam';
+        // TAB SWITCHING
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // ================= TTS SCRIPT =================
+        let selectedPreset = 'giong_cua_toi';
         let currentSampleBtn = null;
         const sampleAudio = document.getElementById('samplePlayer');
 
@@ -518,26 +746,22 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         }
 
         function playSample(event, url, btn) {
-            event.stopPropagation(); // Không kích hoạt click card
-            
+            event.stopPropagation();
             if (currentSampleBtn === btn && !sampleAudio.paused) {
                 sampleAudio.pause();
                 btn.classList.remove('playing');
                 btn.innerHTML = '▶ Nghe thử giọng này';
                 return;
             }
-
             if (currentSampleBtn) {
                 currentSampleBtn.classList.remove('playing');
                 currentSampleBtn.innerHTML = '▶ Nghe thử giọng này';
             }
-
             sampleAudio.src = url;
             sampleAudio.play();
             btn.classList.add('playing');
             btn.innerHTML = '⏸ Đang phát... (Dừng)';
             currentSampleBtn = btn;
-
             sampleAudio.onended = () => {
                 btn.classList.remove('playing');
                 btn.innerHTML = '▶ Nghe thử giọng này';
@@ -581,8 +805,6 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 alert('Vui lòng nhập văn bản cần đọc!');
                 return;
             }
-
-            // Dừng sample nếu đang phát
             if (!sampleAudio.paused) {
                 sampleAudio.pause();
                 if (currentSampleBtn) {
@@ -591,14 +813,10 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             }
 
-            const btn = document.getElementById('btnSubmit');
-            const spinner = document.getElementById('loadingSpinner');
-            const btnText = document.getElementById('btnText');
-            const resultBox = document.getElementById('resultBox');
-
-            const rateVal = document.getElementById('rateSlider').value;
-            const pitchVal = document.getElementById('pitchSlider').value;
-            const pauseStyle = document.getElementById('pauseStyle').value;
+            const btn = document.getElementById('btnSubmitTTS');
+            const spinner = document.getElementById('spinnerTTS');
+            const btnText = document.getElementById('btnTextTTS');
+            const resultBox = document.getElementById('resultBoxTTS');
 
             btn.disabled = true;
             spinner.style.display = 'inline-block';
@@ -611,9 +829,9 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     body: JSON.stringify({
                         text: text,
                         preset: selectedPreset,
-                        rate: (rateVal >= 0 ? '+' : '') + rateVal + '%',
-                        pitch: (pitchVal >= 0 ? '+' : '') + pitchVal + 'Hz',
-                        pause_style: pauseStyle
+                        rate: (document.getElementById('rateSlider').value >= 0 ? '+' : '') + document.getElementById('rateSlider').value + '%',
+                        pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') + document.getElementById('pitchSlider').value + 'Hz',
+                        pause_style: document.getElementById('pauseStyle').value
                     })
                 });
 
@@ -642,6 +860,129 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 spinner.style.display = 'none';
                 btnText.innerText = '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
             }
+        }
+
+        // ================= STT SCRIPT =================
+        let currentSTTMode = 'file';
+
+        function setSTTMode(mode) {
+            currentSTTMode = mode;
+            if (mode === 'file') {
+                document.getElementById('btnModeFile').classList.add('active');
+                document.getElementById('btnModeYT').classList.remove('active');
+                document.getElementById('fileUploadArea').style.display = 'block';
+                document.getElementById('ytInputArea').style.display = 'none';
+            } else {
+                document.getElementById('btnModeYT').classList.add('active');
+                document.getElementById('btnModeFile').classList.remove('active');
+                document.getElementById('fileUploadArea').style.display = 'none';
+                document.getElementById('ytInputArea').style.display = 'block';
+            }
+        }
+
+        function handleFileSelected(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                document.getElementById('selectedFileName').innerText = `✓ Đã chọn: ${file.name} (${sizeMB} MB)`;
+            }
+        }
+
+        // Kéo thả file
+        const dropArea = document.getElementById('dropArea');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.remove('dragover'); });
+        });
+        dropArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                document.getElementById('audioVideoFile').files = files;
+                handleFileSelected(document.getElementById('audioVideoFile'));
+            }
+        });
+
+        async function transcribeAudio() {
+            const formData = new FormData();
+            formData.append('source_type', currentSTTMode);
+
+            if (currentSTTMode === 'youtube') {
+                const url = document.getElementById('youtubeUrl').value.trim();
+                if (!url) {
+                    alert('Vui lòng dán đường link YouTube!');
+                    return;
+                }
+                formData.append('youtube_url', url);
+            } else {
+                const fileInput = document.getElementById('audioVideoFile');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    alert('Vui lòng chọn 1 file âm thanh hoặc video!');
+                    return;
+                }
+                formData.append('file', fileInput.files[0]);
+            }
+
+            const btn = document.getElementById('btnSubmitSTT');
+            const spinner = document.getElementById('spinnerSTT');
+            const btnText = document.getElementById('btnTextSTT');
+            const resultBox = document.getElementById('resultBoxSTT');
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.innerText = 'Whisper AI đang xử lý và nhận diện văn bản... Xin chờ';
+
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('transcribeText').innerText = data.text;
+                    const words = data.text.split(/\s+/).length;
+                    document.getElementById('sttStats').innerText = 
+                        `Thời lượng file: ${data.duration}s • Nhận diện được: ${words} từ`;
+                    resultBox.style.display = 'block';
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể chuyển đổi âm thanh!'));
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra: ' + err);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = '📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)';
+            }
+        }
+
+        function copyTranscribeText() {
+            const text = document.getElementById('transcribeText').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép toàn bộ văn bản vào bộ nhớ tạm!');
+            });
+        }
+
+        function sendToTTS() {
+            const text = document.getElementById('transcribeText').innerText;
+            document.getElementById('textContent').value = text;
+            updateStats();
+            // Chuyển sang Tab 1
+            document.querySelectorAll('.tab-btn')[0].click();
+            document.getElementById('textContent').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadTextFile() {
+            const text = document.getElementById('transcribeText').innerText;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `van_ban_nhan_dien_${Date.now()}.txt`;
+            a.click();
         }
     </script>
 </body>
