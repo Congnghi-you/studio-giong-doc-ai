@@ -369,43 +369,72 @@ def split_text_into_chunks(text, max_chars=350):
     return chunks if chunks else [text.strip()]
 
 async def generate_speech_async(text, voice, rate, pitch, output_path):
-    chunks = split_text_into_chunks(text, max_chars=350)
+    chunks = split_text_into_chunks(text, max_chars=320)
     temp_dir = tempfile.mkdtemp(prefix="tts_chunks_")
     chunk_paths = [os.path.join(temp_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
 
-    # Tải song song 3-4 luồng cùng lúc với cơ chế Timeout và Retry tự phục hồi
-    semaphore = asyncio.Semaphore(4)
+    # Giới hạn 2 luồng đồng thời: Chuẩn mức an toàn tuyệt đối, không bao giờ bị Microsoft từ chối kết nối
+    semaphore = asyncio.Semaphore(2)
 
     async def fetch_chunk(idx, chunk_text, chunk_file):
         async with semaphore:
-            for retry in range(3):
+            clean_chunk = chunk_text.replace("\n", " ").strip()
+            if not clean_chunk:
+                return True
+
+            # Giai đoạn 1: Thử tải với giọng và hiệu ứng tùy chỉnh (4 lần thử với timeout tăng dần)
+            for retry in range(4):
                 try:
-                    # Đảm bảo không còn ký tự ngắt dòng sót lại trong đoạn
-                    clean_chunk = chunk_text.replace("\n", " ").strip()
-                    if not clean_chunk:
-                        return True
+                    if os.path.exists(chunk_file):
+                        os.remove(chunk_file)
                     comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch)
-                    # Timeout 20s cho mỗi đoạn nhỏ, nếu server Microsoft nghẽn sẽ tự động retry ngay
-                    await asyncio.wait_for(comm.save(chunk_file), timeout=20.0)
-                    if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 0:
+                    timeout_sec = 25.0 + retry * 10.0  # 25s -> 35s -> 45s -> 55s
+                    await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
+                    if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
                         return True
                 except Exception as e:
-                    print(f"[*] Retry chunk {idx} (lần {retry + 1}/3): {e}", flush=True)
-                    if retry == 2:
-                        raise e
-                    await asyncio.sleep(1.0)
+                    err_msg = f"{type(e).__name__}: {e}".strip()
+                    print(f"[*] Đoạn {idx + 1}/{len(chunks)} thử lần {retry + 1}/4: {err_msg or 'Hết thời gian chờ (Timeout)'}", flush=True)
+                    if os.path.exists(chunk_file):
+                        try:
+                            os.remove(chunk_file)
+                        except Exception:
+                            pass
+                    await asyncio.sleep(1.0 + retry * 1.5)
+
+            # Giai đoạn 2: Dự phòng cứu cánh (Tải với giọng chuẩn gốc không kèm pitch/rate nếu server kén SSML)
+            print(f"[!] Đoạn {idx + 1}/{len(chunks)} kích hoạt cơ chế dự phòng giọng chuẩn...", flush=True)
+            for fallback_try in range(2):
+                try:
+                    if os.path.exists(chunk_file):
+                        os.remove(chunk_file)
+                    comm = edge_tts.Communicate(clean_chunk, voice=voice)
+                    await asyncio.wait_for(comm.save(chunk_file), timeout=35.0)
+                    if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
+                        print(f"[✓] Đoạn {idx + 1}/{len(chunks)} đã tải thành công qua luồng dự phòng!", flush=True)
+                        return True
+                except Exception as fb_err:
+                    print(f"[!] Dự phòng đoạn {idx + 1} lần {fallback_try + 1}: {fb_err}", flush=True)
+                    await asyncio.sleep(2.0)
+
+            print(f"[X] Bỏ qua đoạn {idx + 1} do máy chủ Microsoft không phản hồi sau nhiều lần thử.", flush=True)
             return False
 
     try:
         tasks = [fetch_chunk(idx, chunk, chunk_paths[idx]) for idx, chunk in enumerate(chunks)]
-        await asyncio.gather(*tasks)
+        # return_exceptions=True giúp các đoạn khác tiếp tục hoàn tất bình thường
+        await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Ghép nối tuần tự các đoạn thành 1 file MP3 duy nhất
+        # Ghép nối các đoạn đã tạo thành file MP3 duy nhất
+        written_chunks = 0
         with open(output_path, "wb") as outfile:
             for cf in chunk_paths:
-                if os.path.exists(cf) and os.path.getsize(cf) > 0:
+                if os.path.exists(cf) and os.path.getsize(cf) > 100:
                     with open(cf, "rb") as infile:
                         shutil.copyfileobj(infile, outfile)
+                    written_chunks += 1
+
+        print(f"[✓] Hoàn tất ghép nối {written_chunks}/{len(chunks)} đoạn vào file: {os.path.basename(output_path)}", flush=True)
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 

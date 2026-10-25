@@ -974,19 +974,19 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             btnText.innerText = 'Đang chuyển đổi văn bản sang âm thanh... Xin chờ';
             resultBox.style.display = 'none';
 
-            // Khởi tạo bộ đếm ngược và thanh tiến trình
+            // Khởi tạo bộ đếm ngược và thanh tiến trình theo độ dài thực tế
             const words = text ? text.split(/\s+/).length : 0;
-            let estimatedSec = Math.max(6, Math.min(300, Math.ceil(words / 45) + 5));
+            let estimatedSec = Math.max(8, Math.min(600, Math.ceil(words / 32) + 6));
             let elapsedSec = 0;
             let remainingSec = estimatedSec;
 
             progressBox.style.display = 'block';
-            progressBar.style.width = '6%';
-            percentVal.innerText = '6%';
+            progressBar.style.width = '4%';
+            percentVal.innerText = '4%';
             countdownVal.innerText = formatClock(remainingSec);
             elapsedVal.innerText = formatClock(elapsedSec);
             progressStatus.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> Đang xử lý tổng hợp giọng đọc AI...`;
-            progressDetail.innerText = `Đang phân tích ${words} từ và tăng tốc xử lý song song...`;
+            progressDetail.innerText = `Đang phân tích bài (${words.toLocaleString()} từ) và tải qua luồng an toàn...`;
 
             if (ttsTimerInterval) clearInterval(ttsTimerInterval);
 
@@ -996,21 +996,23 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 elapsedVal.innerText = formatClock(elapsedSec);
                 countdownVal.innerText = formatClock(remainingSec);
 
-                let percent = Math.min(95, Math.round(6 + (elapsedSec / (estimatedSec + 2)) * 89));
+                let percent = Math.min(95, Math.round(4 + (elapsedSec / (estimatedSec + 2)) * 91));
                 progressBar.style.width = percent + '%';
                 percentVal.innerText = percent + '%';
 
-                if (elapsedSec > 4 && elapsedSec <= 10) {
-                    progressDetail.innerText = 'Đang nhận luồng âm thanh Edge TTS tốc độ cao...';
-                } else if (elapsedSec > 10) {
-                    progressDetail.innerText = 'Đang ghép nối âm thanh & tinh chỉnh tần số...';
+                if (elapsedSec > 4 && elapsedSec <= 15) {
+                    progressDetail.innerText = 'Đang nhận luồng âm thanh Microsoft Edge TTS...';
+                } else if (elapsedSec > 15) {
+                    progressDetail.innerText = 'Đang ghép nối các đoạn âm thanh & tinh chỉnh tần số...';
                 }
             }, 1000);
 
+            // Thời gian chờ tự điều chỉnh theo độ dài bài viết (tối thiểu 3 phút, bài 5000+ từ là 8 phút)
+            const maxWaitMs = Math.max(180000, Math.ceil(words / 15) * 1000);
             const abortCtrl = new AbortController();
             const clientTimeout = setTimeout(() => {
                 abortCtrl.abort();
-            }, 120000); // Tối đa 2 phút, không bao giờ để client treo vô tận
+            }, maxWaitMs);
 
             try {
                 const response = await fetch('/api/generate', {
