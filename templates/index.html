@@ -1007,8 +1007,8 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             }, 1000);
 
-            // Thời gian chờ tự điều chỉnh theo độ dài bài viết (tối thiểu 3 phút, bài 5000+ từ là 8 phút)
-            const maxWaitMs = Math.max(180000, Math.ceil(words / 15) * 1000);
+            // Thời gian chờ tối đa 20 phút (1,200,000 ms) - cho phép bài dài 5.000 - 10.000 từ chạy thoải mái không lo bị ngắt
+            const maxWaitMs = 20 * 60 * 1000;
             const abortCtrl = new AbortController();
             const clientTimeout = setTimeout(() => {
                 abortCtrl.abort();
@@ -1072,7 +1072,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
                 progressBox.style.display = 'none';
                 if (err.name === 'AbortError') {
-                    alert('Hết thời gian chờ (Timeout 2 phút). Vui lòng kiểm tra lại cửa sổ chạy ứng dụng hoặc thử lại!');
+                    alert('Hết thời gian chờ (Timeout 20 phút). Vui lòng kiểm tra lại kết nối mạng hoặc thử lại!');
                 } else {
                     alert('Có lỗi xảy ra: ' + err);
                 }
