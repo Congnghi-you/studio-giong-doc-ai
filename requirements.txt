@@ -1,3 +1,13 @@
 flask==3.1.0
 edge-tts==7.3.1
+faster-whisper==1.2.1
+yt-dlp>=2024.12.13
 gunicorn==23.0.0
+waitress==3.0.2
+
+# --- Ghim bắt buộc cho Windows (đã kiểm chứng trên máy này) ---
+# ctranslate2 >= 4.7 crash 0xC0000005 khi nạp model; 4.6.0 cần pkg_resources.
+ctranslate2==4.6.0
+setuptools<81
+# onnxruntime >= 1.31 crash 0xC0000005 trong bộ lọc VAD của Whisper.
+onnxruntime==1.20.1

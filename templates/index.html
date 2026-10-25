@@ -303,17 +303,19 @@
 
         textarea {
             width: 100%;
-            height: 200px;
-            background: rgba(15, 23, 42, 0.8);
+            height: 550px;
+            min-height: 420px;
+            background: rgba(15, 23, 42, 0.85);
             border: 1.5px solid var(--border);
             border-radius: 14px;
-            padding: 16px;
+            padding: 18px;
             color: var(--text-main);
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 15.5px;
+            line-height: 1.7;
             resize: vertical;
             outline: none;
             transition: border-color 0.2s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         textarea:focus {
@@ -500,13 +502,19 @@
             color: var(--text-muted);
         }
 
-        .yt-input-wrapper {
+        .link-input-wrapper {
             margin-bottom: 20px;
             display: none;
         }
 
-        .yt-input-wrapper input {
-            width: 100%;
+        .link-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .link-row input[type="text"] {
+            flex: 1;
+            min-width: 0;
             padding: 14px 18px;
             background: rgba(15, 23, 42, 0.8);
             border: 1.5px solid var(--border);
@@ -517,8 +525,61 @@
             transition: border-color 0.2s;
         }
 
-        .yt-input-wrapper input:focus {
+        .link-row input[type="text"]:focus {
             border-color: var(--accent);
+        }
+
+        .link-row .btn-action {
+            white-space: nowrap;
+            padding: 0 20px;
+        }
+
+        .link-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .advanced-box {
+            margin-top: 14px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+
+        .advanced-box summary {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .advanced-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .advanced-grid label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .advanced-grid select,
+        .advanced-grid input[type="file"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(11, 17, 32, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
         }
 
         .transcribe-result-box {
@@ -616,9 +677,9 @@
                     <div class="quick-actions">
                         <div class="insert-btns">
                             <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Chèn ngắt nghỉ:</span>
-                            <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
-                            <button type="button" class="btn-tag" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
-                            <button type="button" class="btn-tag" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
                         </div>
                         <div class="word-stats">
                             Số từ: <span id="wordCount">0</span> từ | Ước tính thời lượng: <span id="timeEst">0.0</span> phút
@@ -654,6 +715,24 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     <span id="btnTextTTS">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
                 </button>
 
+                <!-- KHU VỰC TIẾN TRÌNH & ĐẾM NGƯỢC THỜI GIAN -->
+                <div class="progress-box" id="progressBoxTTS" style="display:none; margin-top:16px; background:rgba(15, 23, 42, 0.7); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13.5px; flex-wrap:wrap; gap:8px;">
+                        <span id="progressStatusTTS" style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:8px;">
+                            <span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span>
+                            Đang xử lý tổng hợp giọng đọc AI...
+                        </span>
+                        <span id="countdownLabelTTS" style="color:var(--text-muted);">Ước tính còn: <strong id="countdownValTTS" style="color:#fbbf24; font-size:16px; font-family:monospace;">00:00</strong></span>
+                    </div>
+                    <div style="width:100%; height:9px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden;">
+                        <div id="progressBarTTS" style="width:0%; height:100%; background:var(--accent-gradient); transition:width 0.4s ease; border-radius:10px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
+                        <span id="progressDetailTTS">Đang chia đoạn văn bản và gửi xử lý song song...</span>
+                        <span>Đã chạy: <strong id="elapsedValTTS" style="color:var(--text-main); font-family:monospace;">00:00</strong> (<span id="percentValTTS">0%</span>)</span>
+                    </div>
+                </div>
+
                 <div class="result-box" id="resultBoxTTS">
                     <div class="result-header">
                         <span class="result-title">✓ Đã tạo thành công file âm thanh!</span>
@@ -679,8 +758,8 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     <button type="button" class="stt-option-btn active" id="btnModeFile" onclick="setSTTMode('file')">
                         📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)
                     </button>
-                    <button type="button" class="stt-option-btn" id="btnModeYT" onclick="setSTTMode('youtube')">
-                        ▶ Dán Đường Link YouTube Trực Tiếp
+                    <button type="button" class="stt-option-btn" id="btnModeLink" onclick="setSTTMode('link')">
+                        🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)
                     </button>
                 </div>
 
@@ -694,9 +773,57 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     </div>
                 </div>
 
-                <!-- KHU VỰC DÁN LINK YOUTUBE -->
-                <div id="ytInputArea" class="yt-input-wrapper">
-                    <input type="text" id="youtubeUrl" placeholder="Dán đường link YouTube vào đây... (Ví dụ: https://www.youtube.com/watch?v=...)">
+                <!-- KHU VỰC DÁN LINK ĐA NỀN TẢNG -->
+                <div id="linkInputArea" class="link-input-wrapper">
+                    <div class="link-row">
+                        <input type="text" id="videoUrl" placeholder="Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…">
+                        <button type="button" class="btn-action btn-secondary" id="btnCheckLink" onclick="checkLink()">🔎 Kiểm tra</button>
+                    </div>
+                    <div class="link-hint">
+                        Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn.
+                        Video riêng tư / bị chặn cần cookies.
+                    </div>
+
+                    <details class="advanced-box">
+                        <summary>⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies</summary>
+                        <div class="advanced-grid">
+                            <div>
+                                <label for="sttLanguage">Ngôn ngữ trong video</label>
+                                <select id="sttLanguage">
+                                    <option value="auto">Tự động nhận diện</option>
+                                    <option value="vi" selected>Tiếng Việt (đúng dấu, có chấm câu)</option>
+                                    <option value="en">English</option>
+                                    <option value="zh">中文</option>
+                                    <option value="ja">日本語</option>
+                                    <option value="ko">한국어</option>
+                                    <option value="th">ไทย</option>
+                                    <option value="id">Bahasa Indonesia</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sttModel">Độ chính xác (model Whisper)</label>
+                                <select id="sttModel">
+                                    <option value="base">Base — nhanh nhất (kém chính xác)</option>
+                                    <option value="small" selected>Small — khuyên dùng (nhanh, khá chính xác)</option>
+                                    <option value="medium">Medium — chính xác nhất (chậm gấp ~5 lần)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cookiesBrowser">Lấy cookies từ trình duyệt</label>
+                                <select id="cookiesBrowser">
+                                    <option value="" selected>Không dùng</option>
+                                    <option value="edge">Microsoft Edge</option>
+                                    <option value="chrome">Google Chrome</option>
+                                    <option value="firefox">Firefox</option>
+                                    <option value="brave">Brave</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cookiesFile">Hoặc tải file cookies.txt</label>
+                                <input type="file" id="cookiesFile" accept=".txt">
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <button class="btn-submit" id="btnSubmitSTT" onclick="transcribeAudio()">
@@ -769,14 +896,30 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             };
         }
 
+        let ttsTimerInterval = null;
+
+        function formatClock(totalSeconds) {
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
         function insertTag(tag) {
             const textarea = document.getElementById('textContent');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
+            const scrollTop = textarea.scrollTop;
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            if (typeof start !== 'number' || start < 0) {
+                start = textarea.value.length;
+                end = textarea.value.length;
+            }
             const text = textarea.value;
-            textarea.value = text.substring(0, start) + ' ' + tag + ' ' + text.substring(end);
+            const tagToInsert = ' ' + tag.trim() + ' ';
+            textarea.value = text.substring(0, start) + tagToInsert + text.substring(end);
+            const newPos = start + tagToInsert.length;
             textarea.focus();
-            textarea.selectionEnd = start + tag.length + 2;
+            textarea.setSelectionRange(newPos, newPos);
+            textarea.scrollTop = scrollTop;
             updateStats();
         }
 
@@ -818,9 +961,51 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             const btnText = document.getElementById('btnTextTTS');
             const resultBox = document.getElementById('resultBoxTTS');
 
+            const progressBox = document.getElementById('progressBoxTTS');
+            const progressBar = document.getElementById('progressBarTTS');
+            const progressStatus = document.getElementById('progressStatusTTS');
+            const progressDetail = document.getElementById('progressDetailTTS');
+            const countdownVal = document.getElementById('countdownValTTS');
+            const elapsedVal = document.getElementById('elapsedValTTS');
+            const percentVal = document.getElementById('percentValTTS');
+
             btn.disabled = true;
             spinner.style.display = 'inline-block';
             btnText.innerText = 'Đang chuyển đổi văn bản sang âm thanh... Xin chờ';
+            resultBox.style.display = 'none';
+
+            // Khởi tạo bộ đếm ngược và thanh tiến trình
+            const words = text ? text.split(/\s+/).length : 0;
+            let estimatedSec = Math.max(6, Math.min(300, Math.ceil(words / 45) + 5));
+            let elapsedSec = 0;
+            let remainingSec = estimatedSec;
+
+            progressBox.style.display = 'block';
+            progressBar.style.width = '6%';
+            percentVal.innerText = '6%';
+            countdownVal.innerText = formatClock(remainingSec);
+            elapsedVal.innerText = formatClock(elapsedSec);
+            progressStatus.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> Đang xử lý tổng hợp giọng đọc AI...`;
+            progressDetail.innerText = `Đang phân tích ${words} từ và tăng tốc xử lý song song...`;
+
+            if (ttsTimerInterval) clearInterval(ttsTimerInterval);
+
+            ttsTimerInterval = setInterval(() => {
+                elapsedSec++;
+                remainingSec = Math.max(0, estimatedSec - elapsedSec);
+                elapsedVal.innerText = formatClock(elapsedSec);
+                countdownVal.innerText = formatClock(remainingSec);
+
+                let percent = Math.min(95, Math.round(6 + (elapsedSec / (estimatedSec + 2)) * 89));
+                progressBar.style.width = percent + '%';
+                percentVal.innerText = percent + '%';
+
+                if (elapsedSec > 4 && elapsedSec <= 10) {
+                    progressDetail.innerText = 'Đang nhận luồng âm thanh Edge TTS tốc độ cao...';
+                } else if (elapsedSec > 10) {
+                    progressDetail.innerText = 'Đang ghép nối âm thanh & tinh chỉnh tần số...';
+                }
+            }, 1000);
 
             try {
                 const response = await fetch('/api/generate', {
@@ -837,6 +1022,16 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                 const data = await response.json();
                 if (data.success) {
+                    if (ttsTimerInterval) {
+                        clearInterval(ttsTimerInterval);
+                        ttsTimerInterval = null;
+                    }
+                    progressBar.style.width = '100%';
+                    percentVal.innerText = '100%';
+                    countdownVal.innerText = '00:00';
+                    progressStatus.innerHTML = '✓ Đã hoàn tất tạo giọng đọc!';
+                    progressDetail.innerText = `Hoàn thành thành công sau ${elapsedSec} giây!`;
+
                     const player = document.getElementById('audioPlayer');
                     const downloadLink = document.getElementById('downloadLink');
 
@@ -850,12 +1045,30 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                     resultBox.style.display = 'block';
                     resultBox.scrollIntoView({ behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        progressBox.style.display = 'none';
+                    }, 3500);
                 } else {
+                    if (ttsTimerInterval) {
+                        clearInterval(ttsTimerInterval);
+                        ttsTimerInterval = null;
+                    }
+                    progressBox.style.display = 'none';
                     alert('Lỗi: ' + (data.error || 'Không thể tạo âm thanh!'));
                 }
             } catch (err) {
+                if (ttsTimerInterval) {
+                    clearInterval(ttsTimerInterval);
+                    ttsTimerInterval = null;
+                }
+                progressBox.style.display = 'none';
                 alert('Có lỗi xảy ra: ' + err);
             } finally {
+                if (ttsTimerInterval) {
+                    clearInterval(ttsTimerInterval);
+                    ttsTimerInterval = null;
+                }
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.innerText = '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
@@ -867,16 +1080,48 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
         function setSTTMode(mode) {
             currentSTTMode = mode;
-            if (mode === 'file') {
-                document.getElementById('btnModeFile').classList.add('active');
-                document.getElementById('btnModeYT').classList.remove('active');
-                document.getElementById('fileUploadArea').style.display = 'block';
-                document.getElementById('ytInputArea').style.display = 'none';
-            } else {
-                document.getElementById('btnModeYT').classList.add('active');
-                document.getElementById('btnModeFile').classList.remove('active');
-                document.getElementById('fileUploadArea').style.display = 'none';
-                document.getElementById('ytInputArea').style.display = 'block';
+            const isFile = mode !== 'link';
+            document.getElementById('btnModeFile').classList.toggle('active', isFile);
+            document.getElementById('btnModeLink').classList.toggle('active', !isFile);
+            document.getElementById('fileUploadArea').style.display = isFile ? 'block' : 'none';
+            document.getElementById('linkInputArea').style.display = isFile ? 'none' : 'block';
+        }
+
+        async function checkLink() {
+            const url = document.getElementById('videoUrl').value.trim();
+            if (!url) {
+                alert('Vui lòng dán đường link video!');
+                return;
+            }
+            if (!/^https?:\/\//i.test(url)) {
+                alert('Link phải bắt đầu bằng http:// hoặc https://');
+                return;
+            }
+            const btn = document.getElementById('btnCheckLink');
+            btn.disabled = true;
+            btn.innerText = '⏳ Đang kiểm tra...';
+            try {
+                const res = await fetch('/api/link-info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const mins = data.duration
+                        ? Math.floor(data.duration / 60) + ' phút ' + Math.round(data.duration % 60) + ' giây'
+                        : 'không rõ';
+                    alert('✔ Link hợp lệ!\n\nTiêu đề: ' + data.title +
+                          '\nNền tảng: ' + (data.source || 'không rõ') +
+                          '\nThời lượng: ' + mins);
+                } else {
+                    alert('✖ ' + (data.error || 'Không kiểm tra được link này.'));
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra: ' + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🔎 Kiểm tra';
             }
         }
 
@@ -908,14 +1153,29 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         async function transcribeAudio() {
             const formData = new FormData();
             formData.append('source_type', currentSTTMode);
+            formData.append('language', document.getElementById('sttLanguage').value);
+            formData.append('model_size', document.getElementById('sttModel').value);
 
-            if (currentSTTMode === 'youtube') {
-                const url = document.getElementById('youtubeUrl').value.trim();
+            if (currentSTTMode === 'link') {
+                const url = document.getElementById('videoUrl').value.trim();
                 if (!url) {
-                    alert('Vui lòng dán đường link YouTube!');
+                    alert('Vui lòng dán đường link video!');
                     return;
                 }
-                formData.append('youtube_url', url);
+                if (!/^https?:\/\//i.test(url)) {
+                    alert('Link phải bắt đầu bằng http:// hoặc https://');
+                    return;
+                }
+                formData.append('video_url', url);
+
+                const browser = document.getElementById('cookiesBrowser').value;
+                if (browser) {
+                    formData.append('cookies_browser', browser);
+                }
+                const cookieFileInput = document.getElementById('cookiesFile');
+                if (cookieFileInput.files && cookieFileInput.files[0]) {
+                    formData.append('cookies_file', cookieFileInput.files[0]);
+                }
             } else {
                 const fileInput = document.getElementById('audioVideoFile');
                 if (!fileInput.files || fileInput.files.length === 0) {
@@ -944,8 +1204,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 if (data.success) {
                     document.getElementById('transcribeText').innerText = data.text;
                     const words = data.text.split(/\s+/).length;
-                    document.getElementById('sttStats').innerText = 
-                        `Thời lượng file: ${data.duration}s • Nhận diện được: ${words} từ`;
+                    const mins = Math.floor((data.duration || 0) / 60);
+                    const secs = Math.round((data.duration || 0) % 60);
+                    const lang = (data.language || '').toUpperCase() || 'AUTO';
+                    document.getElementById('sttStats').innerText =
+                        `Nguồn: ${data.source || 'không rõ'} • Thời lượng: ${mins}p${secs}s • ` +
+                        `Ngôn ngữ: ${lang} • Model: ${data.model || 'base'} • ${words} từ` +
+                        (data.title ? ` • "${data.title}"` : '');
                     resultBox.style.display = 'block';
                     resultBox.scrollIntoView({ behavior: 'smooth' });
                 } else {

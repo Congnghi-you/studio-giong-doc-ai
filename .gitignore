@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Môi trường Python riêng của ứng dụng
+.venv/
+.tmp/
+
 # Thư mục tạm
 temp_chunks/
 
@@ -20,3 +24,9 @@ static/audio/*.mp3
 
 # File 0 byte lỗi
 *.mp3.tmp
+
+# Binary & user media
+ffmpeg.exe
+*.m4a
+*.mp4
+*.wav
