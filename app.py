@@ -315,67 +315,85 @@ def preprocess_text(text, pause_style="standard"):
     text = re.sub(r'\[ngh[iỉ]\s*(\d+)s?\]', lambda m: '... ' * min(int(m.group(1)), 4), text, flags=re.IGNORECASE)
     text = re.sub(r'\[(ngh[iỉ]|pause|thở)\]', '... ', text, flags=re.IGNORECASE)
     text = re.sub(r'\s*([!?]+)\s*', r'\1 ... ', text)
-    text = re.sub(r'\s*([:;])\s*', r'\1, ', text)
+    # Tránh chèn dấu phẩy ngay sau dấu hai chấm (: ,) làm lỗi bộ đọc của Edge-TTS
+    text = re.sub(r'\s*([:;])\s*', r'\1 ', text)
+    # Chuẩn hóa dấu gạch ngang và dấu phẩy trùng lặp
+    text = re.sub(r'\s*—\s*', ', ', text)
+    text = re.sub(r'[,]+', ',', text)
+    text = re.sub(r'\.{4,}', '...', text)
     if pause_style == "deep":
         text = re.sub(r'\n+', '\n\n... ', text)
     return text.strip()
 
-def split_text_into_chunks(text, max_chars=1600):
+def split_text_into_chunks(text, max_chars=350):
+    """
+    Chia nhỏ văn bản thành các đoạn 250 - 350 ký tự tại ranh giới câu.
+    Giúp Edge-TTS tải siêu nhanh (2-3 giây/đoạn), không bao giờ bị nghẽn WebSocket
+    và có thể tải song song cực mạnh.
+    """
     paragraphs = text.split("\n")
     chunks = []
     current_chunk = ""
+
     for p in paragraphs:
         p = p.strip()
         if not p:
             continue
-        if len(p) > max_chars:
-            sentences = re.split(r'([.!?]+[\s\n]+)', p)
-            temp = ""
-            for s in sentences:
-                if len(temp) + len(s) < max_chars:
-                    temp += s
-                else:
-                    if temp.strip():
-                        chunks.append(temp.strip())
-                    temp = s
-            if temp.strip():
-                chunks.append(temp.strip())
-        else:
-            if len(current_chunk) + len(p) + 2 < max_chars:
-                current_chunk += ("\n" if current_chunk else "") + p
+        # Cắt theo dấu chấm, chấm hỏi, chấm than hoặc ba chấm
+        sentences = re.split(r'([.!?…]+[\s\n]*)', p)
+        # Ghép lại các cặp (câu, dấu câu)
+        paired = []
+        i = 0
+        while i < len(sentences):
+            s = sentences[i]
+            if i + 1 < len(sentences) and re.match(r'^[.!?…]+', sentences[i + 1]):
+                s += sentences[i + 1]
+                i += 2
             else:
-                if current_chunk.strip():
-                    chunks.append(current_chunk.strip())
-                current_chunk = p
+                i += 1
+            if s.strip():
+                paired.append(s.strip())
+
+        for sentence in paired:
+            if not current_chunk:
+                current_chunk = sentence
+            elif len(current_chunk) + len(sentence) + 1 <= max_chars:
+                current_chunk += " " + sentence
+            else:
+                chunks.append(current_chunk.strip())
+                current_chunk = sentence
+
     if current_chunk.strip():
         chunks.append(current_chunk.strip())
-    return chunks if chunks else [text]
+
+    return chunks if chunks else [text.strip()]
 
 async def generate_speech_async(text, voice, rate, pitch, output_path):
-    chunks = split_text_into_chunks(text, max_chars=1600)
-    if len(chunks) == 1:
-        communicate = edge_tts.Communicate(chunks[0], voice=voice, rate=rate, pitch=pitch)
-        await communicate.save(output_path)
-        return
-
+    chunks = split_text_into_chunks(text, max_chars=350)
     temp_dir = tempfile.mkdtemp(prefix="tts_chunks_")
     chunk_paths = [os.path.join(temp_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
 
-    # Tối ưu hóa tải song song (Parallel Concurrency): Tải 4 đoạn cùng lúc
+    # Tải song song 3-4 luồng cùng lúc với cơ chế Timeout và Retry tự phục hồi
     semaphore = asyncio.Semaphore(4)
 
-    async def fetch_chunk(idx, chunk, chunk_file):
+    async def fetch_chunk(idx, chunk_text, chunk_file):
         async with semaphore:
             for retry in range(3):
                 try:
-                    comm = edge_tts.Communicate(chunk, voice=voice, rate=rate, pitch=pitch)
-                    await comm.save(chunk_file)
+                    # Đảm bảo không còn ký tự ngắt dòng sót lại trong đoạn
+                    clean_chunk = chunk_text.replace("\n", " ").strip()
+                    if not clean_chunk:
+                        return True
+                    comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch)
+                    # Timeout 20s cho mỗi đoạn nhỏ, nếu server Microsoft nghẽn sẽ tự động retry ngay
+                    await asyncio.wait_for(comm.save(chunk_file), timeout=20.0)
                     if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 0:
                         return True
                 except Exception as e:
+                    print(f"[*] Retry chunk {idx} (lần {retry + 1}/3): {e}", flush=True)
                     if retry == 2:
                         raise e
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(1.0)
             return False
 
     try:
@@ -385,7 +403,7 @@ async def generate_speech_async(text, voice, rate, pitch, output_path):
         # Ghép nối tuần tự các đoạn thành 1 file MP3 duy nhất
         with open(output_path, "wb") as outfile:
             for cf in chunk_paths:
-                if os.path.exists(cf):
+                if os.path.exists(cf) and os.path.getsize(cf) > 0:
                     with open(cf, "rb") as infile:
                         shutil.copyfileobj(infile, outfile)
     finally:

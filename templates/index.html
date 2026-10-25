@@ -1007,10 +1007,16 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             }, 1000);
 
+            const abortCtrl = new AbortController();
+            const clientTimeout = setTimeout(() => {
+                abortCtrl.abort();
+            }, 120000); // Tối đa 2 phút, không bao giờ để client treo vô tận
+
             try {
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: abortCtrl.signal,
                     body: JSON.stringify({
                         text: text,
                         preset: selectedPreset,
@@ -1063,8 +1069,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     ttsTimerInterval = null;
                 }
                 progressBox.style.display = 'none';
-                alert('Có lỗi xảy ra: ' + err);
+                if (err.name === 'AbortError') {
+                    alert('Hết thời gian chờ (Timeout 2 phút). Vui lòng kiểm tra lại cửa sổ chạy ứng dụng hoặc thử lại!');
+                } else {
+                    alert('Có lỗi xảy ra: ' + err);
+                }
             } finally {
+                clearTimeout(clientTimeout);
                 if (ttsTimerInterval) {
                     clearInterval(ttsTimerInterval);
                     ttsTimerInterval = null;
