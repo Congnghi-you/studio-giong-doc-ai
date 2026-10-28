@@ -29,12 +29,15 @@ FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# 7 PHONG CÁCH GIỌNG ĐỌC AI
+# CÁC PHONG CÁCH GIỌNG ĐỌC AI ĐA NGÔN NGỮ (VIỆT, ANH, TRUNG, NHẬT, HÀN)
 VOICE_PRESETS = {
+    # 🇻🇳 TIẾNG VIỆT
     "giong_cua_toi": {
         "name": "⭐ Giọng Mô Phỏng Của Bạn (Trầm Ấm & Tự Nhiên)",
         "gender": "Nam",
         "voice": "vi-VN-NamMinhNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "-4%",
         "pitch": "-6Hz",
         "desc": "Được tinh chỉnh theo mẫu giọng thật: Tần số trầm ấm 120Hz, dải âm 90-160Hz, nhịp điệu nhấn nhá tự nhiên.",
@@ -44,6 +47,8 @@ VOICE_PRESETS = {
         "name": "Nam Minh - Kể Chuyện & Sách Nói",
         "gender": "Nam",
         "voice": "vi-VN-NamMinhNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "-6%",
         "pitch": "-8Hz",
         "desc": "Trầm ấm sâu, giàu cảm xúc, nhấn nhá chậm rãi, ngắt nghỉ theo từng mạch cảm xúc câu chuyện.",
@@ -53,6 +58,8 @@ VOICE_PRESETS = {
         "name": "Nam Minh - Thời Sự & Báo Chí",
         "gender": "Nam",
         "voice": "vi-VN-NamMinhNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "+2%",
         "pitch": "+0Hz",
         "desc": "Rõ ràng, dứt khoát, cường điệu nghiêm túc và chuẩn mực của phát thanh viên truyền hình.",
@@ -62,6 +69,8 @@ VOICE_PRESETS = {
         "name": "Nam Minh - Năng Động & Review",
         "gender": "Nam",
         "voice": "vi-VN-NamMinhNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "+12%",
         "pitch": "+6Hz",
         "desc": "Hào sảng, cuốn hút, giàu năng lượng, rất thích hợp video ngắn, TikTok, YouTube review.",
@@ -71,6 +80,8 @@ VOICE_PRESETS = {
         "name": "Hoài My - Dịu Dàng & Tâm Sự",
         "gender": "Nữ",
         "voice": "vi-VN-HoaiMyNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "-8%",
         "pitch": "-5Hz",
         "desc": "Giọng nữ nhẹ nhàng, êm ái, tha thiết, thích hợp tản văn, truyện tình cảm, radio đêm.",
@@ -80,6 +91,8 @@ VOICE_PRESETS = {
         "name": "Hoài My - Thuyết Minh Chuẩn",
         "gender": "Nữ",
         "voice": "vi-VN-HoaiMyNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "+0%",
         "pitch": "+0Hz",
         "desc": "Rành mạch, tự nhiên, diễn cảm thông minh, giọng phổ thông chuẩn mực.",
@@ -89,10 +102,141 @@ VOICE_PRESETS = {
         "name": "Hoài My - Trẻ Trung & Vlog",
         "gender": "Nữ",
         "voice": "vi-VN-HoaiMyNeural",
+        "lang": "vi",
+        "flag": "🇻🇳",
         "rate": "+9%",
         "pitch": "+9Hz",
         "desc": "Tươi vui, hoạt bát, nhí nhảnh, nhiều biểu cảm năng động cho vlog đời sống.",
         "sample": "/static/samples/6_Nu_TuoiTre_Vlog.mp3"
+    },
+
+    # 🇺🇸 TIẾNG ANH (ENGLISH)
+    "en_guy": {
+        "name": "Guy - Trầm Ấm & Phim Tài Liệu",
+        "gender": "Nam",
+        "voice": "en-US-GuyNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Mỹ trầm ấm, chững chạc, độ vang tốt, hoàn hảo cho phim tài liệu và podcast.",
+        "sample": "/static/samples/sample_en_guy.mp3"
+    },
+    "en_aria": {
+        "name": "Aria - Truyền Cảm & Kể Chuyện",
+        "gender": "Nữ",
+        "voice": "en-US-AriaNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Mỹ truyền cảm, âm sắc ấm áp, giàu biểu cảm, hợp sách nói và tâm sự.",
+        "sample": "/static/samples/sample_en_aria.mp3"
+    },
+    "en_jenny": {
+        "name": "Jenny - Tự Nhiên & Thân Thiện",
+        "gender": "Nữ",
+        "voice": "en-US-JennyNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Mỹ trẻ trung, năng động, rất tự nhiên cho vlog và video quảng cáo.",
+        "sample": "/static/samples/sample_en_jenny.mp3"
+    },
+    "en_ryan": {
+        "name": "Ryan - Chuẩn Anh Quốc Quý Tộc",
+        "gender": "Nam",
+        "voice": "en-GB-RyanNeural",
+        "lang": "en",
+        "flag": "🇬🇧",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Anh chuẩn Oxford, lịch lãm, thích hợp bản tin quốc tế và phóng sự.",
+        "sample": "/static/samples/sample_en_ryan.mp3"
+    },
+
+    # 🇨🇳 TIẾNG TRUNG (CHINESE)
+    "zh_xiaoxiao": {
+        "name": "Xiaoxiao (晓晓) - Ngọt Ngào & Tâm Sự",
+        "gender": "Nữ",
+        "voice": "zh-CN-XiaoxiaoNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ số 1 của Microsoft: siêu ngọt ngào, cảm xúc tinh tế, hợp truyện tình và tâm sự.",
+        "sample": "/static/samples/sample_zh_xiaoxiao.mp3"
+    },
+    "zh_yunxi": {
+        "name": "Yunxi (云希) - Trẻ Trung & Review Phim",
+        "gender": "Nam",
+        "voice": "zh-CN-YunxiNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam thiếu niên hoạt bát, phổ biến nhất trong các video review phim và Douyin.",
+        "sample": "/static/samples/sample_zh_yunxi.mp3"
+    },
+    "zh_yunjian": {
+        "name": "Yunjian (云健) - Hào Sảng & Kiếm Hiệp",
+        "gender": "Nam",
+        "voice": "zh-CN-YunjianNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam hào hùng, trầm bổng, phong thái kể chuyện dã sử kiếm hiệp và tin tức.",
+        "sample": "/static/samples/sample_zh_yunjian.mp3"
+    },
+
+    # 🇯🇵 TIẾNG NHẬT (JAPANESE)
+    "ja_nanami": {
+        "name": "Nanami (七海) - Ngọt Ngào & Anime",
+        "gender": "Nữ",
+        "voice": "ja-JP-NanamiNeural",
+        "lang": "ja",
+        "flag": "🇯🇵",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Nhật trong trẻo, dễ thương, chuẩn giọng lồng tiếng phim hoạt hình và vlog.",
+        "sample": "/static/samples/sample_ja_nanami.mp3"
+    },
+    "ja_keita": {
+        "name": "Keita (圭太) - Nam Tính & Thời Sự",
+        "gender": "Nam",
+        "voice": "ja-JP-KeitaNeural",
+        "lang": "ja",
+        "flag": "🇯🇵",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Nhật trầm ổn, phong thái lịch thiệp, chuẩn phát thanh viên đài NHK.",
+        "sample": "/static/samples/sample_ja_keita.mp3"
+    },
+
+    # 🇰🇷 TIẾNG HÀN (KOREAN)
+    "ko_sunhi": {
+        "name": "SunHi (선희) - Dịu Dàng & Phim Hàn",
+        "gender": "Nữ",
+        "voice": "ko-KR-SunHiNeural",
+        "lang": "ko",
+        "flag": "🇰🇷",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Hàn ngọt ngào, tình cảm, âm điệu chuẩn như nữ chính phim K-Drama.",
+        "sample": "/static/samples/sample_ko_sunhi.mp3"
+    },
+    "ko_injoon": {
+        "name": "InJoon (인준) - Trầm Ấm & Bản Tin",
+        "gender": "Nam",
+        "voice": "ko-KR-InJoonNeural",
+        "lang": "ko",
+        "flag": "🇰🇷",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Hàn trầm ấm, rành mạch, rất phù hợp tin tức, sách nói và podcast.",
+        "sample": "/static/samples/sample_ko_injoon.mp3"
     }
 }
 

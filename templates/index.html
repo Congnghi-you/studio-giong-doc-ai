@@ -155,6 +155,42 @@
         }
 
         /* TAB 1: TTS VOICE CARDS */
+        .lang-filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .lang-pill {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-pill:hover {
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .lang-pill.active {
+            background: var(--accent-gradient);
+            color: #0b1120;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+        }
+
         .voice-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
@@ -172,6 +208,10 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+        }
+
+        .voice-card.hidden {
+            display: none !important;
         }
 
         .voice-card:hover {
@@ -645,17 +685,30 @@
         <div id="ttsTab" class="tab-content active">
             <div class="main-card">
                 <div class="section-title">
-                    <span>1. Chọn Giọng Đọc (7 Phong Cách Đã Tinh Chỉnh)</span>
-                    <span class="hint">Bấm nút "🔊 Nghe thử" trên từng thẻ để nghe</span>
+                    <span>1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)</span>
+                    <span class="hint">Bấm nút "▶ Nghe thử" trên từng thẻ để nghe mẫu</span>
                 </div>
                 
+                <!-- BỘ LỌC NGÔN NGỮ ĐA QUỐC GIA -->
+                <div class="lang-filter-bar">
+                    <button type="button" class="lang-pill active" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7 giọng)</button>
+                    <button type="button" class="lang-pill" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (4 giọng)</button>
+                    <button type="button" class="lang-pill" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (3 giọng)</button>
+                    <button type="button" class="lang-pill" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2 giọng)</button>
+                    <button type="button" class="lang-pill" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (2 giọng)</button>
+                    <button type="button" class="lang-pill" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (18 giọng)</button>
+                </div>
+
                 <div class="voice-grid">
                     {% for key, item in presets.items() %}
-                    <div class="voice-card {% if loop.first %}active{% endif %}" onclick="selectVoice('{{ key }}', this)">
+                    <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" onclick="selectVoice('{{ key }}', this)">
                         <div>
                             <div class="voice-header">
                                 <span class="voice-name">{{ item.name }}</span>
-                                <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <span style="font-size:14px;">{{ item.flag }}</span>
+                                    <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+                                </div>
                             </div>
                             <div class="voice-desc">{{ item.desc }}</div>
                         </div>
@@ -870,6 +923,29 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             selectedPreset = key;
             document.querySelectorAll('.voice-card').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
+        }
+
+        function filterVoiceLang(lang, btn) {
+            document.querySelectorAll('.lang-pill').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.voice-card');
+            cards.forEach(card => {
+                const cardLang = card.getAttribute('data-lang');
+                if (lang === 'all' || cardLang === lang) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            const currentActive = document.querySelector('.voice-card.active');
+            if (!currentActive || currentActive.classList.contains('hidden')) {
+                const firstVisible = document.querySelector('.voice-card:not(.hidden)');
+                if (firstVisible) {
+                    firstVisible.click();
+                }
+            }
         }
 
         function playSample(event, url, btn) {
