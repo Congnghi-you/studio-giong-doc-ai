@@ -43,6 +43,58 @@
             width: 100%;
         }
 
+        /* UI LANGUAGE SELECTOR BAR */
+        .ui-lang-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .ui-lang-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .ui-lang-group {
+            display: inline-flex;
+            gap: 5px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 4px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .ui-lang-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ui-lang-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ui-lang-btn.active {
+            background: var(--accent);
+            color: #0b1120;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
+        }
+
         header {
             text-align: center;
             margin-bottom: 25px;
@@ -665,19 +717,31 @@
 </head>
 <body>
     <div class="container">
+        <!-- THANH CHUYỂN ĐỔI NGÔN NGỮ GIAO DIỆN (UI I18N) -->
+        <div class="ui-lang-bar">
+            <span class="ui-lang-label" data-i18n="ui_lang_label">🌐 Ngôn ngữ giao diện:</span>
+            <div class="ui-lang-group">
+                <button type="button" class="ui-lang-btn active" data-ui-lang="vi" onclick="setUILanguage('vi')">🇻🇳 Tiếng Việt</button>
+                <button type="button" class="ui-lang-btn" data-ui-lang="en" onclick="setUILanguage('en')">🇺🇸 English</button>
+                <button type="button" class="ui-lang-btn" data-ui-lang="zh" onclick="setUILanguage('zh')">🇨🇳 中文</button>
+                <button type="button" class="ui-lang-btn" data-ui-lang="ja" onclick="setUILanguage('ja')">🇯🇵 日本語</button>
+                <button type="button" class="ui-lang-btn" data-ui-lang="ko" onclick="setUILanguage('ko')">🇰🇷 한국어</button>
+            </div>
+        </div>
+
         <header>
-            <span class="badge">🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT</span>
-            <h1>AI Voice & Transcribe Studio</h1>
-            <p class="subtitle">Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn</p>
+            <span class="badge" data-i18n="badge">🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT</span>
+            <h1 data-i18n="title">AI Voice & Transcribe Studio</h1>
+            <p class="subtitle" data-i18n="subtitle">Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn</p>
         </header>
 
         <!-- CHUYỂN ĐỔI TAB -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('ttsTab', this)">
-                🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)
+                <span data-i18n="tab_tts">🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)</span>
             </button>
             <button class="tab-btn" onclick="switchTab('sttTab', this)">
-                📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)
+                <span data-i18n="tab_stt">📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)</span>
             </button>
         </div>
 
@@ -685,36 +749,36 @@
         <div id="ttsTab" class="tab-content active">
             <div class="main-card">
                 <div class="section-title">
-                    <span>1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)</span>
-                    <span class="hint">Bấm nút "▶ Nghe thử" trên từng thẻ để nghe mẫu</span>
+                    <span data-i18n="sec_voice_title">1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)</span>
+                    <span class="hint" data-i18n="sec_voice_hint">Bấm nút "▶ Nghe thử" trên từng thẻ để nghe mẫu</span>
                 </div>
                 
                 <!-- BỘ LỌC NGÔN NGỮ ĐA QUỐC GIA -->
                 <div class="lang-filter-bar">
-                    <button type="button" class="lang-pill active" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7 giọng)</button>
-                    <button type="button" class="lang-pill" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (4 giọng)</button>
-                    <button type="button" class="lang-pill" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (3 giọng)</button>
-                    <button type="button" class="lang-pill" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2 giọng)</button>
-                    <button type="button" class="lang-pill" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (2 giọng)</button>
-                    <button type="button" class="lang-pill" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (18 giọng)</button>
+                    <button type="button" class="lang-pill active" data-lang-pill="vi" data-i18n="filter_vi" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7 giọng)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="en" data-i18n="filter_en" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (4 giọng)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="zh" data-i18n="filter_zh" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (3 giọng)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="ja" data-i18n="filter_ja" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2 giọng)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="ko" data-i18n="filter_ko" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (2 giọng)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="all" data-i18n="filter_all" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (18 giọng)</button>
                 </div>
 
                 <div class="voice-grid">
                     {% for key, item in presets.items() %}
-                    <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" onclick="selectVoice('{{ key }}', this)">
+                    <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" data-voice-key="{{ key }}" onclick="selectVoice('{{ key }}', this)">
                         <div>
                             <div class="voice-header">
                                 <span class="voice-name">{{ item.name }}</span>
                                 <div style="display:flex; gap:6px; align-items:center;">
                                     <span style="font-size:14px;">{{ item.flag }}</span>
-                                    <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}">{{ item.gender }}</span>
+                                    <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}" data-gender="{{ item.gender }}">{{ item.gender }}</span>
                                 </div>
                             </div>
-                            <div class="voice-desc">{{ item.desc }}</div>
+                            <div class="voice-desc" data-voice-key="{{ key }}">{{ item.desc }}</div>
                         </div>
                         <div class="voice-footer">
-                            <span style="font-size:12px; color: var(--text-muted);">Mẫu giọng:</span>
-                            <button type="button" class="btn-play-sample" onclick="playSample(event, '{{ item.sample }}', this)">
+                            <span style="font-size:12px; color: var(--text-muted);" data-i18n="sample_label">Mẫu giọng:</span>
+                            <button type="button" class="btn-play-sample" data-i18n="sample_btn" onclick="playSample(event, '{{ item.sample }}', this)">
                                 ▶ Nghe thử giọng này
                             </button>
                         </div>
@@ -723,23 +787,23 @@
                 </div>
 
                 <div class="section-title">
-                    <span>2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
+                    <span data-i18n="sec_text_title">2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
                 </div>
 
                 <div class="editor-wrapper">
                     <div class="quick-actions">
                         <div class="insert-btns">
-                            <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Chèn ngắt nghỉ:</span>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 1s]')">+ Dừng 1 giây</button>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 2s]')">+ Dừng 2 giây</button>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('... ')">+ Ngắt nhịp (...) </button>
+                            <span style="font-size: 12px; color: var(--text-muted); align-self: center;" data-i18n="insert_label">Chèn ngắt nghỉ:</span>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 1s]')" data-i18n="btn_pause_1s">+ Dừng 1 giây</button>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 2s]')" data-i18n="btn_pause_2s">+ Dừng 2 giây</button>
+                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('... ')" data-i18n="btn_pause_dot">+ Ngắt nhịp (...) </button>
                         </div>
                         <div class="word-stats">
-                            Số từ: <span id="wordCount">0</span> từ | Ước tính thời lượng: <span id="timeEst">0.0</span> phút
+                            <span data-i18n="stat_words">Số từ:</span> <span id="wordCount">0</span> <span data-i18n="stat_word_unit">từ</span> | <span data-i18n="stat_est">Ước tính thời lượng:</span> <span id="timeEst">0.0</span> <span data-i18n="stat_time_unit">phút</span>
                         </div>
                     </div>
 
-                    <textarea id="textContent" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với AI Voice Studio. 
+                    <textarea id="textContent" data-i18n-ph="text_placeholder" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với AI Voice Studio. 
 Hệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.
 [nghỉ 1s]
 Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!</textarea>
@@ -747,25 +811,25 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                 <div class="controls-grid">
                     <div class="control-item">
-                        <label>Chế độ ngắt nhịp dấu câu:</label>
+                        <label data-i18n="lbl_pause_style">Chế độ ngắt nhịp dấu câu:</label>
                         <select id="pauseStyle">
-                            <option value="standard">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
-                            <option value="deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
+                            <option value="standard" data-i18n="opt_pause_std">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
+                            <option value="deep" data-i18n="opt_pause_deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
                         </select>
                     </div>
                     <div class="control-item">
-                        <label>Tốc độ đọc (Speed): <span id="rateVal" style="color:var(--accent);">0%</span></label>
+                        <label><span data-i18n="lbl_speed">Tốc độ đọc (Speed):</span> <span id="rateVal" style="color:var(--accent);">0%</span></label>
                         <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
                     </div>
                     <div class="control-item">
-                        <label>Cao độ giọng (Pitch): <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
+                        <label><span data-i18n="lbl_pitch">Cao độ giọng (Pitch):</span> <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
                         <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
                     </div>
                 </div>
 
                 <button class="btn-submit" id="btnSubmitTTS" onclick="generateSpeech()">
                     <div class="spinner" id="spinnerTTS"></div>
-                    <span id="btnTextTTS">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
+                    <span id="btnTextTTS" data-i18n="btn_submit_tts">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
                 </button>
 
                 <!-- KHU VỰC TIẾN TRÌNH & ĐẾM NGƯỢC THỜI GIAN -->
@@ -773,27 +837,27 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13.5px; flex-wrap:wrap; gap:8px;">
                         <span id="progressStatusTTS" style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:8px;">
                             <span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span>
-                            Đang xử lý tổng hợp giọng đọc AI...
+                            <span id="progressStatusTextTTS" data-i18n="prog_tts_status">Đang xử lý tổng hợp giọng đọc AI...</span>
                         </span>
-                        <span id="countdownLabelTTS" style="color:var(--text-muted);">Ước tính còn: <strong id="countdownValTTS" style="color:#fbbf24; font-size:16px; font-family:monospace;">00:00</strong></span>
+                        <span id="countdownLabelTTS" style="color:var(--text-muted);"><span data-i18n="prog_countdown">Ước tính còn:</span> <strong id="countdownValTTS" style="color:#fbbf24; font-size:16px; font-family:monospace;">00:00</strong></span>
                     </div>
                     <div style="width:100%; height:9px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden;">
                         <div id="progressBarTTS" style="width:0%; height:100%; background:var(--accent-gradient); transition:width 0.4s ease; border-radius:10px;"></div>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
-                        <span id="progressDetailTTS">Đang chia đoạn văn bản và gửi xử lý song song...</span>
-                        <span>Đã chạy: <strong id="elapsedValTTS" style="color:var(--text-main); font-family:monospace;">00:00</strong> (<span id="percentValTTS">0%</span>)</span>
+                        <span id="progressDetailTTS" data-i18n="prog_tts_detail">Đang chia đoạn văn bản và gửi xử lý song song...</span>
+                        <span><span data-i18n="prog_elapsed">Đã chạy:</span> <strong id="elapsedValTTS" style="color:var(--text-main); font-family:monospace;">00:00</strong> (<span id="percentValTTS">0%</span>)</span>
                     </div>
                 </div>
 
                 <div class="result-box" id="resultBoxTTS">
                     <div class="result-header">
-                        <span class="result-title">✓ Đã tạo thành công file âm thanh!</span>
+                        <span class="result-title" data-i18n="res_tts_title">✓ Đã tạo thành công file âm thanh!</span>
                         <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
                     </div>
                     <audio id="audioPlayer" controls></audio>
                     <div>
-                        <a href="#" id="downloadLink" class="btn-action" download>⬇ Tải File MP3 Về Máy</a>
+                        <a href="#" id="downloadLink" class="btn-action" download data-i18n="btn_dl_mp3">⬇ Tải File MP3 Về Máy</a>
                     </div>
                 </div>
             </div>
@@ -803,15 +867,15 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         <div id="sttTab" class="tab-content">
             <div class="main-card">
                 <div class="section-title">
-                    <span>1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản</span>
-                    <span class="hint">Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)</span>
+                    <span data-i18n="stt_sec_title">1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản</span>
+                    <span class="hint" data-i18n="stt_sec_hint">Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)</span>
                 </div>
 
                 <div class="stt-options">
-                    <button type="button" class="stt-option-btn active" id="btnModeFile" onclick="setSTTMode('file')">
+                    <button type="button" class="stt-option-btn active" id="btnModeFile" data-i18n="stt_opt_file" onclick="setSTTMode('file')">
                         📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)
                     </button>
-                    <button type="button" class="stt-option-btn" id="btnModeLink" onclick="setSTTMode('link')">
+                    <button type="button" class="stt-option-btn" id="btnModeLink" data-i18n="stt_opt_link" onclick="setSTTMode('link')">
                         🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)
                     </button>
                 </div>
@@ -820,8 +884,8 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 <div id="fileUploadArea">
                     <div class="dropzone" id="dropArea" onclick="document.getElementById('audioVideoFile').click()">
                         <div class="dropzone-icon">📥</div>
-                        <div class="dropzone-text" id="selectedFileName">Bấm để chọn file hoặc Kéo & Thả file vào đây</div>
-                        <div class="dropzone-hint">Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)</div>
+                        <div class="dropzone-text" id="selectedFileName" data-i18n="stt_drop_text">Bấm để chọn file hoặc Kéo & Thả file vào đây</div>
+                        <div class="dropzone-hint" data-i18n="stt_drop_hint">Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)</div>
                         <input type="file" id="audioVideoFile" accept="audio/*,video/*" style="display:none" onchange="handleFileSelected(this)">
                     </div>
                 </div>
@@ -829,19 +893,19 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 <!-- KHU VỰC DÁN LINK ĐA NỀN TẢNG -->
                 <div id="linkInputArea" class="link-input-wrapper">
                     <div class="link-row">
-                        <input type="text" id="videoUrl" placeholder="Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…">
-                        <button type="button" class="btn-action btn-secondary" id="btnCheckLink" onclick="checkLink()">🔎 Kiểm tra</button>
+                        <input type="text" id="videoUrl" data-i18n-ph="stt_link_ph" placeholder="Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…">
+                        <button type="button" class="btn-action btn-secondary" id="btnCheckLink" data-i18n="stt_btn_check" onclick="checkLink()">🔎 Kiểm tra</button>
                     </div>
-                    <div class="link-hint">
+                    <div class="link-hint" data-i18n="stt_link_hint">
                         Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn.
                         Video riêng tư / bị chặn cần cookies.
                     </div>
 
                     <details class="advanced-box">
-                        <summary>⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies</summary>
+                        <summary data-i18n="stt_adv_title">⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies</summary>
                         <div class="advanced-grid">
                             <div>
-                                <label for="sttLanguage">Ngôn ngữ trong video</label>
+                                <label for="sttLanguage" data-i18n="stt_lbl_lang">Ngôn ngữ trong video</label>
                                 <select id="sttLanguage">
                                     <option value="auto">Tự động nhận diện</option>
                                     <option value="vi" selected>Tiếng Việt (đúng dấu, có chấm câu)</option>
@@ -854,7 +918,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                                 </select>
                             </div>
                             <div>
-                                <label for="sttModel">Độ chính xác (model Whisper)</label>
+                                <label for="sttModel" data-i18n="stt_lbl_model">Độ chính xác (model Whisper)</label>
                                 <select id="sttModel">
                                     <option value="base">Base — nhanh nhất (kém chính xác)</option>
                                     <option value="small" selected>Small — khuyên dùng (nhanh, khá chính xác)</option>
@@ -862,7 +926,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                                 </select>
                             </div>
                             <div>
-                                <label for="cookiesBrowser">Lấy cookies từ trình duyệt</label>
+                                <label for="cookiesBrowser" data-i18n="stt_lbl_cookies_browser">Lấy cookies từ trình duyệt</label>
                                 <select id="cookiesBrowser">
                                     <option value="" selected>Không dùng</option>
                                     <option value="edge">Microsoft Edge</option>
@@ -872,7 +936,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                                 </select>
                             </div>
                             <div>
-                                <label for="cookiesFile">Hoặc tải file cookies.txt</label>
+                                <label for="cookiesFile" data-i18n="stt_lbl_cookies_file">Hoặc tải file cookies.txt</label>
                                 <input type="file" id="cookiesFile" accept=".txt">
                             </div>
                         </div>
@@ -881,22 +945,22 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                 <button class="btn-submit" id="btnSubmitSTT" onclick="transcribeAudio()">
                     <div class="spinner" id="spinnerSTT"></div>
-                    <span id="btnTextSTT">📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)</span>
+                    <span id="btnTextSTT" data-i18n="stt_btn_start">📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)</span>
                 </button>
 
                 <!-- KHU VỰC KẾT QUẢ VĂN BẢN -->
                 <div class="transcribe-result-box" id="resultBoxSTT">
                     <div class="result-header">
-                        <span class="result-title">✓ Đã chuyển đổi hoàn tất!</span>
+                        <span class="result-title" data-i18n="stt_res_title">✓ Đã chuyển đổi hoàn tất!</span>
                         <span id="sttStats" style="font-size: 13px; color: var(--text-muted);"></span>
                     </div>
 
                     <div class="transcribe-output" id="transcribeText"></div>
 
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button class="btn-action" onclick="copyTranscribeText()">📋 Sao Chép Văn Bản</button>
-                        <button class="btn-action btn-secondary" onclick="sendToTTS()">🎙️ Đưa Sang Tab Giọng Đọc AI</button>
-                        <button class="btn-action btn-secondary" onclick="downloadTextFile()">💾 Tải File Văn Bản (.txt)</button>
+                        <button class="btn-action" data-i18n="stt_btn_copy" onclick="copyTranscribeText()">📋 Sao Chép Văn Bản</button>
+                        <button class="btn-action btn-secondary" data-i18n="stt_btn_send_tts" onclick="sendToTTS()">🎙️ Đưa Sang Tab Giọng Đọc AI</button>
+                        <button class="btn-action btn-secondary" data-i18n="stt_btn_dl_txt" onclick="downloadTextFile()">💾 Tải File Văn Bản (.txt)</button>
                     </div>
                 </div>
             </div>
@@ -906,6 +970,521 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
     <audio id="samplePlayer"></audio>
 
     <script>
+        // ================= I18N MULTILINGUAL DICTIONARY =================
+        const I18N = {
+            vi: {
+                ui_lang_label: "🌐 Ngôn ngữ giao diện:",
+                badge: "🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
+                title: "AI Voice & Transcribe Studio",
+                subtitle: "Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn",
+                tab_tts: "🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)",
+                tab_stt: "📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)",
+                sec_voice_title: "1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)",
+                sec_voice_hint: "Bấm nút \"▶ Nghe thử\" trên từng thẻ để nghe mẫu",
+                filter_vi: "🇻🇳 Tiếng Việt (7 giọng)",
+                filter_en: "🇺🇸 Tiếng Anh (4 giọng)",
+                filter_zh: "🇨🇳 Tiếng Trung (3 giọng)",
+                filter_ja: "🇯🇵 Tiếng Nhật (2 giọng)",
+                filter_ko: "🇰🇷 Tiếng Hàn (2 giọng)",
+                filter_all: "🌐 Xem Tất Cả (18 giọng)",
+                sample_label: "Mẫu giọng:",
+                sample_btn: "▶ Nghe thử giọng này",
+                sample_playing: "⏸ Đang phát... (Dừng)",
+                sec_text_title: "2. Nhập Hoặc Dán Văn Bản Cần Đọc",
+                insert_label: "Chèn ngắt nghỉ:",
+                btn_pause_1s: "+ Dừng 1 giây",
+                btn_pause_2s: "+ Dừng 2 giây",
+                btn_pause_dot: "+ Ngắt nhịp (...) ",
+                stat_words: "Số từ:",
+                stat_word_unit: "từ",
+                stat_est: "Ước tính thời lượng:",
+                stat_time_unit: "phút",
+                text_placeholder: "Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.",
+                lbl_pause_style: "Chế độ ngắt nhịp dấu câu:",
+                opt_pause_std: "Tiêu chuẩn (Tự nhiên, rành mạch)",
+                opt_pause_deep: "Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)",
+                lbl_speed: "Tốc độ đọc (Speed):",
+                lbl_pitch: "Cao độ giọng (Pitch):",
+                btn_submit_tts: "🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3",
+                prog_tts_status: "Đang xử lý tổng hợp giọng đọc AI...",
+                prog_countdown: "Ước tính còn:",
+                prog_tts_detail: "Đang chia đoạn văn bản và gửi xử lý song song...",
+                prog_elapsed: "Đã chạy:",
+                res_tts_title: "✓ Đã tạo thành công file âm thanh!",
+                btn_dl_mp3: "⬇ Tải File MP3 Về Máy",
+                stt_sec_title: "1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản",
+                stt_sec_hint: "Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)",
+                stt_opt_file: "📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)",
+                stt_opt_link: "🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)",
+                stt_drop_text: "Bấm để chọn file hoặc Kéo & Thả file vào đây",
+                stt_drop_hint: "Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)",
+                stt_link_ph: "Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
+                stt_btn_check: "🔎 Kiểm tra",
+                stt_link_hint: "Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn. Video riêng tư / bị chặn cần cookies.",
+                stt_adv_title: "⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies",
+                stt_lbl_lang: "Ngôn ngữ trong video",
+                stt_lbl_model: "Độ chính xác (model Whisper)",
+                stt_lbl_cookies_browser: "Lấy cookies từ trình duyệt",
+                stt_lbl_cookies_file: "Hoặc tải file cookies.txt",
+                stt_btn_start: "📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)",
+                stt_res_title: "✓ Đã chuyển đổi hoàn tất!",
+                stt_btn_copy: "📋 Sao Chép Văn Bản",
+                stt_btn_send_tts: "🎙️ Đưa Sang Tab Giọng Đọc AI",
+                stt_btn_dl_txt: "💾 Tải File Văn Bản (.txt)"
+            },
+            en: {
+                ui_lang_label: "🌐 Interface Language:",
+                badge: "🚀 DUAL AI ENGINE: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
+                title: "AI Voice & Transcribe Studio",
+                subtitle: "Generate natural multilingual AI speech & Transcribe audio, video, YouTube to text with high precision",
+                tab_tts: "🎙️ AI Text-to-Speech (Text ➔ Voice)",
+                tab_stt: "📝 Transcribe Audio / Video to Text (Voice ➔ Text)",
+                sec_voice_title: "1. Select Multilingual AI Voice (Vietnamese, English, Chinese, Japanese, Korean)",
+                sec_voice_hint: "Click \"▶ Sample\" on any card to preview the voice",
+                filter_vi: "🇻🇳 Vietnamese (7 voices)",
+                filter_en: "🇺🇸 English (4 voices)",
+                filter_zh: "🇨🇳 Chinese (3 voices)",
+                filter_ja: "🇯🇵 Japanese (2 voices)",
+                filter_ko: "🇰🇷 Korean (2 voices)",
+                filter_all: "🌐 View All (18 voices)",
+                sample_label: "Sample:",
+                sample_btn: "▶ Play voice sample",
+                sample_playing: "⏸ Playing... (Stop)",
+                sec_text_title: "2. Enter or Paste Text to Read",
+                insert_label: "Insert pause:",
+                btn_pause_1s: "+ Pause 1s",
+                btn_pause_2s: "+ Pause 2s",
+                btn_pause_dot: "+ Rhythm (...) ",
+                stat_words: "Words:",
+                stat_word_unit: "words",
+                stat_est: "Est. duration:",
+                stat_time_unit: "mins",
+                text_placeholder: "Paste your text here... Supports long texts (20-60+ mins) without limit. Smooth pauses at punctuation and paragraphs.",
+                lbl_pause_style: "Punctuation rhythm mode:",
+                opt_pause_std: "Standard (Natural, clear)",
+                opt_pause_deep: "Storytelling (Deep, longer pauses for novels)",
+                lbl_speed: "Speed:",
+                lbl_pitch: "Pitch:",
+                btn_submit_tts: "🎧 GENERATE MP3 AUDIO FILE",
+                prog_tts_status: "Synthesizing AI voice...",
+                prog_countdown: "Est. remaining:",
+                prog_tts_detail: "Splitting text segments and processing in parallel...",
+                prog_elapsed: "Elapsed:",
+                res_tts_title: "✓ Audio generated successfully!",
+                btn_dl_mp3: "⬇ Download MP3 Audio",
+                stt_sec_title: "1. Select Audio / Video Source for Transcription",
+                stt_sec_hint: "No file size limit (Supports up to 2GB)",
+                stt_opt_file: "📁 Upload File (Audio .m4a/.mp3 or Video .mp4/.mkv)",
+                stt_opt_link: "🔗 Paste Video Link (YouTube, TikTok, Facebook, Instagram…)",
+                stt_drop_text: "Click to select a file or Drag & Drop here",
+                stt_drop_hint: "Supports: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (No size limit)",
+                stt_link_ph: "Paste video link from YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
+                stt_btn_check: "🔎 Check Link",
+                stt_link_hint: "Supports 1,000+ platforms (yt-dlp). Automatic capitalization, punctuation, and paragraphs. Private videos require cookies.",
+                stt_adv_title: "⚙️ Advanced options: language, accuracy model, cookies",
+                stt_lbl_lang: "Language in video",
+                stt_lbl_model: "Accuracy (Whisper model)",
+                stt_lbl_cookies_browser: "Import cookies from browser",
+                stt_lbl_cookies_file: "Or upload cookies.txt",
+                stt_btn_start: "📝 START TRANSCRIBING TO TEXT (WHISPER AI)",
+                stt_res_title: "✓ Transcription completed!",
+                stt_btn_copy: "📋 Copy Text",
+                stt_btn_send_tts: "🎙️ Send to AI Voice Tab",
+                stt_btn_dl_txt: "💾 Download Text (.txt)"
+            },
+            zh: {
+                ui_lang_label: "🌐 界面语言：",
+                badge: "🚀 双核 AI 引擎：文字转语音 & 语音转文字",
+                title: "AI Voice & Transcribe Studio",
+                subtitle: "生成自然流畅的多语言 AI 配音，并高精度转换音频、视频、YouTube 为文本",
+                tab_tts: "🎙️ AI 文本转语音 (Text ➔ Voice)",
+                tab_stt: "📝 音频 / 视频转文本 (Voice ➔ Text)",
+                sec_voice_title: "1. 选择多语言 AI 配音（越语、英语、中文、日语、韩语）",
+                sec_voice_hint: "点击卡片上的 \"▶ 试听\" 按钮试听样音",
+                filter_vi: "🇻🇳 越南语 (7 个配音)",
+                filter_en: "🇺🇸 英语 (4 个配音)",
+                filter_zh: "🇨🇳 中文 (3 个配音)",
+                filter_ja: "🇯🇵 日语 (2 个配音)",
+                filter_ko: "🇰🇷 韩语 (2 个配音)",
+                filter_all: "🌐 查看全部 (18 个配音)",
+                sample_label: "样音试听：",
+                sample_btn: "▶ 试听此声音",
+                sample_playing: "⏸ 播放中... (停止)",
+                sec_text_title: "2. 输入或粘贴要朗读的文本",
+                insert_label: "插入停顿：",
+                btn_pause_1s: "+ 停顿 1 秒",
+                btn_pause_2s: "+ 停顿 2 秒",
+                btn_pause_dot: "+ 节奏停顿 (...) ",
+                stat_words: "字数：",
+                stat_word_unit: "字",
+                stat_est: "预计时长：",
+                stat_time_unit: "分钟",
+                text_placeholder: "在此处粘贴您要朗读的文本... 系统支持 20 至 60 分钟超长文本无限制配音。自动在句号、逗号和段落处平滑停顿。",
+                lbl_pause_style: "标点停顿节奏模式：",
+                opt_pause_std: "标准（自然清晰）",
+                opt_pause_deep: "深沉情感（段落长停顿，适合讲故事/有声书）",
+                lbl_speed: "语速 (Speed)：",
+                lbl_pitch: "声调音高 (Pitch)：",
+                btn_submit_tts: "🎧 开始生成 MP3 音频文件",
+                prog_tts_status: "正在合成 AI 语音配音...",
+                prog_countdown: "预计剩余：",
+                prog_tts_detail: "正在分段文本并并行处理...",
+                prog_elapsed: "已耗时：",
+                res_tts_title: "✓ 音频生成成功！",
+                btn_dl_mp3: "⬇ 下载 MP3 音频文件",
+                stt_sec_title: "1. 选择需要转为文本的音频或视频源",
+                stt_sec_hint: "不限文件大小（支持最大 2GB 文件）",
+                stt_opt_file: "📁 上传本地文件（录音 .m4a/.mp3 或视频 .mp4/.mkv）",
+                stt_opt_link: "🔗 粘贴在线视频链接（YouTube、TikTok、Facebook、Instagram 等）",
+                stt_drop_text: "点击选择文件，或直接拖拽文件到此处",
+                stt_drop_hint: "支持格式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（无文件大小限制）",
+                stt_link_ph: "粘贴来自 YouTube、TikTok、Facebook、Instagram、Bilibili 等平台的视频链接...",
+                stt_btn_check: "🔎 检查链接",
+                stt_link_hint: "支持 1000+ 平台 (yt-dlp)。自动首字母大写、标点符号与智能分段。私密视频需要 cookies。",
+                stt_adv_title: "⚙️ 高级选项：视频语言、识别模型精度、Cookies",
+                stt_lbl_lang: "视频语言",
+                stt_lbl_model: "识别精度 (Whisper 模型)",
+                stt_lbl_cookies_browser: "从浏览器导入 Cookies",
+                stt_lbl_cookies_file: "或者上传 cookies.txt 文件",
+                stt_btn_start: "📝 开始转换为文本 (WHISPER AI)",
+                stt_res_title: "✓ 转换已完成！",
+                stt_btn_copy: "📋 复制文本",
+                stt_btn_send_tts: "🎙️ 发送到 AI 配音标签页",
+                stt_btn_dl_txt: "💾 下载文本文件 (.txt)"
+            },
+            ja: {
+                ui_lang_label: "🌐 表示言語：",
+                badge: "🚀 デュアル AI エンジン：テキスト音声合成 & 音声認識文字起こし",
+                title: "AI Voice & Transcribe Studio",
+                subtitle: "自然で滑らかな多言語 AI 音声合成 ＆ 音声・動画・YouTube の高精度文字起こし",
+                tab_tts: "🎙️ AI 音声合成 (Text ➔ Voice)",
+                tab_stt: "📝 音声・動画文字起こし (Voice ➔ Text)",
+                sec_voice_title: "1. 多言語 AI 音声を選択（ベトナム語・英語・中国語・日本語・韓国語）",
+                sec_voice_hint: "各カードの「▶ サンプル再生」をクリックして試聴できます",
+                filter_vi: "🇻🇳 ベトナム語 (7音声)",
+                filter_en: "🇺🇸 英語 (4音声)",
+                filter_zh: "🇨🇳 中国語 (3音声)",
+                filter_ja: "🇯🇵 日本語 (2音声)",
+                filter_ko: "🇰🇷 韓国語 (2音声)",
+                filter_all: "🌐 すべて表示 (18音声)",
+                sample_label: "サンプル：",
+                sample_btn: "▶ サンプルを再生",
+                sample_playing: "⏸ 再生中... (停止)",
+                sec_text_title: "2. 読み上げテキストを入力または貼り付け",
+                insert_label: "ポーズを挿入：",
+                btn_pause_1s: "+ 1秒停止",
+                btn_pause_2s: "+ 2秒停止",
+                btn_pause_dot: "+ 間を置く (...) ",
+                stat_words: "文字/単語数：",
+                stat_word_unit: "語",
+                stat_est: "推定時間：",
+                stat_time_unit: "分",
+                text_placeholder: "ここに読み上げるテキストを貼り付けてください... 20〜60分以上の長文も無制限に対応。句読点や段落で自然な間を自動挿入します。",
+                lbl_pause_style: "句読点リズムモード：",
+                opt_pause_std: "標準（自然で明瞭）",
+                opt_pause_deep: "深呼吸・朗読（段落間の長めのポーズ、小説・怪談向け）",
+                lbl_speed: "読み上げ速度 (Speed)：",
+                lbl_pitch: "声の高さ (Pitch)：",
+                btn_submit_tts: "🎧 MP3 音声ファイルを生成",
+                prog_tts_status: "AI 音声を合成中...",
+                prog_countdown: "推定残り時間：",
+                prog_tts_detail: "テキストを分割し並列処理中...",
+                prog_elapsed: "経過時間：",
+                res_tts_title: "✓ 音声の生成が完了しました！",
+                btn_dl_mp3: "⬇ MP3 ファイルをダウンロード",
+                stt_sec_title: "1. 文字起こしする音声・動画ソースを選択",
+                stt_sec_hint: "ファイルサイズ無制限（最大2GBまで対応）",
+                stt_opt_file: "📁 ファイルをアップロード（音声 .m4a/.mp3 または動画 .mp4/.mkv）",
+                stt_opt_link: "🔗 動画リンクを貼り付け（YouTube、TikTok、Facebook、Instagram など）",
+                stt_drop_text: "クリックしてファイルを選択、またはここにドラッグ＆ドロップ",
+                stt_drop_hint: "対応形式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（容量無制限）",
+                stt_link_ph: "YouTube、TikTok、Facebook、Instagram、X、Vimeo、Bilibili などの動画URLを貼り付け...",
+                stt_btn_check: "🔎 リンク確認",
+                stt_link_hint: "1000以上の動画配信サイトに対応 (yt-dlp)。大文字・句読点・段落を自動整形。非公開動画には cookies が必要です。",
+                stt_adv_title: "⚙️ 高度な設定：動画の言語、認識モデル精度、Cookies",
+                stt_lbl_lang: "動画内の言語",
+                stt_lbl_model: "精度 (Whisper モデル)",
+                stt_lbl_cookies_browser: "ブラウザから Cookies を取得",
+                stt_lbl_cookies_file: "または cookies.txt ファイルをアップロード",
+                stt_btn_start: "📝 音声文字起こしを開始 (WHISPER AI)",
+                stt_res_title: "✓ 文字起こしが完了しました！",
+                stt_btn_copy: "📋 テキストをコピー",
+                stt_btn_send_tts: "🎙️ AI 音声タブへ送る",
+                stt_btn_dl_txt: "💾 テキストを保存 (.txt)"
+            },
+            ko: {
+                ui_lang_label: "🌐 인터페이스 언어:",
+                badge: "🚀 듀얼 AI 엔진: 텍스트 음성 변환 (TTS) & 음성 인식 (STT)",
+                title: "AI Voice & Transcribe Studio",
+                subtitle: "자연스러운 다국어 AI 음성 생성 및 오디오·비디오·YouTube 초정밀 텍스트 변환",
+                tab_tts: "🎙️ AI 텍스트 음성 변환 (Text ➔ Voice)",
+                tab_stt: "📝 오디오 / 비디오 텍스트 변환 (Voice ➔ Text)",
+                sec_voice_title: "1. 다국어 AI 음성 선택 (베트남어, 영어, 중국어, 일본어, 한국어)",
+                sec_voice_hint: "각 카드의 \"▶ 샘플 듣기\"를 클릭하여 미리 들을 수 있습니다",
+                filter_vi: "🇻🇳 베트남어 (7개 음성)",
+                filter_en: "🇺🇸 영어 (4개 음성)",
+                filter_zh: "🇨🇳 중국어 (3개 음성)",
+                filter_ja: "🇯🇵 일본어 (2개 음성)",
+                filter_ko: "🇰🇷 한국어 (2개 음성)",
+                filter_all: "🌐 전체 보기 (18개 음성)",
+                sample_label: "샘플 음성:",
+                sample_btn: "▶ 음성 샘플 듣기",
+                sample_playing: "⏸ 재생 중... (정지)",
+                sec_text_title: "2. 읽을 텍스트 입력 또는 붙여넣기",
+                insert_label: "쉼표/휴지 삽입:",
+                btn_pause_1s: "+ 1초 쉬기",
+                btn_pause_2s: "+ 2초 쉬기",
+                btn_pause_dot: "+ 박자 쉬기 (...) ",
+                stat_words: "단어 수:",
+                stat_word_unit: "단어",
+                stat_est: "예상 시간:",
+                stat_time_unit: "분",
+                text_placeholder: "여기에 읽을 텍스트를 붙여넣으세요... 20~60분 이상의 장문도 무제한 지원합니다. 마침표, 쉼표, 문단에 맞춰 자연스럽게 자동 정지합니다.",
+                lbl_pause_style: "문장 부호 리듬 모드:",
+                opt_pause_std: "표준 (자연스럽고 또렷함)",
+                opt_pause_deep: "깊은 여운 (문단 간 긴 쉼, 소설·오디오북 권장)",
+                lbl_speed: "읽기 속도 (Speed):",
+                lbl_pitch: "음높이 (Pitch):",
+                btn_submit_tts: "🎧 MP3 오디오 파일 생성 시작",
+                prog_tts_status: "AI 음성 합성 처리 중...",
+                prog_countdown: "예상 남은 시간:",
+                prog_tts_detail: "텍스트 분할 및 병렬 처리 진행 중...",
+                prog_elapsed: "진행 시간:",
+                res_tts_title: "✓ 오디오가 성공적으로 생성되었습니다!",
+                btn_dl_mp3: "⬇ MP3 파일 다운로드",
+                stt_sec_title: "1. 텍스트로 변환할 오디오 / 비디오 소스 선택",
+                stt_sec_hint: "파일 크기 무제한 (최대 2GB 파일 지원)",
+                stt_opt_file: "📁 파일 업로드 (음성 .m4a/.mp3 또는 영상 .mp4/.mkv)",
+                stt_opt_link: "🔗 동영상 링크 붙여넣기 (YouTube, TikTok, Facebook, Instagram 등)",
+                stt_drop_text: "파일을 선택하거나 여기로 드래그 앤 드롭하세요",
+                stt_drop_hint: "지원 형식: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (무제한 용량)",
+                stt_link_ph: "YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili 등의 영상 링크를 붙여넣으세요...",
+                stt_btn_check: "🔎 링크 확인",
+                stt_link_hint: "1,000개 이상의 플랫폼 지원 (yt-dlp). 자동 대문자 변환, 문장 부호 및 단락 구분. 비공개 영상은 cookies가 필요합니다.",
+                stt_adv_title: "⚙️ 고급 옵션: 비디오 언어, 정확도 모델, Cookies",
+                stt_lbl_lang: "비디오 언어",
+                stt_lbl_model: "정확도 (Whisper 모델)",
+                stt_lbl_cookies_browser: "브라우저에서 Cookies 가져오기",
+                stt_lbl_cookies_file: "또는 cookies.txt 파일 업로드",
+                stt_btn_start: "📝 텍스트 변환 시작 (WHISPER AI)",
+                stt_res_title: "✓ 텍스트 변환 완료!",
+                stt_btn_copy: "📋 텍스트 복사",
+                stt_btn_send_tts: "🎙️ AI 음성 탭으로 보내기",
+                stt_btn_dl_txt: "💾 텍스트 다운로드 (.txt)"
+            }
+        };
+
+        const GENDER_TRANSLATIONS = {
+            vi: { "Nam": "Nam", "Nữ": "Nữ" },
+            en: { "Nam": "Male", "Nữ": "Female" },
+            zh: { "Nam": "男声", "Nữ": "女声" },
+            ja: { "Nam": "男性", "Nữ": "女性" },
+            ko: { "Nam": "남성", "Nữ": "여성" }
+        };
+
+        const VOICE_DESCRIPTIONS = {
+            giong_cua_toi: {
+                vi: "Giọng mẫu từ máy / bản ghi tùy chỉnh với âm sắc chân thực",
+                en: "Custom cloned voice sample with authentic timbre",
+                zh: "来自设备的高保真个性化定制声音样本",
+                ja: "デバイスからの高精度カスタム音声サンプル",
+                ko: "자연스러운 음색의 맞춤형 기기 음성 샘플"
+            },
+            hoang_nam: {
+                vi: "Nam miền Bắc ấm áp, điềm đạm, cực chuẩn tin tức và tài liệu",
+                en: "Northern male: warm, calm, perfect for news and documentaries",
+                zh: "越南北部男声：温暖沉稳，非常适合新闻与纪录片",
+                ja: "ベトナム北部男性：温かく落ち着いた語り口、ニュースや解説に最適",
+                ko: "베트남 북부 남성: 따뜻하고 차분한 어조, 뉴스 및 다큐멘터리에 적합"
+            },
+            hoai_my: {
+                vi: "Nữ miền Bắc dịu dàng, trong trẻo, phù hợp đọc sách, quảng cáo",
+                en: "Northern female: gentle, clear, ideal for audiobooks and ads",
+                zh: "越南北部女声：温柔清脆，适合有声读物与广告旁白",
+                ja: "ベトナム北部女性：優しく透明感のある声、朗読やCMに最適",
+                ko: "베트남 북부 여성: 부드럽고 맑은 목소리, 오디오북 및 광고에 추천"
+            },
+            nam_minh: {
+                vi: "Nam miền Nam hào sảng, trẻ trung, tự nhiên cho review, vlog",
+                en: "Southern male: energetic, youthful, natural for reviews and vlogs",
+                zh: "越南南部男声：豪爽年轻，适合评测与 Vlog 视频",
+                ja: "ベトナム南部男性：明るく若々しい声、商品レビューやVlogに最適",
+                ko: "베트남 남부 남성: 밝고 활기찬 목소리, 리뷰 및 브이로그에 추천"
+            },
+            huong_giang: {
+                vi: "Nữ miền Trung (Huế) ngọt ngào, truyền cảm, hợp thơ ca, tản văn",
+                en: "Central female (Hue): sweet, emotional, great for poems and stories",
+                zh: "越南中部（顺化）女声：甜美深情，适合诗歌与散文",
+                ja: "ベトナム中部（フエ）女性：情緒豊かで甘い声、詩やエッセイに最適",
+                ko: "베트남 중부(후에) 여성: 달콤하고 감성적인 목소리, 시와 산문에 적합"
+            },
+            ngoc_huyen: {
+                vi: "Nữ miền Nam chuyên nghiệp, lưu loát, chuẩn bản tin và phóng sự",
+                en: "Southern female: professional, fluent, great for news and reports",
+                zh: "越南南部女声：专业流利，非常适合播音与纪实采访",
+                ja: "ベトナム南部女性：プロフェッショナルで流暢、報道や番組ナレーション向け",
+                ko: "베트남 남부 여성: 전문적이고 유창한 어조, 뉴스 및 리포트에 최적"
+            },
+            thanh_long: {
+                vi: "Nam miền Bắc trầm hùng, uy lực, rất cuốn hút cho truyện kiếm hiệp, lịch sử",
+                en: "Northern male: deep, commanding, engaging for martial arts and history novels",
+                zh: "越南北部男声：深沉雄厚，极具武侠与历史小说张力",
+                ja: "ベトナム北部男性：重厚で威厳のある低音、歴史物やバトル作品に最適",
+                ko: "베트남 북부 남성: 깊고 웅장한 중저음, 무협 및 역사 콘텐츠에 추천"
+            },
+            en_guy: {
+                vi: "Nam Mỹ trầm ấm, tự nhiên, chuyên nghiệp cho bài giảng và podcast",
+                en: "US Male: warm, natural, professional for lectures and podcasts",
+                zh: "美式英语男声：温暖自然、专业，适合网课讲解与播客",
+                ja: "アメリカ英語男性：温かく自然、講義やポッドキャストに最適",
+                ko: "미국식 영어 남성: 따뜻하고 자연스러움, 강의 및 팟캐스트에 추천"
+            },
+            en_aria: {
+                vi: "Nữ Mỹ tự nhiên, biểu cảm sinh động, đa dụng cho thuyết trình",
+                en: "US Female: expressive, lively, versatile for presentations",
+                zh: "美式英语女声：表现力丰富、生动，适合商业演示与旁白",
+                ja: "アメリカ英語女性：表情豊かで自然、プレゼンテーション向け",
+                ko: "미국식 영어 여성: 생동감 있고 표현력 풍부, 프레젠테이션에 최적"
+            },
+            en_jenny: {
+                vi: "Nữ Mỹ trong trẻo, thân thiện, lý tưởng cho trợ lý ảo và hội thoại",
+                en: "US Female: clear, friendly, ideal for virtual assistants and dialogue",
+                zh: "美式英语女声：清晰甜美、亲切，适合虚拟助手与日常对话",
+                ja: "アメリカ英語女性：クリアで親しみやすい、アシスタントや対話に最適",
+                ko: "미국식 영어 여성: 맑고 친근한 톤, 가상 비서 및 대화체에 추천"
+            },
+            en_ryan: {
+                vi: "Nam Anh chuẩn Oxford, thanh lịch, sang trọng cho tài liệu cao cấp",
+                en: "British Male: refined Oxford accent, elegant for documentaries and audiobooks",
+                zh: "英式英语男声：地道牛津腔，典雅沉稳，适合高端纪录片",
+                ja: "イギリス英語男性：洗練されたオックスフォード発音、格調高いナレーション向け",
+                ko: "영국식 영어 남성: 품격 있는 옥스퍼드 억양, 다큐멘터리 및 고급 오디오북용"
+            },
+            zh_xiaoxiao: {
+                vi: "Nữ Bắc Kinh nhẹ nhàng, ngọt ngào, phổ biến nhất trên Douyin và TikTok",
+                en: "Chinese Female: sweet, gentle Beijing accent, viral on Douyin/TikTok",
+                zh: "中文普通话女声：温婉甜美、极富感染力，短视频热门热门配音",
+                ja: "中国語女性（北京）：優しく親しみやすい、Douyin/TikTokで大人気",
+                ko: "중국어 여성(베이징): 부드럽고 달콤함, 틱톡·쇼츠 인기 내레이션"
+            },
+            zh_yunxi: {
+                vi: "Nam phổ thông trẻ trung, hoạt bát, truyền cảm hứng",
+                en: "Chinese Male: youthful, energetic, inspiring tone",
+                zh: "中文普通话男声：阳光阳光、朝气蓬勃，适合故事与知识分享",
+                ja: "中国語男性：若々しくエネルギッシュ、解説やストーリーに最適",
+                ko: "중국어 남성: 활기차고 밝은 청년 톤, 지식 전달 및 스토리텔링에 최적"
+            },
+            zh_yunjian: {
+                vi: "Nam trầm ấm, điềm đạm, đậm chất điện ảnh và đọc truyện đêm muộn",
+                en: "Chinese Male: deep, cinematic, perfect for audiobooks and storytelling",
+                zh: "中文普通话男声：影视质感中低音，厚重沉稳，适合评书与影视解说",
+                ja: "中国語男性：映画のような重厚な低音、オーディオブックや夜の朗読向け",
+                ko: "중국어 남성: 영화 같은 중저음, 오디오북 및 심야 방송에 어울림"
+            },
+            ja_nanami: {
+                vi: "Nữ Tokyo trong sáng, dễ mến, chuẩn phong cách Anime và TV commercial",
+                en: "Japanese Female: bright, friendly Tokyo accent, anime and commercial style",
+                zh: "日语女声（东京腔）：清澈甜美、亲和力强，动漫与广告风格",
+                ja: "日本語女性（東京）：明るく親しみやすい、アニメやCMナレーションに最適",
+                ko: "일본어 여성(도쿄): 맑고 친근한 톤, 애니메이션 및 광고 스타일"
+            },
+            ja_keita: {
+                vi: "Nam Tokyo lịch lãm, tự nhiên, chuẩn phong cách phim truyền hình và tin tức",
+                en: "Japanese Male: natural, polite, perfect for news and corporate narration",
+                zh: "日语男声（东京腔）：自然文雅、成熟稳重，适合新闻报道与企业解说",
+                ja: "日本語男性（東京）：自然で爽やか、ニュースやビジネス解説に最適",
+                ko: "일본어 남성(도쿄): 정중하고 자연스러움, 뉴스 및 기업 소개에 추천"
+            },
+            ko_sunhi: {
+                vi: "Nữ Seoul trong trẻo, dịu dàng, chuẩn phong cách K-Drama và quảng cáo",
+                en: "Korean Female: gentle, clear Seoul accent, K-drama and commercial style",
+                zh: "韩语女声（首尔）：清澈温婉，韩剧与商业广告标准音质",
+                ja: "韓国語女性（ソウル）：優しく透明感のある発音、K-DramaやCM風",
+                ko: "한국어 여성(서울): 맑고 부드러운 표준어, K-드라마 및 광고에 최적"
+            },
+            ko_injoon: {
+                vi: "Nam Seoul ấm áp, tự nhiên, chuẩn phong cách chương trình thực tế và sách nói",
+                en: "Korean Male: warm, natural, ideal for podcasts, audiobooks, and variety shows",
+                zh: "韩语男声（首尔）：温和自然、娓娓道来，适合播客与有声书",
+                ja: "韓国語男性（ソウル）：温かく誠実な声、ポッドキャストや朗読に最適",
+                ko: "한국어 남성(서울): 따뜻하고 자연스러운 톤, 팟캐스트 및 오디오북용"
+            }
+        };
+
+        const SAMPLE_TEXTS = {
+            vi: `Chào mừng bạn đến với AI Voice Studio.\nHệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.\n[nghỉ 1s]\nBây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!`,
+            en: `Welcome to AI Voice Studio.\nOur system provides natural and expressive text-to-speech with smart pause control, as well as ultra-precise speech-to-text transcription.\n[nghỉ 1s]\nPaste your text here to get started!`,
+            zh: `欢迎使用 AI Voice Studio 智能语音工作室。\n本系统提供自然流畅的多语言 AI 配音、情感停顿控制，以及超高精度的语音与视频转文字功能。\n[nghỉ 1s]\n请在下方粘贴您的文本，即刻开始体验！`,
+            ja: `AI Voice Studio へようこそ。\n自然で滑らかな多言語 AI 音声合成、スマートな間（ポーズ）の制御、高精度な音声・動画文字起こしに対応しています。\n[nghỉ 1s]\nここにテキストを貼り付けて、お試しください！`,
+            ko: `AI Voice Studio에 오신 것을 환영합니다.\n자연스러운 다국어 AI 음성 합성, 감정 기반 쉼표 제어, 초정밀 오디오/비디오 텍스트 변환 기능을 지원합니다.\n[nghỉ 1s]\n여기에 텍스트를 붙여넣고 바로 시작해 보세요!`
+        };
+
+        let currentUILang = 'vi';
+
+        function setUILanguage(lang) {
+            if (!I18N[lang]) lang = 'vi';
+            currentUILang = lang;
+            localStorage.setItem('ui_lang', lang);
+
+            // Cập nhật trạng thái nút chuyển đổi ngôn ngữ
+            document.querySelectorAll('.ui-lang-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-ui-lang') === lang);
+            });
+
+            // Cập nhật toàn bộ nhãn văn bản có data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[lang] && I18N[lang][key]) {
+                    el.innerHTML = I18N[lang][key];
+                }
+            });
+
+            // Cập nhật placeholder
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (I18N[lang] && I18N[lang][key]) {
+                    el.setAttribute('placeholder', I18N[lang][key]);
+                }
+            });
+
+            // Cập nhật mô tả giọng đọc
+            document.querySelectorAll('.voice-desc[data-voice-key]').forEach(el => {
+                const vKey = el.getAttribute('data-voice-key');
+                if (VOICE_DESCRIPTIONS[vKey] && VOICE_DESCRIPTIONS[vKey][lang]) {
+                    el.innerText = VOICE_DESCRIPTIONS[vKey][lang];
+                }
+            });
+
+            // Cập nhật tag giới tính (Nam / Nữ)
+            document.querySelectorAll('.voice-tag[data-gender]').forEach(el => {
+                const rawGender = el.getAttribute('data-gender');
+                if (GENDER_TRANSLATIONS[lang] && GENDER_TRANSLATIONS[lang][rawGender]) {
+                    el.innerText = GENDER_TRANSLATIONS[lang][rawGender];
+                }
+            });
+
+            // Cập nhật nút nghe thử giọng
+            document.querySelectorAll('.btn-play-sample').forEach(btn => {
+                if (!btn.classList.contains('playing')) {
+                    btn.innerHTML = I18N[lang]?.sample_btn || '▶ Nghe thử giọng này';
+                }
+            });
+
+            // Tự động kích hoạt bộ lọc giọng đọc tương ứng
+            filterVoiceLang(lang, null);
+
+            // Đổi đoạn văn bản mẫu mặc định nếu người dùng chưa sửa
+            const textEl = document.getElementById('textContent');
+            if (textEl) {
+                const currentVal = textEl.value.trim();
+                const allSampleTexts = Object.values(SAMPLE_TEXTS).map(t => t.trim());
+                if (allSampleTexts.includes(currentVal) || currentVal === '') {
+                    textEl.value = SAMPLE_TEXTS[lang] || SAMPLE_TEXTS['vi'];
+                    if (typeof updateStats === 'function') updateStats();
+                }
+            }
+        }
+
         // TAB SWITCHING
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -927,7 +1506,17 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
         function filterVoiceLang(lang, btn) {
             document.querySelectorAll('.lang-pill').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const targetPill = document.querySelector(`.lang-pill[data-lang-pill="${lang}"]`);
+                if (targetPill) {
+                    targetPill.classList.add('active');
+                } else {
+                    const allPill = document.querySelector('.lang-pill[data-lang-pill="all"]');
+                    if (allPill) allPill.classList.add('active');
+                }
+            }
 
             const cards = document.querySelectorAll('.voice-card');
             cards.forEach(card => {
@@ -950,24 +1539,26 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
         function playSample(event, url, btn) {
             event.stopPropagation();
+            const sampleBtnText = I18N[currentUILang]?.sample_btn || '▶ Nghe thử giọng này';
+            const samplePlayingText = I18N[currentUILang]?.sample_playing || '⏸ Đang phát... (Dừng)';
             if (currentSampleBtn === btn && !sampleAudio.paused) {
                 sampleAudio.pause();
                 btn.classList.remove('playing');
-                btn.innerHTML = '▶ Nghe thử giọng này';
+                btn.innerHTML = sampleBtnText;
                 return;
             }
             if (currentSampleBtn) {
                 currentSampleBtn.classList.remove('playing');
-                currentSampleBtn.innerHTML = '▶ Nghe thử giọng này';
+                currentSampleBtn.innerHTML = sampleBtnText;
             }
             sampleAudio.src = url;
             sampleAudio.play();
             btn.classList.add('playing');
-            btn.innerHTML = '⏸ Đang phát... (Dừng)';
+            btn.innerHTML = samplePlayingText;
             currentSampleBtn = btn;
             sampleAudio.onended = () => {
                 btn.classList.remove('playing');
-                btn.innerHTML = '▶ Nghe thử giọng này';
+                btn.innerHTML = sampleBtnText;
                 currentSampleBtn = null;
             };
         }
@@ -1018,17 +1609,21 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         document.getElementById('textContent').addEventListener('input', updateStats);
         updateStats();
 
+        // KHỞI TẠO NGÔN NGỮ GIAO DIỆN MẶC ĐỊNH HOẶC THEO LƯU TRỮ
+        const savedUILang = localStorage.getItem('ui_lang') || 'vi';
+        setUILanguage(savedUILang);
+
         async function generateSpeech() {
             const text = document.getElementById('textContent').value.trim();
             if (!text) {
-                alert('Vui lòng nhập văn bản cần đọc!');
+                alert(I18N[currentUILang]?.sec_text_title || 'Vui lòng nhập văn bản cần đọc!');
                 return;
             }
             if (!sampleAudio.paused) {
                 sampleAudio.pause();
                 if (currentSampleBtn) {
                     currentSampleBtn.classList.remove('playing');
-                    currentSampleBtn.innerHTML = '▶ Nghe thử giọng này';
+                    currentSampleBtn.innerHTML = I18N[currentUILang]?.sample_btn || '▶ Nghe thử giọng này';
                 }
             }
 
@@ -1160,7 +1755,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
                 btn.disabled = false;
                 spinner.style.display = 'none';
-                btnText.innerText = '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+                btnText.innerText = I18N[currentUILang]?.btn_submit_tts || '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
             }
         }
 
@@ -1310,7 +1905,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             } finally {
                 btn.disabled = false;
                 spinner.style.display = 'none';
-                btnText.innerText = '📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)';
+                btnText.innerText = I18N[currentUILang]?.stt_btn_start || '📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)';
             }
         }
 
