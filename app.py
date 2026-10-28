@@ -110,9 +110,9 @@ VOICE_PRESETS = {
         "sample": "/static/samples/6_Nu_TuoiTre_Vlog.mp3"
     },
 
-    # 🇺🇸 TIẾNG ANH (ENGLISH)
+    # 🇺🇸 TIẾNG ANH (ENGLISH) - 13 GIỌNG ĐẶC SẮC TỪ MICROSOFT
     "en_guy": {
-        "name": "Guy - Trầm Ấm & Phim Tài Liệu",
+        "name": "Guy - Trầm Ấm & Podcast",
         "gender": "Nam",
         "voice": "en-US-GuyNeural",
         "lang": "en",
@@ -123,14 +123,14 @@ VOICE_PRESETS = {
         "sample": "/static/samples/sample_en_guy.mp3"
     },
     "en_aria": {
-        "name": "Aria - Truyền Cảm & Kể Chuyện",
+        "name": "Aria - Truyền Cảm & Diễn Thuyết",
         "gender": "Nữ",
         "voice": "en-US-AriaNeural",
         "lang": "en",
         "flag": "🇺🇸",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nữ Mỹ truyền cảm, âm sắc ấm áp, giàu biểu cảm, hợp sách nói và tâm sự.",
+        "desc": "Giọng nữ Mỹ truyền cảm, âm sắc ấm áp, giàu biểu cảm, hợp sách nói và thuyết trình.",
         "sample": "/static/samples/sample_en_aria.mp3"
     },
     "en_jenny": {
@@ -144,19 +144,118 @@ VOICE_PRESETS = {
         "desc": "Giọng nữ Mỹ trẻ trung, năng động, rất tự nhiên cho vlog và video quảng cáo.",
         "sample": "/static/samples/sample_en_jenny.mp3"
     },
+    "en_christopher": {
+        "name": "Christopher - Mạnh Mẽ & Thời Sự",
+        "gender": "Nam",
+        "voice": "en-US-ChristopherNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Mỹ quyền lực, dứt khoát, chuẩn bản tin quốc tế và phóng sự truyền hình.",
+        "sample": "/static/samples/sample_en_christopher.mp3"
+    },
+    "en_eric": {
+        "name": "Eric - Điềm Đạm & Sách Nói",
+        "gender": "Nam",
+        "voice": "en-US-EricNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Mỹ thanh nhã, tốc độ đều đặn, tối ưu cho sách nói và tản văn.",
+        "sample": "/static/samples/sample_en_eric.mp3"
+    },
+    "en_michelle": {
+        "name": "Michelle - Doanh Nghiệp & Chuyên Nghiệp",
+        "gender": "Nữ",
+        "voice": "en-US-MichelleNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Mỹ chuyên nghiệp, đĩnh đạc, phù hợp đào tạo nhân sự và video doanh nghiệp.",
+        "sample": "/static/samples/sample_en_michelle.mp3"
+    },
+    "en_ana": {
+        "name": "Ana - Trong Trẻo & Giáo Dục",
+        "gender": "Nữ",
+        "voice": "en-US-AnaNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Mỹ tươi sáng, gần gũi, rất thích hợp giảng dạy, kể chuyện thiếu nhi.",
+        "sample": "/static/samples/sample_en_ana.mp3"
+    },
+    "en_roger": {
+        "name": "Roger - Từng Trải & Kể Chuyện",
+        "gender": "Nam",
+        "voice": "en-US-RogerNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Mỹ trung niên từng trải, ấm áp, sâu sắc cho hồi ký và phim tài liệu lịch sử.",
+        "sample": "/static/samples/sample_en_roger.mp3"
+    },
+    "en_steffan": {
+        "name": "Steffan - Điện Ảnh & Trầm Hùng",
+        "gender": "Nam",
+        "voice": "en-US-SteffanNeural",
+        "lang": "en",
+        "flag": "🇺🇸",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Mỹ trầm hùng, độ vang kịch tính, phong cách trailer phim điện ảnh.",
+        "sample": "/static/samples/sample_en_steffan.mp3"
+    },
     "en_ryan": {
-        "name": "Ryan - Chuẩn Anh Quốc Quý Tộc",
+        "name": "Ryan - Chuẩn Oxford Quý Tộc",
         "gender": "Nam",
         "voice": "en-GB-RyanNeural",
         "lang": "en",
         "flag": "🇬🇧",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nam Anh chuẩn Oxford, lịch lãm, thích hợp bản tin quốc tế và phóng sự.",
+        "desc": "Giọng nam Anh chuẩn Oxford, lịch lãm, sang trọng, thích hợp tài liệu cao cấp.",
         "sample": "/static/samples/sample_en_ryan.mp3"
     },
+    "en_sonia": {
+        "name": "Sonia - Thanh Lịch & Quý Phái",
+        "gender": "Nữ",
+        "voice": "en-GB-SoniaNeural",
+        "lang": "en",
+        "flag": "🇬🇧",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Anh thanh lịch, phát âm chuẩn mực BBC, hợp phóng sự du lịch và văn hóa nghệ thuật.",
+        "sample": "/static/samples/sample_en_sonia.mp3"
+    },
+    "en_libby": {
+        "name": "Libby - Trẻ Trung & Năng Động",
+        "gender": "Nữ",
+        "voice": "en-GB-LibbyNeural",
+        "lang": "en",
+        "flag": "🇬🇧",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Anh trẻ trung, tươi tắn, biểu cảm linh hoạt cho audio kịch và vlog.",
+        "sample": "/static/samples/sample_en_libby.mp3"
+    },
+    "en_thomas": {
+        "name": "Thomas - Trang Trọng & Bản Tin BBC",
+        "gender": "Nam",
+        "voice": "en-GB-ThomasNeural",
+        "lang": "en",
+        "flag": "🇬🇧",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Anh nghiêm túc, tròn vành rõ chữ, chuẩn phong thái bình luận viên thể thao và thời sự.",
+        "sample": "/static/samples/sample_en_thomas.mp3"
+    },
 
-    # 🇨🇳 TIẾNG TRUNG (CHINESE)
+    # 🇨🇳 TIẾNG TRUNG (CHINESE) - TẤT CẢ 14 GIỌNG MICROSOFT
     "zh_xiaoxiao": {
         "name": "Xiaoxiao (晓晓) - Ngọt Ngào & Tâm Sự",
         "gender": "Nữ",
@@ -165,19 +264,19 @@ VOICE_PRESETS = {
         "flag": "🇨🇳",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nữ số 1 của Microsoft: siêu ngọt ngào, cảm xúc tinh tế, hợp truyện tình và tâm sự.",
+        "desc": "Giọng nữ số 1 Microsoft Trung Quốc: siêu ngọt ngào, cảm xúc tinh tế, hợp truyện tình và tâm sự.",
         "sample": "/static/samples/sample_zh_xiaoxiao.mp3"
     },
-    "zh_yunxi": {
-        "name": "Yunxi (云希) - Trẻ Trung & Review Phim",
-        "gender": "Nam",
-        "voice": "zh-CN-YunxiNeural",
+    "zh_xiaoyi": {
+        "name": "Xiaoyi (晓伊) - Bản Tin & Phóng Sự",
+        "gender": "Nữ",
+        "voice": "zh-CN-XiaoyiNeural",
         "lang": "zh",
         "flag": "🇨🇳",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nam thiếu niên hoạt bát, phổ biến nhất trong các video review phim và Douyin.",
-        "sample": "/static/samples/sample_zh_yunxi.mp3"
+        "desc": "Giọng nữ phổ thông chuẩn mực, dứt khoát, chuyên nghiệp cho tin tức và thuyết minh doanh nghiệp.",
+        "sample": "/static/samples/sample_zh_xiaoyi.mp3"
     },
     "zh_yunjian": {
         "name": "Yunjian (云健) - Hào Sảng & Kiếm Hiệp",
@@ -187,11 +286,132 @@ VOICE_PRESETS = {
         "flag": "🇨🇳",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nam hào hùng, trầm bổng, phong thái kể chuyện dã sử kiếm hiệp và tin tức.",
+        "desc": "Giọng nam hào hùng, trầm bổng, phong thái kể chuyện dã sử kiếm hiệp và phim võ thuật.",
         "sample": "/static/samples/sample_zh_yunjian.mp3"
     },
+    "zh_yunxi": {
+        "name": "Yunxi (云希) - Trẻ Trung & Review Douyin",
+        "gender": "Nam",
+        "voice": "zh-CN-YunxiNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam thiếu niên hoạt bát, phổ biến nhất trong các video review phim TikTok/Douyin.",
+        "sample": "/static/samples/sample_zh_yunxi.mp3"
+    },
+    "zh_yunxia": {
+        "name": "Yunxia (云夏) - Năng Động & Hài Hước",
+        "gender": "Nam",
+        "voice": "zh-CN-YunxiaNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam tươi vui, giàu năng lượng tích cực, hoàn hảo cho hoạt hình và vlog đời sống.",
+        "sample": "/static/samples/sample_zh_yunxia.mp3"
+    },
+    "zh_yunyang": {
+        "name": "Yunyang (云扬) - Phát Thanh & Báo Chí",
+        "gender": "Nam",
+        "voice": "zh-CN-YunyangNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam phát thanh viên đài truyền hình, đĩnh đạc, trầm ổn, rành mạch từng câu chữ.",
+        "sample": "/static/samples/sample_zh_yunyang.mp3"
+    },
+    "zh_liaoning_xiaobei": {
+        "name": "Xiaobei (东北小北) - Đông Bắc Hài Hước",
+        "gender": "Nữ",
+        "voice": "zh-CN-liaoning-XiaobeiNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ phương ngữ Đông Bắc Liêu Ninh, dí dỏm, mộc mạc, tạo tiếng cười cho tiểu phẩm.",
+        "sample": "/static/samples/sample_zh_liaoning_xiaobei.mp3"
+    },
+    "zh_shaanxi_xiaoni": {
+        "name": "Xiaoni (陕西小妮) - Thiểm Tây Mộc Mạc",
+        "gender": "Nữ",
+        "voice": "zh-CN-shaanxi-XiaoniNeural",
+        "lang": "zh",
+        "flag": "🇨🇳",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ phương ngữ Tây Bắc Thiểm Tây, chân chất, sâu lắng, đậm chất văn hóa dân gian.",
+        "sample": "/static/samples/sample_zh_shaanxi_xiaoni.mp3"
+    },
+    "zh_hk_hiugaai": {
+        "name": "HiuGaai (曉佳) - Hồng Kông Thời Sự",
+        "gender": "Nữ",
+        "voice": "zh-HK-HiuGaaiNeural",
+        "lang": "zh",
+        "flag": "🇭🇰",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ tiếng Quảng Đông (Cantonese) Hồng Kông, chuẩn mực, lưu loát cho tin tức.",
+        "sample": "/static/samples/sample_zh_hk_hiugaai.mp3"
+    },
+    "zh_hk_hiumaan": {
+        "name": "HiuMaan (曉曼) - Hồng Kông Ngọt Ngào",
+        "gender": "Nữ",
+        "voice": "zh-HK-HiuMaanNeural",
+        "lang": "zh",
+        "flag": "🇭🇰",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ tiếng Quảng Đông Hồng Kông ngọt ngào, dịu dàng, hợp vlog và quảng cáo thời trang.",
+        "sample": "/static/samples/sample_zh_hk_hiumaan.mp3"
+    },
+    "zh_hk_wanlung": {
+        "name": "WanLung (雲龍) - Hồng Kông Lịch Lãm",
+        "gender": "Nam",
+        "voice": "zh-HK-WanLungNeural",
+        "lang": "zh",
+        "flag": "🇭🇰",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam tiếng Quảng Đông Hồng Kông trầm ấm, đĩnh đạc, phong thái điện ảnh TVB.",
+        "sample": "/static/samples/sample_zh_hk_wanlung.mp3"
+    },
+    "zh_tw_hsiaochen": {
+        "name": "HsiaoChen (曉臻) - Đài Loan Êm Dịu",
+        "gender": "Nữ",
+        "voice": "zh-TW-HsiaoChenNeural",
+        "lang": "zh",
+        "flag": "🇹🇼",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Đài Loan chuẩn âm êm dịu, ấm áp, hoàn hảo cho sách nói và radio tâm sự đêm.",
+        "sample": "/static/samples/sample_zh_tw_hsiaochen.mp3"
+    },
+    "zh_tw_hsiaoyu": {
+        "name": "HsiaoYu (曉雨) - Đài Loan Tươi Tắn",
+        "gender": "Nữ",
+        "voice": "zh-TW-HsiaoYuNeural",
+        "lang": "zh",
+        "flag": "🇹🇼",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nữ Đài Loan tươi trẻ, sinh động, chuẩn phong cách trợ lý ảo thông minh.",
+        "sample": "/static/samples/sample_zh_tw_hsiaoyu.mp3"
+    },
+    "zh_tw_yunjhe": {
+        "name": "YunJhe (雲哲) - Đài Loan Ấm Áp",
+        "gender": "Nam",
+        "voice": "zh-TW-YunJheNeural",
+        "lang": "zh",
+        "flag": "🇹🇼",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Đài Loan ấm áp, chân thành, mang cảm giác nhẹ nhàng, dễ chịu.",
+        "sample": "/static/samples/sample_zh_tw_yunjhe.mp3"
+    },
 
-    # 🇯🇵 TIẾNG NHẬT (JAPANESE)
+    # 🇯🇵 TIẾNG NHẬT (JAPANESE) - TẤT CẢ 2 GIỌNG MICROSOFT
     "ja_nanami": {
         "name": "Nanami (七海) - Ngọt Ngào & Anime",
         "gender": "Nữ",
@@ -200,7 +420,7 @@ VOICE_PRESETS = {
         "flag": "🇯🇵",
         "rate": "+0%",
         "pitch": "+0Hz",
-        "desc": "Giọng nữ Nhật trong trẻo, dễ thương, chuẩn giọng lồng tiếng phim hoạt hình và vlog.",
+        "desc": "Giọng nữ Nhật trong trẻo, dễ thương, chuẩn giọng lồng tiếng anime và quảng cáo TV.",
         "sample": "/static/samples/sample_ja_nanami.mp3"
     },
     "ja_keita": {
@@ -215,7 +435,7 @@ VOICE_PRESETS = {
         "sample": "/static/samples/sample_ja_keita.mp3"
     },
 
-    # 🇰🇷 TIẾNG HÀN (KOREAN)
+    # 🇰🇷 TIẾNG HÀN (KOREAN) - TẤT CẢ 3 GIỌNG MICROSOFT
     "ko_sunhi": {
         "name": "SunHi (선희) - Dịu Dàng & Phim Hàn",
         "gender": "Nữ",
@@ -237,6 +457,17 @@ VOICE_PRESETS = {
         "pitch": "+0Hz",
         "desc": "Giọng nam Hàn trầm ấm, rành mạch, rất phù hợp tin tức, sách nói và podcast.",
         "sample": "/static/samples/sample_ko_injoon.mp3"
+    },
+    "ko_hyunsu": {
+        "name": "Hyunsu (현수) - Tự Nhiên & Hiện Đại",
+        "gender": "Nam",
+        "voice": "ko-KR-HyunsuMultilingualNeural",
+        "lang": "ko",
+        "flag": "🇰🇷",
+        "rate": "+0%",
+        "pitch": "+0Hz",
+        "desc": "Giọng nam Hàn hiện đại, thế hệ AI mới đa ngôn ngữ, phát âm siêu mượt và chân thực.",
+        "sample": "/static/samples/sample_ko_hyunsu.mp3"
     }
 }
 
@@ -465,8 +696,28 @@ def preprocess_text(text, pause_style="standard"):
     text = re.sub(r'\s*—\s*', ', ', text)
     text = re.sub(r'[,]+', ',', text)
     text = re.sub(r'\.{4,}', '...', text)
+
     if pause_style == "deep":
+        # Sâu lắng & Đọc truyện: Nghỉ dài giữa các đoạn, ngắt nhịp lắng đọng
         text = re.sub(r'\n+', '\n\n... ', text)
+        text = re.sub(r'([.!?])\s+', r'\1 ... ', text)
+    elif pause_style == "fast_paced":
+        # Nhanh & Kịch tính: Tiết tấu dồn dập cho tin nhanh, review TikTok, YouTube Shorts
+        text = re.sub(r'\.{3,}', '.', text)
+        text = re.sub(r'\n+', '\n', text)
+    elif pause_style == "calm_podcast":
+        # Thong thả & Podcast: Nhịp thở nhẹ tại dấu phẩy và đoạn văn
+        text = re.sub(r',\s*', ', ... ', text)
+        text = re.sub(r'\n+', '\n\n... ... ', text)
+    elif pause_style == "documentary":
+        # Thuyết minh & Tài liệu: Trang trọng, gãy gọn, ngắt rõ ở dấu chấm và dấu hai chấm
+        text = re.sub(r'([:;])\s*', r'\1 ... ', text)
+        text = re.sub(r'\n+', '\n\n... ', text)
+    elif pause_style == "energetic_ad":
+        # Hào sảng & Quảng cáo: Nhấn mạnh câu từ bán hàng và câu cảm thán
+        text = re.sub(r'([!])\s*', r'\1 ... ! ', text)
+        text = re.sub(r'\n+', '\n\n', text)
+
     return text.strip()
 
 def split_text_into_chunks(text, max_chars=350):

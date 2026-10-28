@@ -209,57 +209,126 @@
         /* TAB 1: TTS VOICE CARDS */
         .lang-filter-bar {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            overflow-x: visible;
         }
 
         .lang-pill {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #cbd5e1;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 9px 18px;
+            border-radius: 50px;
             font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
+            backdrop-filter: blur(8px);
         }
 
         .lang-pill:hover {
-            border-color: var(--accent);
+            border-color: #38bdf8;
             color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
         }
 
         .lang-pill.active {
-            background: var(--accent-gradient);
-            color: #0b1120;
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+            color: #070b14;
+            font-weight: 700;
             border-color: transparent;
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
+            transform: translateY(-1px);
+        }
+
+        /* THANH TÌM KIẾM NHANH GIỌNG ĐỌC */
+        .voice-search-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 18px;
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .voice-search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .voice-search-icon {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .voice-search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .voice-search-input::placeholder {
+            color: #64748b;
+        }
+
+        .voice-count-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .voice-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(295px, 1fr));
             gap: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 26px;
         }
 
         .voice-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1.5px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
+            background: rgba(22, 30, 49, 0.75);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 18px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .voice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: transparent;
+            transition: all 0.25s;
         }
 
         .voice-card.hidden {
@@ -268,13 +337,19 @@
 
         .voice-card:hover {
             border-color: rgba(56, 189, 248, 0.5);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.18);
+            background: rgba(30, 41, 59, 0.85);
         }
 
         .voice-card.active {
-            border-color: var(--accent);
-            background: rgba(56, 189, 248, 0.08);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            background: linear-gradient(145deg, rgba(14, 165, 233, 0.14) 0%, rgba(99, 102, 241, 0.12) 100%);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.05);
+        }
+
+        .voice-card.active::before {
+            background: var(--accent-gradient);
         }
 
         .voice-header {
@@ -310,7 +385,7 @@
         .voice-desc {
             font-size: 12.5px;
             color: var(--text-muted);
-            line-height: 1.4;
+            line-height: 1.45;
             margin-bottom: 12px;
         }
 
@@ -326,7 +401,7 @@
             background: rgba(56, 189, 248, 0.15);
             border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--accent);
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
@@ -335,8 +410,9 @@
         }
 
         .btn-play-sample:hover {
-            background: var(--accent);
+            background: var(--accent-gradient);
             color: #0b1120;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
         }
 
         .btn-play-sample.playing {
@@ -397,32 +473,40 @@
             width: 100%;
             height: 550px;
             min-height: 420px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1.5px solid var(--border);
-            border-radius: 14px;
-            padding: 18px;
-            color: var(--text-main);
+            background: rgba(13, 20, 36, 0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 20px;
+            color: #f8fafc;
             font-size: 15.5px;
             line-height: 1.7;
             resize: vertical;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         textarea:focus {
             border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
         }
 
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(15, 23, 42, 0.6);
             padding: 18px;
-            border-radius: 14px;
+            border-radius: 16px;
             margin-bottom: 24px;
             border: 1px solid var(--border);
+        }
+
+        .control-item {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
         }
 
         .control-item label {
@@ -438,37 +522,75 @@
         }
 
         .control-item select {
-            background: #1e293b;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: #0f172a;
+            border: 1.5px solid rgba(56, 189, 248, 0.25);
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 10px;
             outline: none;
-            font-size: 13px;
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-item select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .control-item input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+            outline: none;
+            margin-top: 6px;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+            border: 2px solid #38bdf8;
+            transition: transform 0.15s;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
 
         /* BUTTON SUBMIT */
         .btn-submit {
             width: 100%;
-            padding: 16px;
-            background: var(--accent-gradient);
+            padding: 18px;
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #7c3aed 100%);
             border: none;
-            border-radius: 12px;
-            color: #0b1120;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 16.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.25s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4), 0 0 20px rgba(56, 189, 248, 0.25);
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-submit:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.45);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 16px 36px rgba(37, 99, 235, 0.55), 0 0 28px rgba(56, 189, 248, 0.45);
         }
 
         .btn-submit:disabled {
@@ -755,12 +877,21 @@
                 
                 <!-- BỘ LỌC NGÔN NGỮ ĐA QUỐC GIA -->
                 <div class="lang-filter-bar">
-                    <button type="button" class="lang-pill active" data-lang-pill="vi" data-i18n="filter_vi" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7 giọng)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="en" data-i18n="filter_en" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (4 giọng)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="zh" data-i18n="filter_zh" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (3 giọng)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="ja" data-i18n="filter_ja" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2 giọng)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="ko" data-i18n="filter_ko" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (2 giọng)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="all" data-i18n="filter_all" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (18 giọng)</button>
+                    <button type="button" class="lang-pill active" data-lang-pill="vi" data-i18n="filter_vi" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="en" data-i18n="filter_en" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (13)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="zh" data-i18n="filter_zh" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (14)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="ja" data-i18n="filter_ja" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="ko" data-i18n="filter_ko" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (3)</button>
+                    <button type="button" class="lang-pill" data-lang-pill="all" data-i18n="filter_all" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (39)</button>
+                </div>
+
+                <!-- THANH TÌM KIẾM NHANH GIỌNG ĐỌC -->
+                <div class="voice-search-wrapper">
+                    <div class="voice-search-box">
+                        <span class="voice-search-icon">🔍</span>
+                        <input type="text" id="voiceSearchInput" class="voice-search-input" data-i18n-ph="voice_search_ph" placeholder="Tìm nhanh giọng đọc theo tên, phong cách, giới tính, vùng miền..." oninput="filterVoicesBySearch(this.value)">
+                    </div>
+                    <span class="voice-count-badge" id="voiceCountBadge">7 giọng hiển thị</span>
                 </div>
 
                 <div class="voice-grid">
@@ -813,8 +944,12 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     <div class="control-item">
                         <label data-i18n="lbl_pause_style">Chế độ ngắt nhịp dấu câu:</label>
                         <select id="pauseStyle">
-                            <option value="standard" data-i18n="opt_pause_std">Tiêu chuẩn (Tự nhiên, rành mạch)</option>
-                            <option value="deep" data-i18n="opt_pause_deep">Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)</option>
+                            <option value="standard" data-i18n="opt_pause_std">⚡ Tiêu chuẩn (Tự nhiên, rành mạch)</option>
+                            <option value="deep" data-i18n="opt_pause_deep">📖 Sâu lắng & Đọc truyện (Nghỉ dài, giàu cảm xúc)</option>
+                            <option value="fast_paced" data-i18n="opt_pause_fast">🔥 Nhanh & Kịch tính (Tin vắn, review TikTok, Shorts)</option>
+                            <option value="calm_podcast" data-i18n="opt_pause_podcast">☕ Thong thả & Podcast (Thư thái, nhịp thở nhẹ nhàng)</option>
+                            <option value="documentary" data-i18n="opt_pause_doc">🎙️ Thuyết minh & Tài liệu (Trang trọng, gãy gọn chuẩn truyền hình)</option>
+                            <option value="energetic_ad" data-i18n="opt_pause_ad">💥 Hào sảng & Quảng cáo (Sôi động, nhấn mạnh bán hàng)</option>
                         </select>
                     </div>
                     <div class="control-item">
@@ -972,307 +1107,332 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
     <script>
         // ================= I18N MULTILINGUAL DICTIONARY =================
         const I18N = {
-            vi: {
-                ui_lang_label: "🌐 Ngôn ngữ giao diện:",
-                badge: "🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
-                title: "AI Voice & Transcribe Studio",
-                subtitle: "Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn",
-                tab_tts: "🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)",
-                tab_stt: "📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)",
-                sec_voice_title: "1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)",
-                sec_voice_hint: "Bấm nút \"▶ Nghe thử\" trên từng thẻ để nghe mẫu",
-                filter_vi: "🇻🇳 Tiếng Việt (7 giọng)",
-                filter_en: "🇺🇸 Tiếng Anh (4 giọng)",
-                filter_zh: "🇨🇳 Tiếng Trung (3 giọng)",
-                filter_ja: "🇯🇵 Tiếng Nhật (2 giọng)",
-                filter_ko: "🇰🇷 Tiếng Hàn (2 giọng)",
-                filter_all: "🌐 Xem Tất Cả (18 giọng)",
-                sample_label: "Mẫu giọng:",
-                sample_btn: "▶ Nghe thử giọng này",
-                sample_playing: "⏸ Đang phát... (Dừng)",
-                sec_text_title: "2. Nhập Hoặc Dán Văn Bản Cần Đọc",
-                insert_label: "Chèn ngắt nghỉ:",
-                btn_pause_1s: "+ Dừng 1 giây",
-                btn_pause_2s: "+ Dừng 2 giây",
-                btn_pause_dot: "+ Ngắt nhịp (...) ",
-                stat_words: "Số từ:",
-                stat_word_unit: "từ",
-                stat_est: "Ước tính thời lượng:",
-                stat_time_unit: "phút",
-                text_placeholder: "Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.",
-                lbl_pause_style: "Chế độ ngắt nhịp dấu câu:",
-                opt_pause_std: "Tiêu chuẩn (Tự nhiên, rành mạch)",
-                opt_pause_deep: "Sâu lắng (Nghỉ dài giữa các đoạn, hợp đọc truyện)",
-                lbl_speed: "Tốc độ đọc (Speed):",
-                lbl_pitch: "Cao độ giọng (Pitch):",
-                btn_submit_tts: "🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3",
-                prog_tts_status: "Đang xử lý tổng hợp giọng đọc AI...",
-                prog_countdown: "Ước tính còn:",
-                prog_tts_detail: "Đang chia đoạn văn bản và gửi xử lý song song...",
-                prog_elapsed: "Đã chạy:",
-                res_tts_title: "✓ Đã tạo thành công file âm thanh!",
-                btn_dl_mp3: "⬇ Tải File MP3 Về Máy",
-                stt_sec_title: "1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản",
-                stt_sec_hint: "Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)",
-                stt_opt_file: "📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)",
-                stt_opt_link: "🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)",
-                stt_drop_text: "Bấm để chọn file hoặc Kéo & Thả file vào đây",
-                stt_drop_hint: "Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)",
-                stt_link_ph: "Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
-                stt_btn_check: "🔎 Kiểm tra",
-                stt_link_hint: "Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn. Video riêng tư / bị chặn cần cookies.",
-                stt_adv_title: "⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies",
-                stt_lbl_lang: "Ngôn ngữ trong video",
-                stt_lbl_model: "Độ chính xác (model Whisper)",
-                stt_lbl_cookies_browser: "Lấy cookies từ trình duyệt",
-                stt_lbl_cookies_file: "Hoặc tải file cookies.txt",
-                stt_btn_start: "📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)",
-                stt_res_title: "✓ Đã chuyển đổi hoàn tất!",
-                stt_btn_copy: "📋 Sao Chép Văn Bản",
-                stt_btn_send_tts: "🎙️ Đưa Sang Tab Giọng Đọc AI",
-                stt_btn_dl_txt: "💾 Tải File Văn Bản (.txt)"
-            },
-            en: {
-                ui_lang_label: "🌐 Interface Language:",
-                badge: "🚀 DUAL AI ENGINE: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
-                title: "AI Voice & Transcribe Studio",
-                subtitle: "Generate natural multilingual AI speech & Transcribe audio, video, YouTube to text with high precision",
-                tab_tts: "🎙️ AI Text-to-Speech (Text ➔ Voice)",
-                tab_stt: "📝 Transcribe Audio / Video to Text (Voice ➔ Text)",
-                sec_voice_title: "1. Select Multilingual AI Voice (Vietnamese, English, Chinese, Japanese, Korean)",
-                sec_voice_hint: "Click \"▶ Sample\" on any card to preview the voice",
-                filter_vi: "🇻🇳 Vietnamese (7 voices)",
-                filter_en: "🇺🇸 English (4 voices)",
-                filter_zh: "🇨🇳 Chinese (3 voices)",
-                filter_ja: "🇯🇵 Japanese (2 voices)",
-                filter_ko: "🇰🇷 Korean (2 voices)",
-                filter_all: "🌐 View All (18 voices)",
-                sample_label: "Sample:",
-                sample_btn: "▶ Play voice sample",
-                sample_playing: "⏸ Playing... (Stop)",
-                sec_text_title: "2. Enter or Paste Text to Read",
-                insert_label: "Insert pause:",
-                btn_pause_1s: "+ Pause 1s",
-                btn_pause_2s: "+ Pause 2s",
-                btn_pause_dot: "+ Rhythm (...) ",
-                stat_words: "Words:",
-                stat_word_unit: "words",
-                stat_est: "Est. duration:",
-                stat_time_unit: "mins",
-                text_placeholder: "Paste your text here... Supports long texts (20-60+ mins) without limit. Smooth pauses at punctuation and paragraphs.",
-                lbl_pause_style: "Punctuation rhythm mode:",
-                opt_pause_std: "Standard (Natural, clear)",
-                opt_pause_deep: "Storytelling (Deep, longer pauses for novels)",
-                lbl_speed: "Speed:",
-                lbl_pitch: "Pitch:",
-                btn_submit_tts: "🎧 GENERATE MP3 AUDIO FILE",
-                prog_tts_status: "Synthesizing AI voice...",
-                prog_countdown: "Est. remaining:",
-                prog_tts_detail: "Splitting text segments and processing in parallel...",
-                prog_elapsed: "Elapsed:",
-                res_tts_title: "✓ Audio generated successfully!",
-                btn_dl_mp3: "⬇ Download MP3 Audio",
-                stt_sec_title: "1. Select Audio / Video Source for Transcription",
-                stt_sec_hint: "No file size limit (Supports up to 2GB)",
-                stt_opt_file: "📁 Upload File (Audio .m4a/.mp3 or Video .mp4/.mkv)",
-                stt_opt_link: "🔗 Paste Video Link (YouTube, TikTok, Facebook, Instagram…)",
-                stt_drop_text: "Click to select a file or Drag & Drop here",
-                stt_drop_hint: "Supports: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (No size limit)",
-                stt_link_ph: "Paste video link from YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
-                stt_btn_check: "🔎 Check Link",
-                stt_link_hint: "Supports 1,000+ platforms (yt-dlp). Automatic capitalization, punctuation, and paragraphs. Private videos require cookies.",
-                stt_adv_title: "⚙️ Advanced options: language, accuracy model, cookies",
-                stt_lbl_lang: "Language in video",
-                stt_lbl_model: "Accuracy (Whisper model)",
-                stt_lbl_cookies_browser: "Import cookies from browser",
-                stt_lbl_cookies_file: "Or upload cookies.txt",
-                stt_btn_start: "📝 START TRANSCRIBING TO TEXT (WHISPER AI)",
-                stt_res_title: "✓ Transcription completed!",
-                stt_btn_copy: "📋 Copy Text",
-                stt_btn_send_tts: "🎙️ Send to AI Voice Tab",
-                stt_btn_dl_txt: "💾 Download Text (.txt)"
-            },
-            zh: {
-                ui_lang_label: "🌐 界面语言：",
-                badge: "🚀 双核 AI 引擎：文字转语音 & 语音转文字",
-                title: "AI Voice & Transcribe Studio",
-                subtitle: "生成自然流畅的多语言 AI 配音，并高精度转换音频、视频、YouTube 为文本",
-                tab_tts: "🎙️ AI 文本转语音 (Text ➔ Voice)",
-                tab_stt: "📝 音频 / 视频转文本 (Voice ➔ Text)",
-                sec_voice_title: "1. 选择多语言 AI 配音（越语、英语、中文、日语、韩语）",
-                sec_voice_hint: "点击卡片上的 \"▶ 试听\" 按钮试听样音",
-                filter_vi: "🇻🇳 越南语 (7 个配音)",
-                filter_en: "🇺🇸 英语 (4 个配音)",
-                filter_zh: "🇨🇳 中文 (3 个配音)",
-                filter_ja: "🇯🇵 日语 (2 个配音)",
-                filter_ko: "🇰🇷 韩语 (2 个配音)",
-                filter_all: "🌐 查看全部 (18 个配音)",
-                sample_label: "样音试听：",
-                sample_btn: "▶ 试听此声音",
-                sample_playing: "⏸ 播放中... (停止)",
-                sec_text_title: "2. 输入或粘贴要朗读的文本",
-                insert_label: "插入停顿：",
-                btn_pause_1s: "+ 停顿 1 秒",
-                btn_pause_2s: "+ 停顿 2 秒",
-                btn_pause_dot: "+ 节奏停顿 (...) ",
-                stat_words: "字数：",
-                stat_word_unit: "字",
-                stat_est: "预计时长：",
-                stat_time_unit: "分钟",
-                text_placeholder: "在此处粘贴您要朗读的文本... 系统支持 20 至 60 分钟超长文本无限制配音。自动在句号、逗号和段落处平滑停顿。",
-                lbl_pause_style: "标点停顿节奏模式：",
-                opt_pause_std: "标准（自然清晰）",
-                opt_pause_deep: "深沉情感（段落长停顿，适合讲故事/有声书）",
-                lbl_speed: "语速 (Speed)：",
-                lbl_pitch: "声调音高 (Pitch)：",
-                btn_submit_tts: "🎧 开始生成 MP3 音频文件",
-                prog_tts_status: "正在合成 AI 语音配音...",
-                prog_countdown: "预计剩余：",
-                prog_tts_detail: "正在分段文本并并行处理...",
-                prog_elapsed: "已耗时：",
-                res_tts_title: "✓ 音频生成成功！",
-                btn_dl_mp3: "⬇ 下载 MP3 音频文件",
-                stt_sec_title: "1. 选择需要转为文本的音频或视频源",
-                stt_sec_hint: "不限文件大小（支持最大 2GB 文件）",
-                stt_opt_file: "📁 上传本地文件（录音 .m4a/.mp3 或视频 .mp4/.mkv）",
-                stt_opt_link: "🔗 粘贴在线视频链接（YouTube、TikTok、Facebook、Instagram 等）",
-                stt_drop_text: "点击选择文件，或直接拖拽文件到此处",
-                stt_drop_hint: "支持格式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（无文件大小限制）",
-                stt_link_ph: "粘贴来自 YouTube、TikTok、Facebook、Instagram、Bilibili 等平台的视频链接...",
-                stt_btn_check: "🔎 检查链接",
-                stt_link_hint: "支持 1000+ 平台 (yt-dlp)。自动首字母大写、标点符号与智能分段。私密视频需要 cookies。",
-                stt_adv_title: "⚙️ 高级选项：视频语言、识别模型精度、Cookies",
-                stt_lbl_lang: "视频语言",
-                stt_lbl_model: "识别精度 (Whisper 模型)",
-                stt_lbl_cookies_browser: "从浏览器导入 Cookies",
-                stt_lbl_cookies_file: "或者上传 cookies.txt 文件",
-                stt_btn_start: "📝 开始转换为文本 (WHISPER AI)",
-                stt_res_title: "✓ 转换已完成！",
-                stt_btn_copy: "📋 复制文本",
-                stt_btn_send_tts: "🎙️ 发送到 AI 配音标签页",
-                stt_btn_dl_txt: "💾 下载文本文件 (.txt)"
-            },
-            ja: {
-                ui_lang_label: "🌐 表示言語：",
-                badge: "🚀 デュアル AI エンジン：テキスト音声合成 & 音声認識文字起こし",
-                title: "AI Voice & Transcribe Studio",
-                subtitle: "自然で滑らかな多言語 AI 音声合成 ＆ 音声・動画・YouTube の高精度文字起こし",
-                tab_tts: "🎙️ AI 音声合成 (Text ➔ Voice)",
-                tab_stt: "📝 音声・動画文字起こし (Voice ➔ Text)",
-                sec_voice_title: "1. 多言語 AI 音声を選択（ベトナム語・英語・中国語・日本語・韓国語）",
-                sec_voice_hint: "各カードの「▶ サンプル再生」をクリックして試聴できます",
-                filter_vi: "🇻🇳 ベトナム語 (7音声)",
-                filter_en: "🇺🇸 英語 (4音声)",
-                filter_zh: "🇨🇳 中国語 (3音声)",
-                filter_ja: "🇯🇵 日本語 (2音声)",
-                filter_ko: "🇰🇷 韓国語 (2音声)",
-                filter_all: "🌐 すべて表示 (18音声)",
-                sample_label: "サンプル：",
-                sample_btn: "▶ サンプルを再生",
-                sample_playing: "⏸ 再生中... (停止)",
-                sec_text_title: "2. 読み上げテキストを入力または貼り付け",
-                insert_label: "ポーズを挿入：",
-                btn_pause_1s: "+ 1秒停止",
-                btn_pause_2s: "+ 2秒停止",
-                btn_pause_dot: "+ 間を置く (...) ",
-                stat_words: "文字/単語数：",
-                stat_word_unit: "語",
-                stat_est: "推定時間：",
-                stat_time_unit: "分",
-                text_placeholder: "ここに読み上げるテキストを貼り付けてください... 20〜60分以上の長文も無制限に対応。句読点や段落で自然な間を自動挿入します。",
-                lbl_pause_style: "句読点リズムモード：",
-                opt_pause_std: "標準（自然で明瞭）",
-                opt_pause_deep: "深呼吸・朗読（段落間の長めのポーズ、小説・怪談向け）",
-                lbl_speed: "読み上げ速度 (Speed)：",
-                lbl_pitch: "声の高さ (Pitch)：",
-                btn_submit_tts: "🎧 MP3 音声ファイルを生成",
-                prog_tts_status: "AI 音声を合成中...",
-                prog_countdown: "推定残り時間：",
-                prog_tts_detail: "テキストを分割し並列処理中...",
-                prog_elapsed: "経過時間：",
-                res_tts_title: "✓ 音声の生成が完了しました！",
-                btn_dl_mp3: "⬇ MP3 ファイルをダウンロード",
-                stt_sec_title: "1. 文字起こしする音声・動画ソースを選択",
-                stt_sec_hint: "ファイルサイズ無制限（最大2GBまで対応）",
-                stt_opt_file: "📁 ファイルをアップロード（音声 .m4a/.mp3 または動画 .mp4/.mkv）",
-                stt_opt_link: "🔗 動画リンクを貼り付け（YouTube、TikTok、Facebook、Instagram など）",
-                stt_drop_text: "クリックしてファイルを選択、またはここにドラッグ＆ドロップ",
-                stt_drop_hint: "対応形式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（容量無制限）",
-                stt_link_ph: "YouTube、TikTok、Facebook、Instagram、X、Vimeo、Bilibili などの動画URLを貼り付け...",
-                stt_btn_check: "🔎 リンク確認",
-                stt_link_hint: "1000以上の動画配信サイトに対応 (yt-dlp)。大文字・句読点・段落を自動整形。非公開動画には cookies が必要です。",
-                stt_adv_title: "⚙️ 高度な設定：動画の言語、認識モデル精度、Cookies",
-                stt_lbl_lang: "動画内の言語",
-                stt_lbl_model: "精度 (Whisper モデル)",
-                stt_lbl_cookies_browser: "ブラウザから Cookies を取得",
-                stt_lbl_cookies_file: "または cookies.txt ファイルをアップロード",
-                stt_btn_start: "📝 音声文字起こしを開始 (WHISPER AI)",
-                stt_res_title: "✓ 文字起こしが完了しました！",
-                stt_btn_copy: "📋 テキストをコピー",
-                stt_btn_send_tts: "🎙️ AI 音声タブへ送る",
-                stt_btn_dl_txt: "💾 テキストを保存 (.txt)"
-            },
-            ko: {
-                ui_lang_label: "🌐 인터페이스 언어:",
-                badge: "🚀 듀얼 AI 엔진: 텍스트 음성 변환 (TTS) & 음성 인식 (STT)",
-                title: "AI Voice & Transcribe Studio",
-                subtitle: "자연스러운 다국어 AI 음성 생성 및 오디오·비디오·YouTube 초정밀 텍스트 변환",
-                tab_tts: "🎙️ AI 텍스트 음성 변환 (Text ➔ Voice)",
-                tab_stt: "📝 오디오 / 비디오 텍스트 변환 (Voice ➔ Text)",
-                sec_voice_title: "1. 다국어 AI 음성 선택 (베트남어, 영어, 중국어, 일본어, 한국어)",
-                sec_voice_hint: "각 카드의 \"▶ 샘플 듣기\"를 클릭하여 미리 들을 수 있습니다",
-                filter_vi: "🇻🇳 베트남어 (7개 음성)",
-                filter_en: "🇺🇸 영어 (4개 음성)",
-                filter_zh: "🇨🇳 중국어 (3개 음성)",
-                filter_ja: "🇯🇵 일본어 (2개 음성)",
-                filter_ko: "🇰🇷 한국어 (2개 음성)",
-                filter_all: "🌐 전체 보기 (18개 음성)",
-                sample_label: "샘플 음성:",
-                sample_btn: "▶ 음성 샘플 듣기",
-                sample_playing: "⏸ 재생 중... (정지)",
-                sec_text_title: "2. 읽을 텍스트 입력 또는 붙여넣기",
-                insert_label: "쉼표/휴지 삽입:",
-                btn_pause_1s: "+ 1초 쉬기",
-                btn_pause_2s: "+ 2초 쉬기",
-                btn_pause_dot: "+ 박자 쉬기 (...) ",
-                stat_words: "단어 수:",
-                stat_word_unit: "단어",
-                stat_est: "예상 시간:",
-                stat_time_unit: "분",
-                text_placeholder: "여기에 읽을 텍스트를 붙여넣으세요... 20~60분 이상의 장문도 무제한 지원합니다. 마침표, 쉼표, 문단에 맞춰 자연스럽게 자동 정지합니다.",
-                lbl_pause_style: "문장 부호 리듬 모드:",
-                opt_pause_std: "표준 (자연스럽고 또렷함)",
-                opt_pause_deep: "깊은 여운 (문단 간 긴 쉼, 소설·오디오북 권장)",
-                lbl_speed: "읽기 속도 (Speed):",
-                lbl_pitch: "음높이 (Pitch):",
-                btn_submit_tts: "🎧 MP3 오디오 파일 생성 시작",
-                prog_tts_status: "AI 음성 합성 처리 중...",
-                prog_countdown: "예상 남은 시간:",
-                prog_tts_detail: "텍스트 분할 및 병렬 처리 진행 중...",
-                prog_elapsed: "진행 시간:",
-                res_tts_title: "✓ 오디오가 성공적으로 생성되었습니다!",
-                btn_dl_mp3: "⬇ MP3 파일 다운로드",
-                stt_sec_title: "1. 텍스트로 변환할 오디오 / 비디오 소스 선택",
-                stt_sec_hint: "파일 크기 무제한 (최대 2GB 파일 지원)",
-                stt_opt_file: "📁 파일 업로드 (음성 .m4a/.mp3 또는 영상 .mp4/.mkv)",
-                stt_opt_link: "🔗 동영상 링크 붙여넣기 (YouTube, TikTok, Facebook, Instagram 등)",
-                stt_drop_text: "파일을 선택하거나 여기로 드래그 앤 드롭하세요",
-                stt_drop_hint: "지원 형식: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (무제한 용량)",
-                stt_link_ph: "YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili 등의 영상 링크를 붙여넣으세요...",
-                stt_btn_check: "🔎 링크 확인",
-                stt_link_hint: "1,000개 이상의 플랫폼 지원 (yt-dlp). 자동 대문자 변환, 문장 부호 및 단락 구분. 비공개 영상은 cookies가 필요합니다.",
-                stt_adv_title: "⚙️ 고급 옵션: 비디오 언어, 정확도 모델, Cookies",
-                stt_lbl_lang: "비디오 언어",
-                stt_lbl_model: "정확도 (Whisper 모델)",
-                stt_lbl_cookies_browser: "브라우저에서 Cookies 가져오기",
-                stt_lbl_cookies_file: "또는 cookies.txt 파일 업로드",
-                stt_btn_start: "📝 텍스트 변환 시작 (WHISPER AI)",
-                stt_res_title: "✓ 텍스트 변환 완료!",
-                stt_btn_copy: "📋 텍스트 복사",
-                stt_btn_send_tts: "🎙️ AI 음성 탭으로 보내기",
-                stt_btn_dl_txt: "💾 텍스트 다운로드 (.txt)"
-            }
-        };
+        "vi": {
+                "ui_lang_label": "🌐 Ngôn ngữ giao diện:",
+                "badge": "🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
+                "title": "AI Voice & Transcribe Studio",
+                "subtitle": "Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn",
+                "tab_tts": "🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)",
+                "tab_stt": "📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)",
+                "sec_voice_title": "1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)",
+                "sec_voice_hint": "Bấm nút \"▶ Nghe thử\" trên từng thẻ để nghe mẫu",
+                "filter_vi": "🇻🇳 Tiếng Việt (7)",
+                "filter_en": "🇺🇸 Tiếng Anh (13)",
+                "filter_zh": "🇨🇳 Tiếng Trung (14)",
+                "filter_ja": "🇯🇵 Tiếng Nhật (2)",
+                "filter_ko": "🇰🇷 Tiếng Hàn (3)",
+                "filter_all": "🌐 Xem Tất Cả (39)",
+                "voice_search_ph": "Tìm nhanh giọng đọc theo tên, phong cách, giới tính, vùng miền...",
+                "sample_label": "Mẫu giọng:",
+                "sample_btn": "▶ Nghe thử giọng này",
+                "sample_playing": "⏸ Đang phát... (Dừng)",
+                "sec_text_title": "2. Nhập Hoặc Dán Văn Bản Cần Đọc",
+                "insert_label": "Chèn ngắt nghỉ:",
+                "btn_pause_1s": "+ Dừng 1 giây",
+                "btn_pause_2s": "+ Dừng 2 giây",
+                "btn_pause_dot": "+ Ngắt nhịp (...) ",
+                "stat_words": "Số từ:",
+                "stat_word_unit": "từ",
+                "stat_est": "Ước tính thời lượng:",
+                "stat_time_unit": "phút",
+                "text_placeholder": "Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.",
+                "lbl_pause_style": "Chế độ ngắt nhịp dấu câu:",
+                "opt_pause_std": "⚡ Tiêu chuẩn (Tự nhiên, rành mạch)",
+                "opt_pause_deep": "📖 Sâu lắng & Đọc truyện (Nghỉ dài, giàu cảm xúc)",
+                "opt_pause_fast": "🔥 Nhanh & Kịch tính (Tin vắn, review TikTok, Shorts)",
+                "opt_pause_podcast": "☕ Thong thả & Podcast (Thư thái, nhịp thở nhẹ nhàng)",
+                "opt_pause_doc": "🎙️ Thuyết minh & Tài liệu (Trang trọng, gãy gọn chuẩn truyền hình)",
+                "opt_pause_ad": "💥 Hào sảng & Quảng cáo (Sôi động, nhấn mạnh bán hàng)",
+                "lbl_speed": "Tốc độ đọc (Speed):",
+                "lbl_pitch": "Cao độ giọng (Pitch):",
+                "btn_submit_tts": "🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3",
+                "prog_tts_status": "Đang xử lý tổng hợp giọng đọc AI...",
+                "prog_countdown": "Ước tính còn:",
+                "prog_tts_detail": "Đang chia đoạn văn bản và gửi xử lý song song...",
+                "prog_elapsed": "Đã chạy:",
+                "res_tts_title": "✓ Đã tạo thành công file âm thanh!",
+                "btn_dl_mp3": "⬇ Tải File MP3 Về Máy",
+                "stt_sec_title": "1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản",
+                "stt_sec_hint": "Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)",
+                "stt_opt_file": "📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)",
+                "stt_opt_link": "🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)",
+                "stt_drop_text": "Bấm để chọn file hoặc Kéo & Thả file vào đây",
+                "stt_drop_hint": "Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)",
+                "stt_link_ph": "Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
+                "stt_btn_check": "🔎 Kiểm tra",
+                "stt_link_hint": "Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn. Video riêng tư / bị chặn cần cookies.",
+                "stt_adv_title": "⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies",
+                "stt_lbl_lang": "Ngôn ngữ trong video",
+                "stt_lbl_model": "Độ chính xác (model Whisper)",
+                "stt_lbl_cookies_browser": "Lấy cookies từ trình duyệt",
+                "stt_lbl_cookies_file": "Hoặc tải file cookies.txt",
+                "stt_btn_start": "📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)",
+                "stt_res_title": "✓ Đã chuyển đổi hoàn tất!",
+                "stt_btn_copy": "📋 Sao Chép Văn Bản",
+                "stt_btn_send_tts": "🎙️ Đưa Sang Tab Giọng Đọc AI",
+                "stt_btn_dl_txt": "💾 Tải File Văn Bản (.txt)"
+        },
+        "en": {
+                "ui_lang_label": "🌐 Interface Language:",
+                "badge": "🚀 DUAL AI ENGINE: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
+                "title": "AI Voice & Transcribe Studio",
+                "subtitle": "Generate natural multilingual AI speech & Transcribe audio, video, YouTube to text with high precision",
+                "tab_tts": "🎙️ AI Text-to-Speech (Text ➔ Voice)",
+                "tab_stt": "📝 Transcribe Audio / Video to Text (Voice ➔ Text)",
+                "sec_voice_title": "1. Select Multilingual AI Voice (Vietnamese, English, Chinese, Japanese, Korean)",
+                "sec_voice_hint": "Click \"▶ Sample\" on any card to preview the voice",
+                "filter_vi": "🇻🇳 Vietnamese (7)",
+                "filter_en": "🇺🇸 English (13)",
+                "filter_zh": "🇨🇳 Chinese (14)",
+                "filter_ja": "🇯🇵 Japanese (2)",
+                "filter_ko": "🇰🇷 Korean (3)",
+                "filter_all": "🌐 View All (39)",
+                "voice_search_ph": "Search voices by name, style, country, gender...",
+                "sample_label": "Sample:",
+                "sample_btn": "▶ Play voice sample",
+                "sample_playing": "⏸ Playing... (Stop)",
+                "sec_text_title": "2. Enter or Paste Text to Read",
+                "insert_label": "Insert pause:",
+                "btn_pause_1s": "+ Pause 1s",
+                "btn_pause_2s": "+ Pause 2s",
+                "btn_pause_dot": "+ Rhythm (...) ",
+                "stat_words": "Words:",
+                "stat_word_unit": "words",
+                "stat_est": "Est. duration:",
+                "stat_time_unit": "mins",
+                "text_placeholder": "Paste your text here... Supports long texts (20-60+ mins) without limit. Smooth pauses at punctuation and paragraphs.",
+                "lbl_pause_style": "Punctuation rhythm mode:",
+                "opt_pause_std": "⚡ Standard (Natural, clear)",
+                "opt_pause_deep": "📖 Deep & Storytelling (Longer pauses for novels)",
+                "opt_pause_fast": "🔥 Fast & Punchy (Shorts, TikTok, fast news)",
+                "opt_pause_podcast": "☕ Leisurely & Podcast (Calm breaths, relaxed pace)",
+                "opt_pause_doc": "🎙️ Documentary & Narration (Solemn broadcast standard)",
+                "opt_pause_ad": "💥 High-Energy & Commercial (Vibrant, persuasive promo)",
+                "lbl_speed": "Speed:",
+                "lbl_pitch": "Pitch:",
+                "btn_submit_tts": "🎧 GENERATE MP3 AUDIO FILE",
+                "prog_tts_status": "Synthesizing AI voice...",
+                "prog_countdown": "Est. remaining:",
+                "prog_tts_detail": "Splitting text segments and processing in parallel...",
+                "prog_elapsed": "Elapsed:",
+                "res_tts_title": "✓ Audio generated successfully!",
+                "btn_dl_mp3": "⬇ Download MP3 Audio",
+                "stt_sec_title": "1. Select Audio / Video Source for Transcription",
+                "stt_sec_hint": "No file size limit (Supports up to 2GB)",
+                "stt_opt_file": "📁 Upload File (Audio .m4a/.mp3 or Video .mp4/.mkv)",
+                "stt_opt_link": "🔗 Paste Video Link (YouTube, TikTok, Facebook, Instagram…)",
+                "stt_drop_text": "Click to select a file or Drag & Drop here",
+                "stt_drop_hint": "Supports: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (No size limit)",
+                "stt_link_ph": "Paste video link from YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
+                "stt_btn_check": "🔎 Check Link",
+                "stt_link_hint": "Supports 1,000+ platforms (yt-dlp). Automatic capitalization, punctuation, and paragraphs. Private videos require cookies.",
+                "stt_adv_title": "⚙️ Advanced options: language, accuracy model, cookies",
+                "stt_lbl_lang": "Language in video",
+                "stt_lbl_model": "Accuracy (Whisper model)",
+                "stt_lbl_cookies_browser": "Import cookies from browser",
+                "stt_lbl_cookies_file": "Or upload cookies.txt",
+                "stt_btn_start": "📝 START TRANSCRIBING TO TEXT (WHISPER AI)",
+                "stt_res_title": "✓ Transcription completed!",
+                "stt_btn_copy": "📋 Copy Text",
+                "stt_btn_send_tts": "🎙️ Send to AI Voice Tab",
+                "stt_btn_dl_txt": "💾 Download Text (.txt)"
+        },
+        "zh": {
+                "ui_lang_label": "🌐 界面语言：",
+                "badge": "🚀 双核 AI 引擎：文字转语音 & 语音转文字",
+                "title": "AI Voice & Transcribe Studio",
+                "subtitle": "生成自然流畅的多语言 AI 配音，并高精度转换音频、视频、YouTube 为文本",
+                "tab_tts": "🎙️ AI 文本转语音 (Text ➔ Voice)",
+                "tab_stt": "📝 音频 / 视频转文本 (Voice ➔ Text)",
+                "sec_voice_title": "1. 选择多语言 AI 配音（越语、英语、中文、日语、韩语）",
+                "sec_voice_hint": "点击卡片上的 \"▶ 试听\" 按钮试听样音",
+                "filter_vi": "🇻🇳 越南语 (7)",
+                "filter_en": "🇺🇸 英语 (13)",
+                "filter_zh": "🇨🇳 中文 (14)",
+                "filter_ja": "🇯🇵 日语 (2)",
+                "filter_ko": "🇰🇷 韩语 (3)",
+                "filter_all": "🌐 查看全部 (39)",
+                "voice_search_ph": "按名称、风格、地区快速搜索声音...",
+                "sample_label": "样音试听：",
+                "sample_btn": "▶ 试听此声音",
+                "sample_playing": "⏸ 播放中... (停止)",
+                "sec_text_title": "2. 输入或粘贴要朗读的文本",
+                "insert_label": "插入停顿：",
+                "btn_pause_1s": "+ 停顿 1 秒",
+                "btn_pause_2s": "+ 停顿 2 秒",
+                "btn_pause_dot": "+ 节奏停顿 (...) ",
+                "stat_words": "字数：",
+                "stat_word_unit": "字",
+                "stat_est": "预计时长：",
+                "stat_time_unit": "分钟",
+                "text_placeholder": "在此处粘贴您要朗读的文本... 系统支持 20 至 60 分钟超长文本无限制配音。自动在句号、逗号和段落处平滑停顿。",
+                "lbl_pause_style": "标点停顿节奏模式：",
+                "opt_pause_std": "⚡ 标准（自然清晰，字正腔圆）",
+                "opt_pause_deep": "📖 深沉有声书（段落长停顿，感情充沛）",
+                "opt_pause_fast": "🔥 快节奏高燃（短视频、快讯、紧凑解说）",
+                "opt_pause_podcast": "☕ 舒缓播客（轻柔呼吸感、哲思慢调）",
+                "opt_pause_doc": "🎙️ 纪录片解说（庄重大气、央视级播音范）",
+                "opt_pause_ad": "💥 活力带货广告（热情洋溢、强力强调）",
+                "lbl_speed": "语速 (Speed)：",
+                "lbl_pitch": "声调音高 (Pitch)：",
+                "btn_submit_tts": "🎧 开始生成 MP3 音频文件",
+                "prog_tts_status": "正在合成 AI 语音配音...",
+                "prog_countdown": "预计剩余：",
+                "prog_tts_detail": "正在分段文本并并行处理...",
+                "prog_elapsed": "已耗时：",
+                "res_tts_title": "✓ 音频生成成功！",
+                "btn_dl_mp3": "⬇ 下载 MP3 音频文件",
+                "stt_sec_title": "1. 选择需要转为文本的音频或视频源",
+                "stt_sec_hint": "不限文件大小（支持最大 2GB 文件）",
+                "stt_opt_file": "📁 上传本地文件（录音 .m4a/.mp3 或视频 .mp4/.mkv）",
+                "stt_opt_link": "🔗 粘贴在线视频链接（YouTube、TikTok、Facebook、Instagram 等）",
+                "stt_drop_text": "点击选择文件，或直接拖拽文件到此处",
+                "stt_drop_hint": "支持格式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（无文件大小限制）",
+                "stt_link_ph": "粘贴来自 YouTube、TikTok、Facebook、Instagram、Bilibili 等平台的视频链接...",
+                "stt_btn_check": "🔎 检查链接",
+                "stt_link_hint": "支持 1000+ 平台 (yt-dlp)。自动首字母大写、标点符号与智能分段。私密视频需要 cookies。",
+                "stt_adv_title": "⚙️ 高级选项：视频语言、识别模型精度、Cookies",
+                "stt_lbl_lang": "视频语言",
+                "stt_lbl_model": "识别精度 (Whisper 模型)",
+                "stt_lbl_cookies_browser": "从浏览器导入 Cookies",
+                "stt_lbl_cookies_file": "或者上传 cookies.txt 文件",
+                "stt_btn_start": "📝 开始转换为文本 (WHISPER AI)",
+                "stt_res_title": "✓ 转换已完成！",
+                "stt_btn_copy": "📋 复制文本",
+                "stt_btn_send_tts": "🎙️ 发送到 AI 配音标签页",
+                "stt_btn_dl_txt": "💾 下载文本文件 (.txt)"
+        },
+        "ja": {
+                "ui_lang_label": "🌐 表示言語：",
+                "badge": "🚀 デュアル AI エンジン：テキスト音声合成 & 音声認識文字起こし",
+                "title": "AI Voice & Transcribe Studio",
+                "subtitle": "自然で滑らかな多言語 AI 音声合成 ＆ 音声・動画・YouTube の高精度文字起こし",
+                "tab_tts": "🎙️ AI 音声合成 (Text ➔ Voice)",
+                "tab_stt": "📝 音声・動画文字起こし (Voice ➔ Text)",
+                "sec_voice_title": "1. 多言語 AI 音声を選択（ベトナム語・英語・中国語・日本語・韓国語）",
+                "sec_voice_hint": "各カードの「▶ サンプル再生」をクリックして試聴できます",
+                "filter_vi": "🇻🇳 ベトナム語 (7)",
+                "filter_en": "🇺🇸 英語 (13)",
+                "filter_zh": "🇨🇳 中国語 (14)",
+                "filter_ja": "🇯🇵 日本語 (2)",
+                "filter_ko": "🇰🇷 韓国語 (3)",
+                "filter_all": "🌐 すべて表示 (39)",
+                "voice_search_ph": "名前、スタイル、言語で音声を検索...",
+                "sample_label": "サンプル：",
+                "sample_btn": "▶ サンプルを再生",
+                "sample_playing": "⏸ 再生中... (停止)",
+                "sec_text_title": "2. 読み上げテキストを入力または貼り付け",
+                "insert_label": "ポーズを挿入：",
+                "btn_pause_1s": "+ 1秒停止",
+                "btn_pause_2s": "+ 2秒停止",
+                "btn_pause_dot": "+ 間を置く (...) ",
+                "stat_words": "文字/単語数：",
+                "stat_word_unit": "語",
+                "stat_est": "推定時間：",
+                "stat_time_unit": "分",
+                "text_placeholder": "ここに読み上げるテキストを貼り付けてください... 20〜60分以上の長文も無制限に対応。句読点や段落で自然な間を自動挿入します。",
+                "lbl_pause_style": "句読点リズムモード：",
+                "opt_pause_std": "⚡ 標準（自然で明瞭、標準的な語り口）",
+                "opt_pause_deep": "📖 深呼吸・朗読（段落間長ポーズ、小説向け）",
+                "opt_pause_fast": "🔥 アップテンポ（TikTok/Shorts、速報ニュース）",
+                "opt_pause_podcast": "☕ ゆったりポッドキャスト（リラックスした呼吸感）",
+                "opt_pause_doc": "🎙️ ドキュメンタリー解説（格調高く端正な語り口）",
+                "opt_pause_ad": "💥 パワフルCM（活気がありアピール度抜群）",
+                "lbl_speed": "読み上げ速度 (Speed)：",
+                "lbl_pitch": "声の高さ (Pitch)：",
+                "btn_submit_tts": "🎧 MP3 音声ファイルを生成",
+                "prog_tts_status": "AI 音声を合成中...",
+                "prog_countdown": "推定残り時間：",
+                "prog_tts_detail": "テキストを分割し並列処理中...",
+                "prog_elapsed": "経過時間：",
+                "res_tts_title": "✓ 音声の生成が完了しました！",
+                "btn_dl_mp3": "⬇ MP3 ファイルをダウンロード",
+                "stt_sec_title": "1. 文字起こしする音声・動画ソースを選択",
+                "stt_sec_hint": "ファイルサイズ無制限（最大2GBまで対応）",
+                "stt_opt_file": "📁 ファイルをアップロード（音声 .m4a/.mp3 または動画 .mp4/.mkv）",
+                "stt_opt_link": "🔗 動画リンクを貼り付け（YouTube、TikTok、Facebook、Instagram など）",
+                "stt_drop_text": "クリックしてファイルを選択、またはここにドラッグ＆ドロップ",
+                "stt_drop_hint": "対応形式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（容量無制限）",
+                "stt_link_ph": "YouTube、TikTok、Facebook、Instagram、X、Vimeo、Bilibili などの動画URLを貼り付け...",
+                "stt_btn_check": "🔎 リンク確認",
+                "stt_link_hint": "1000以上の動画配信サイトに対応 (yt-dlp)。大文字・句読点・段落を自動整形。非公開動画には cookies が必要です。",
+                "stt_adv_title": "⚙️ 高度な設定：動画の言語、認識モデル精度、Cookies",
+                "stt_lbl_lang": "動画内の言語",
+                "stt_lbl_model": "精度 (Whisper モデル)",
+                "stt_lbl_cookies_browser": "ブラウザから Cookies を取得",
+                "stt_lbl_cookies_file": "または cookies.txt ファイルをアップロード",
+                "stt_btn_start": "📝 音声文字起こしを開始 (WHISPER AI)",
+                "stt_res_title": "✓ 文字起こしが完了しました！",
+                "stt_btn_copy": "📋 テキストをコピー",
+                "stt_btn_send_tts": "🎙️ AI 音声タブへ送る",
+                "stt_btn_dl_txt": "💾 テキストを保存 (.txt)"
+        },
+        "ko": {
+                "ui_lang_label": "🌐 인터페이스 언어:",
+                "badge": "🚀 듀얼 AI 엔진: 텍스트 음성 변환 (TTS) & 음성 인식 (STT)",
+                "title": "AI Voice & Transcribe Studio",
+                "subtitle": "자연스러운 다국어 AI 음성 생성 및 오디오·비디오·YouTube 초정밀 텍스트 변환",
+                "tab_tts": "🎙️ AI 텍스트 음성 변환 (Text ➔ Voice)",
+                "tab_stt": "📝 오디오 / 비디오 텍스트 변환 (Voice ➔ Text)",
+                "sec_voice_title": "1. 다국어 AI 음성 선택 (베트남어, 영어, 중국어, 일본어, 한국어)",
+                "sec_voice_hint": "각 카드의 \"▶ 샘플 듣기\"를 클릭하여 미리 들을 수 있습니다",
+                "filter_vi": "🇻🇳 베트남어 (7)",
+                "filter_en": "🇺🇸 영어 (13)",
+                "filter_zh": "🇨🇳 중국어 (14)",
+                "filter_ja": "🇯🇵 일본어 (2)",
+                "filter_ko": "🇰🇷 한국어 (3)",
+                "filter_all": "🌐 전체 보기 (39)",
+                "voice_search_ph": "이름, 스타일, 국가별 음성 빠른 검색...",
+                "sample_label": "샘플 음성:",
+                "sample_btn": "▶ 음성 샘플 듣기",
+                "sample_playing": "⏸ 재생 중... (정지)",
+                "sec_text_title": "2. 읽을 텍스트 입력 또는 붙여넣기",
+                "insert_label": "쉼표/휴지 삽입:",
+                "btn_pause_1s": "+ 1초 쉬기",
+                "btn_pause_2s": "+ 2초 쉬기",
+                "btn_pause_dot": "+ 박자 쉬기 (...) ",
+                "stat_words": "단어 수:",
+                "stat_word_unit": "단어",
+                "stat_est": "예상 시간:",
+                "stat_time_unit": "분",
+                "text_placeholder": "여기에 읽을 텍스트를 붙여넣으세요... 20~60분 이상의 장문도 무제한 지원합니다. 마침표, 쉼표, 문단에 맞춰 자연스럽게 자동 정지합니다.",
+                "lbl_pause_style": "문장 부호 리듬 모드:",
+                "opt_pause_std": "⚡ 표준 (자연스럽고 또렷함)",
+                "opt_pause_deep": "📖 깊은 여운 & 소설 (문단 간 긴 쉼, 풍부한 감정)",
+                "opt_pause_fast": "🔥 빠르고 역동적 (쇼츠, 틱톡, 속보)",
+                "opt_pause_podcast": "☕ 여유로운 팟캐스트 (편안한 숨고르기, 에세이)",
+                "opt_pause_doc": "🎙️ 다큐멘터리 내레이션 (품격 있고 단정한 방송 톤)",
+                "opt_pause_ad": "💥 활력 넘치는 광고 (열정적이고 설득력 있는 강조)",
+                "lbl_speed": "읽기 속도 (Speed):",
+                "lbl_pitch": "음높이 (Pitch):",
+                "btn_submit_tts": "🎧 MP3 오디오 파일 생성 시작",
+                "prog_tts_status": "AI 음성 합성 처리 중...",
+                "prog_countdown": "예상 남은 시간:",
+                "prog_tts_detail": "텍스트 분할 및 병렬 처리 진행 중...",
+                "prog_elapsed": "진행 시간:",
+                "res_tts_title": "✓ 오디오가 성공적으로 생성되었습니다!",
+                "btn_dl_mp3": "⬇ MP3 파일 다운로드",
+                "stt_sec_title": "1. 텍스트로 변환할 오디오 / 비디오 소스 선택",
+                "stt_sec_hint": "파일 크기 무제한 (최대 2GB 파일 지원)",
+                "stt_opt_file": "📁 파일 업로드 (음성 .m4a/.mp3 또는 영상 .mp4/.mkv)",
+                "stt_opt_link": "🔗 동영상 링크 붙여넣기 (YouTube, TikTok, Facebook, Instagram 등)",
+                "stt_drop_text": "파일을 선택하거나 여기로 드래그 앤 드롭하세요",
+                "stt_drop_hint": "지원 형식: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (무제한 용량)",
+                "stt_link_ph": "YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili 등의 영상 링크를 붙여넣으세요...",
+                "stt_btn_check": "🔎 링크 확인",
+                "stt_link_hint": "1,000개 이상의 플랫폼 지원 (yt-dlp). 자동 대문자 변환, 문장 부호 및 단락 구분. 비공개 영상은 cookies가 필요합니다.",
+                "stt_adv_title": "⚙️ 고급 옵션: 비디오 언어, 정확도 모델, Cookies",
+                "stt_lbl_lang": "비디오 언어",
+                "stt_lbl_model": "정확도 (Whisper 모델)",
+                "stt_lbl_cookies_browser": "브라우저에서 Cookies 가져오기",
+                "stt_lbl_cookies_file": "또는 cookies.txt 파일 업로드",
+                "stt_btn_start": "📝 텍스트 변환 시작 (WHISPER AI)",
+                "stt_res_title": "✓ 텍스트 변환 완료!",
+                "stt_btn_copy": "📋 텍스트 복사",
+                "stt_btn_send_tts": "🎙️ AI 음성 탭으로 보내기",
+                "stt_btn_dl_txt": "💾 텍스트 다운로드 (.txt)"
+        }
+};
 
         const GENDER_TRANSLATIONS = {
             vi: { "Nam": "Nam", "Nữ": "Nữ" },
@@ -1283,133 +1443,280 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         };
 
         const VOICE_DESCRIPTIONS = {
-            giong_cua_toi: {
-                vi: "Giọng mẫu từ máy / bản ghi tùy chỉnh với âm sắc chân thực",
-                en: "Custom cloned voice sample with authentic timbre",
-                zh: "来自设备的高保真个性化定制声音样本",
-                ja: "デバイスからの高精度カスタム音声サンプル",
-                ko: "자연스러운 음색의 맞춤형 기기 음성 샘플"
-            },
-            hoang_nam: {
-                vi: "Nam miền Bắc ấm áp, điềm đạm, cực chuẩn tin tức và tài liệu",
-                en: "Northern male: warm, calm, perfect for news and documentaries",
-                zh: "越南北部男声：温暖沉稳，非常适合新闻与纪录片",
-                ja: "ベトナム北部男性：温かく落ち着いた語り口、ニュースや解説に最適",
-                ko: "베트남 북부 남성: 따뜻하고 차분한 어조, 뉴스 및 다큐멘터리에 적합"
-            },
-            hoai_my: {
-                vi: "Nữ miền Bắc dịu dàng, trong trẻo, phù hợp đọc sách, quảng cáo",
-                en: "Northern female: gentle, clear, ideal for audiobooks and ads",
-                zh: "越南北部女声：温柔清脆，适合有声读物与广告旁白",
-                ja: "ベトナム北部女性：優しく透明感のある声、朗読やCMに最適",
-                ko: "베트남 북부 여성: 부드럽고 맑은 목소리, 오디오북 및 광고에 추천"
-            },
-            nam_minh: {
-                vi: "Nam miền Nam hào sảng, trẻ trung, tự nhiên cho review, vlog",
-                en: "Southern male: energetic, youthful, natural for reviews and vlogs",
-                zh: "越南南部男声：豪爽年轻，适合评测与 Vlog 视频",
-                ja: "ベトナム南部男性：明るく若々しい声、商品レビューやVlogに最適",
-                ko: "베트남 남부 남성: 밝고 활기찬 목소리, 리뷰 및 브이로그에 추천"
-            },
-            huong_giang: {
-                vi: "Nữ miền Trung (Huế) ngọt ngào, truyền cảm, hợp thơ ca, tản văn",
-                en: "Central female (Hue): sweet, emotional, great for poems and stories",
-                zh: "越南中部（顺化）女声：甜美深情，适合诗歌与散文",
-                ja: "ベトナム中部（フエ）女性：情緒豊かで甘い声、詩やエッセイに最適",
-                ko: "베트남 중부(후에) 여성: 달콤하고 감성적인 목소리, 시와 산문에 적합"
-            },
-            ngoc_huyen: {
-                vi: "Nữ miền Nam chuyên nghiệp, lưu loát, chuẩn bản tin và phóng sự",
-                en: "Southern female: professional, fluent, great for news and reports",
-                zh: "越南南部女声：专业流利，非常适合播音与纪实采访",
-                ja: "ベトナム南部女性：プロフェッショナルで流暢、報道や番組ナレーション向け",
-                ko: "베트남 남부 여성: 전문적이고 유창한 어조, 뉴스 및 리포트에 최적"
-            },
-            thanh_long: {
-                vi: "Nam miền Bắc trầm hùng, uy lực, rất cuốn hút cho truyện kiếm hiệp, lịch sử",
-                en: "Northern male: deep, commanding, engaging for martial arts and history novels",
-                zh: "越南北部男声：深沉雄厚，极具武侠与历史小说张力",
-                ja: "ベトナム北部男性：重厚で威厳のある低音、歴史物やバトル作品に最適",
-                ko: "베트남 북부 남성: 깊고 웅장한 중저음, 무협 및 역사 콘텐츠에 추천"
-            },
-            en_guy: {
-                vi: "Nam Mỹ trầm ấm, tự nhiên, chuyên nghiệp cho bài giảng và podcast",
-                en: "US Male: warm, natural, professional for lectures and podcasts",
-                zh: "美式英语男声：温暖自然、专业，适合网课讲解与播客",
-                ja: "アメリカ英語男性：温かく自然、講義やポッドキャストに最適",
-                ko: "미국식 영어 남성: 따뜻하고 자연스러움, 강의 및 팟캐스트에 추천"
-            },
-            en_aria: {
-                vi: "Nữ Mỹ tự nhiên, biểu cảm sinh động, đa dụng cho thuyết trình",
-                en: "US Female: expressive, lively, versatile for presentations",
-                zh: "美式英语女声：表现力丰富、生动，适合商业演示与旁白",
-                ja: "アメリカ英語女性：表情豊かで自然、プレゼンテーション向け",
-                ko: "미국식 영어 여성: 생동감 있고 표현력 풍부, 프레젠테이션에 최적"
-            },
-            en_jenny: {
-                vi: "Nữ Mỹ trong trẻo, thân thiện, lý tưởng cho trợ lý ảo và hội thoại",
-                en: "US Female: clear, friendly, ideal for virtual assistants and dialogue",
-                zh: "美式英语女声：清晰甜美、亲切，适合虚拟助手与日常对话",
-                ja: "アメリカ英語女性：クリアで親しみやすい、アシスタントや対話に最適",
-                ko: "미국식 영어 여성: 맑고 친근한 톤, 가상 비서 및 대화체에 추천"
-            },
-            en_ryan: {
-                vi: "Nam Anh chuẩn Oxford, thanh lịch, sang trọng cho tài liệu cao cấp",
-                en: "British Male: refined Oxford accent, elegant for documentaries and audiobooks",
-                zh: "英式英语男声：地道牛津腔，典雅沉稳，适合高端纪录片",
-                ja: "イギリス英語男性：洗練されたオックスフォード発音、格調高いナレーション向け",
-                ko: "영국식 영어 남성: 품격 있는 옥스퍼드 억양, 다큐멘터리 및 고급 오디오북용"
-            },
-            zh_xiaoxiao: {
-                vi: "Nữ Bắc Kinh nhẹ nhàng, ngọt ngào, phổ biến nhất trên Douyin và TikTok",
-                en: "Chinese Female: sweet, gentle Beijing accent, viral on Douyin/TikTok",
-                zh: "中文普通话女声：温婉甜美、极富感染力，短视频热门热门配音",
-                ja: "中国語女性（北京）：優しく親しみやすい、Douyin/TikTokで大人気",
-                ko: "중국어 여성(베이징): 부드럽고 달콤함, 틱톡·쇼츠 인기 내레이션"
-            },
-            zh_yunxi: {
-                vi: "Nam phổ thông trẻ trung, hoạt bát, truyền cảm hứng",
-                en: "Chinese Male: youthful, energetic, inspiring tone",
-                zh: "中文普通话男声：阳光阳光、朝气蓬勃，适合故事与知识分享",
-                ja: "中国語男性：若々しくエネルギッシュ、解説やストーリーに最適",
-                ko: "중국어 남성: 활기차고 밝은 청년 톤, 지식 전달 및 스토리텔링에 최적"
-            },
-            zh_yunjian: {
-                vi: "Nam trầm ấm, điềm đạm, đậm chất điện ảnh và đọc truyện đêm muộn",
-                en: "Chinese Male: deep, cinematic, perfect for audiobooks and storytelling",
-                zh: "中文普通话男声：影视质感中低音，厚重沉稳，适合评书与影视解说",
-                ja: "中国語男性：映画のような重厚な低音、オーディオブックや夜の朗読向け",
-                ko: "중국어 남성: 영화 같은 중저음, 오디오북 및 심야 방송에 어울림"
-            },
-            ja_nanami: {
-                vi: "Nữ Tokyo trong sáng, dễ mến, chuẩn phong cách Anime và TV commercial",
-                en: "Japanese Female: bright, friendly Tokyo accent, anime and commercial style",
-                zh: "日语女声（东京腔）：清澈甜美、亲和力强，动漫与广告风格",
-                ja: "日本語女性（東京）：明るく親しみやすい、アニメやCMナレーションに最適",
-                ko: "일본어 여성(도쿄): 맑고 친근한 톤, 애니메이션 및 광고 스타일"
-            },
-            ja_keita: {
-                vi: "Nam Tokyo lịch lãm, tự nhiên, chuẩn phong cách phim truyền hình và tin tức",
-                en: "Japanese Male: natural, polite, perfect for news and corporate narration",
-                zh: "日语男声（东京腔）：自然文雅、成熟稳重，适合新闻报道与企业解说",
-                ja: "日本語男性（東京）：自然で爽やか、ニュースやビジネス解説に最適",
-                ko: "일본어 남성(도쿄): 정중하고 자연스러움, 뉴스 및 기업 소개에 추천"
-            },
-            ko_sunhi: {
-                vi: "Nữ Seoul trong trẻo, dịu dàng, chuẩn phong cách K-Drama và quảng cáo",
-                en: "Korean Female: gentle, clear Seoul accent, K-drama and commercial style",
-                zh: "韩语女声（首尔）：清澈温婉，韩剧与商业广告标准音质",
-                ja: "韓国語女性（ソウル）：優しく透明感のある発音、K-DramaやCM風",
-                ko: "한국어 여성(서울): 맑고 부드러운 표준어, K-드라마 및 광고에 최적"
-            },
-            ko_injoon: {
-                vi: "Nam Seoul ấm áp, tự nhiên, chuẩn phong cách chương trình thực tế và sách nói",
-                en: "Korean Male: warm, natural, ideal for podcasts, audiobooks, and variety shows",
-                zh: "韩语男声（首尔）：温和自然、娓娓道来，适合播客与有声书",
-                ja: "韓国語男性（ソウル）：温かく誠実な声、ポッドキャストや朗読に最適",
-                ko: "한국어 남성(서울): 따뜻하고 자연스러운 톤, 팟캐스트 및 오디오북용"
-            }
-        };
+        "giong_cua_toi": {
+                "vi": "Được tinh chỉnh theo mẫu giọng thật: Tần số trầm ấm 120Hz, dải âm 90-160Hz, nhịp điệu tự nhiên.",
+                "en": "Custom cloned voice sample with authentic timbre, 120Hz frequency and natural cadence.",
+                "zh": "来自设备的高保真个性化定制声音样本，120Hz 低沉温润，语调自然。",
+                "ja": "デバイスからの高精度カスタム音声サンプル、温かみのある周波数と自然なリズム。",
+                "ko": "자연스러운 음색의 맞춤형 기기 음성 샘플, 120Hz 중저음과 부드러운 리듬."
+        },
+        "nam_truyencam": {
+                "vi": "Nam miền Bắc ấm áp, điềm đạm, cực chuẩn tin tức và tài liệu",
+                "en": "Northern male: warm, calm, perfect for news and documentaries",
+                "zh": "越南北部男声：温暖沉稳，非常适合新闻与纪录片",
+                "ja": "ベトナム北部男性：温かく落ち着いた語り口、ニュースや解説に最適",
+                "ko": "베트남 북부 남성: 따뜻하고 차분한 어조, 뉴스 및 다큐멘터리에 적합"
+        },
+        "nam_thoisu": {
+                "vi": "Nam miền Bắc dõng dạc, nghiêm túc, chuẩn mực phát thanh viên truyền hình",
+                "en": "Northern male: authoritative, serious, television broadcast standard",
+                "zh": "越南北部男声：字正腔圆，严肃规范，电视台播音员标准音",
+                "ja": "ベトナム北部男性：明瞭で威厳があり、テレビ報道標準のアナウンス",
+                "ko": "베트남 북부 남성: 명확하고 신뢰감 있는 톤, TV 앵커 표준 발음"
+        },
+        "nam_nangdong": {
+                "vi": "Nam miền Nam hào sảng, trẻ trung, tự nhiên cho review, vlog, TikTok",
+                "en": "Southern male: energetic, youthful, natural for reviews, vlogs, TikTok",
+                "zh": "越南南部男声：豪爽年轻，适合评测、Vlog 与短视频",
+                "ja": "ベトナム南部男性：明るく若々しい声、商品レビューやVlogに最適",
+                "ko": "베트남 남부 남성: 밝고 활기찬 목소리, 리뷰 및 틱톡·브이로그에 추천"
+        },
+        "nu_diudang": {
+                "vi": "Nữ miền Bắc dịu dàng, trong trẻo, phù hợp đọc sách, quảng cáo",
+                "en": "Northern female: gentle, clear, ideal for audiobooks and ads",
+                "zh": "越南北部女声：温柔清脆，适合有声读物与广告旁白",
+                "ja": "ベトナム北部女性：優しく透明感のある声、朗読やCMに最適",
+                "ko": "베트남 북부 여성: 부드럽고 맑은 목소리, 오디오북 및 광고에 추천"
+        },
+        "nu_thuyetminh": {
+                "vi": "Nữ miền Nam chuyên nghiệp, lưu loát, chuẩn bản tin và phóng sự",
+                "en": "Southern female: professional, fluent, great for news and reports",
+                "zh": "越南南部女声：专业流利，非常适合播音与纪实采访",
+                "ja": "ベトナム南部女性：プロフェッショナルで流暢、報道や番組ナレーション向け",
+                "ko": "베트남 남부 여성: 전문적이고 유창한 어조, 뉴스 및 리포트에 최적"
+        },
+        "nu_tuoitre": {
+                "vi": "Nữ miền Bắc trẻ trung, tươi vui, nhí nhảnh cho vlog và mạng xã hội",
+                "en": "Northern female: youthful, bright, cheerful for social media vlogs",
+                "zh": "越南北部女声：年轻欢快、灵动活泼，适合生活 Vlog 与社交视频",
+                "ja": "ベトナム北部女性：若々しく明るい、VlogやSNS向け",
+                "ko": "베트남 북부 여성: 젊고 발랄함, SNS 및 일상 브이로그에 추천"
+        },
+        "en_guy": {
+                "vi": "Nam Mỹ trầm ấm, chững chạc, độ vang tốt cho podcast và tài liệu",
+                "en": "US Male: warm, calm, resonant for documentaries and podcasts",
+                "zh": "美式英语男声：温暖自然，适合播客与网课解说",
+                "ja": "アメリカ英語男性：温かく落ち着いた声、講義やポッドキャスト向け",
+                "ko": "미국식 영어 남성: 따뜻하고 차분함, 다큐멘터리 및 팟캐스트용"
+        },
+        "en_aria": {
+                "vi": "Nữ Mỹ truyền cảm, âm sắc ấm áp, giàu biểu cảm, hợp thuyết trình",
+                "en": "US Female: expressive, lively, versatile for presentations and audiobooks",
+                "zh": "美式英语女声：表现力丰富，适合商业演讲与有声书",
+                "ja": "アメリカ英語女性：表現力豊か、プレゼンや朗読に最適",
+                "ko": "미국식 영어 여성: 감성적이고 풍부한 표현力, 프레젠테이션용"
+        },
+        "en_jenny": {
+                "vi": "Nữ Mỹ trẻ trung, năng động, rất tự nhiên cho vlog và quảng cáo",
+                "en": "US Female: clear, friendly, ideal for virtual assistants and dialogue",
+                "zh": "美式英语女声：清晰亲切，适合日常短视频与商业广告",
+                "ja": "アメリカ英語女性：クリアで親しみやすい、VlogやCMに最適",
+                "ko": "미국식 영어 여성: 밝고 자연스러움, 브이로그 및 광고용"
+        },
+        "en_christopher": {
+                "vi": "Nam Mỹ mạnh mẽ, dứt khoát, chuẩn bản tin quốc tế và phóng sự",
+                "en": "US Male: authoritative, powerful for breaking news and corporate presentations",
+                "zh": "美式英语男声：强劲有力，适合重要新闻与企业发布会",
+                "ja": "アメリカ英語男性：力強く明瞭、国際ニュースや発表会向け",
+                "ko": "미국식 영어 남성: 단호하고 힘있는 톤, 주요 뉴스 및 기업 프레젠테이션용"
+        },
+        "en_eric": {
+                "vi": "Nam Mỹ thanh nhã, tốc độ đều đặn, tối ưu cho sách nói và tản văn",
+                "en": "US Male: calm, clear, thoughtful voiceovers for audiobooks and essays",
+                "zh": "美式英语男声：沉静文雅、节奏舒缓，适合文学作品与有声书",
+                "ja": "アメリカ英語男性：静かで穏やか、オーディオブックやエッセイ向け",
+                "ko": "미국식 영어 남성: 차분하고 명료함, 오디오북 및 산문 낭독용"
+        },
+        "en_michelle": {
+                "vi": "Nữ Mỹ chuyên nghiệp, đĩnh đạc, phù hợp đào tạo và video doanh nghiệp",
+                "en": "US Female: professional, engaging, perfect for corporate and training",
+                "zh": "美式英语女声：专业知性，适合企业形象片与员工培训视频",
+                "ja": "アメリカ英語女性：知的でプロフェッショナル、企業研修動画向け",
+                "ko": "미국식 영어 여성: 전문적이고 세련됨, 기업 교육 및 홍보 영상용"
+        },
+        "en_ana": {
+                "vi": "Nữ Mỹ tươi sáng, gần gũi, rất thích hợp giảng dạy, thiếu nhi",
+                "en": "US Female: bright and friendly, ideal for education and interactive stories",
+                "zh": "美式英语女声：活泼明朗，适合儿童故事与在线启蒙教学",
+                "ja": "アメリカ英語女性：明るく親しみやすい、教育や読み聞かせに最適",
+                "ko": "미국식 영어 여성: 밝고 따뜻함, 교육 콘텐츠 및 동화 구연용"
+        },
+        "en_roger": {
+                "vi": "Nam Mỹ trung niên từng trải, sâu sắc cho hồi ký và phim tài liệu",
+                "en": "US Male: mature, experienced, narrative depth for history and memoirs",
+                "zh": "美式英语男声：沧桑深沉、韵味悠长，极具历史厚重感",
+                "ja": "アメリカ英語男性：円熟した深みのある低音、回顧録や歴史解説向け",
+                "ko": "미국식 영어 남성: 연륜과 깊이가 느껴지는 어조, 회고록 및 역사 다큐용"
+        },
+        "en_steffan": {
+                "vi": "Nam Mỹ trầm hùng, độ vang kịch tính, phong cách trailer điện ảnh",
+                "en": "US Male: deep, cinematic, dramatic resonance for movie trailers",
+                "zh": "美式英语男声：重低音震撼、极具戏剧张力，电影预告大片风",
+                "ja": "アメリカ英語男性：映画予告編のような重厚でドラマチックな響き",
+                "ko": "미국식 영어 남성: 웅장하고 드라마틱함, 영화 예고편 스타일"
+        },
+        "en_ryan": {
+                "vi": "Nam Anh chuẩn Oxford, lịch lãm, sang trọng cho tài liệu cao cấp",
+                "en": "British Male: refined Oxford accent, elegant for documentaries and audiobooks",
+                "zh": "英式英语男声：正统牛津音，优雅高贵，适合高端纪录片",
+                "ja": "イギリス英語男性：洗練されたオックスフォード発音、格調高い語り口",
+                "ko": "영국식 영어 남성: 품격 있는 옥스퍼드 억양, 다큐멘터리 및 고급 오디오북용"
+        },
+        "en_sonia": {
+                "vi": "Nữ Anh thanh lịch, phát âm chuẩn mực BBC, hợp du lịch và văn hóa",
+                "en": "British Female: elegant, crisp BBC standard for travel and culture",
+                "zh": "英式英语女声：典雅端庄，BBC 标准播音，适合文化旅游节目",
+                "ja": "イギリス英語女性：エレガントで端正なBBC発音、文化・旅番組向け",
+                "ko": "영국식 영어 여성: 우아하고 또렷한 BBC 스타일, 문화 및 여행 콘텐츠용"
+        },
+        "en_libby": {
+                "vi": "Nữ Anh trẻ trung, tươi tắn, biểu cảm linh hoạt cho kịch nói và vlog",
+                "en": "British Female: lively, youthful, natural accent for drama and vlogs",
+                "zh": "英式英语女声：青春朝气、表现生动，适合情景剧与现代生活 Vlog",
+                "ja": "イギリス英語女性：若々しく生き生きとした声、ドラマや日常Vlog向け",
+                "ko": "영국식 영어 여성: 생기발랄하고 유연한 표현력, 라디오 드라마 및 브이로그용"
+        },
+        "en_thomas": {
+                "vi": "Nam Anh nghiêm túc, tròn vành rõ chữ, chuẩn bình luận viên và thời sự",
+                "en": "British Male: formal, crisp, authoritative for international broadcast",
+                "zh": "英式英语男声：严谨专业、字正腔圆，国际时事权威播报风格",
+                "ja": "イギリス英語男性：厳格で明瞭、国際報道や解説番組向け",
+                "ko": "영국식 영어 남성: 정중하고 명확함, 국제 시사 및 해설 방송용"
+        },
+        "zh_xiaoxiao": {
+                "vi": "Nữ Bắc Kinh siêu ngọt ngào, cảm xúc tinh tế, số 1 Douyin và tiểu thuyết",
+                "en": "Chinese Female: sweet, gentle Beijing accent, viral on Douyin/TikTok",
+                "zh": "中文普通话女声：温婉甜美、极富感染力，短视频热门热门配音",
+                "ja": "中国語女性（北京）：優しく親しみやすい、Douyin/TikTokで大人気",
+                "ko": "중국어 여성(베이징): 부드럽고 달콤함, 틱톡·쇼츠 인기 내레이션"
+        },
+        "zh_xiaoyi": {
+                "vi": "Nữ phổ thông chuẩn mực, dứt khoát, chuyên nghiệp cho tin tức",
+                "en": "Chinese Female: professional, crisp broadcast style for corporate and news",
+                "zh": "中文普通话女声：干练干脆、字正腔圆，专业播音与企业解说",
+                "ja": "中国語女性：正確で爽快なアナウンス、ニュースや企業紹介に最適",
+                "ko": "중국어 여성: 또렷하고 전문적임, 뉴스 및 기업 홍보에 적합"
+        },
+        "zh_yunjian": {
+                "vi": "Nam trầm bổng, hào sảng, phong thái dã sử kiếm hiệp và võ thuật",
+                "en": "Chinese Male: deep, cinematic, perfect for martial arts and historical novels",
+                "zh": "中文普通话男声：影视质感中低音，厚重沉稳，适合评书与影视解说",
+                "ja": "中国語男性：重厚で映画的な低音、歴史物や武侠小説向け",
+                "ko": "중국어 남성: 중후하고 웅장함, 무협 및 역사 소설 낭독에 추천"
+        },
+        "zh_yunxi": {
+                "vi": "Nam thiếu niên hoạt bát, phổ biến nhất trong video review Douyin",
+                "en": "Chinese Male: youthful, energetic, popular in Douyin movie reviews",
+                "zh": "中文普通话男声：阳光阳光、朝气蓬勃，电影解说必备配音",
+                "ja": "中国語男性：若々しく快活、映画レビュー動画で定番の人気声",
+                "ko": "중국어 남성: 활기차고 밝음, 쇼츠 영화 리뷰에 가장 인기 있는 목소리"
+        },
+        "zh_yunxia": {
+                "vi": "Nam tươi vui, giàu năng lượng tích cực cho hoạt hình và vlog đời sống",
+                "en": "Chinese Male: lively, energetic, ideal for animation and lifestyle vlogs",
+                "zh": "中文普通话男声：元气满满、幽默风趣，适合动漫与搞笑短剧",
+                "ja": "中国語男性：明るくエネルギー全開、アニメやバラエティに最適",
+                "ko": "중국어 남성: 유쾌하고 긍정적인 에너지, 애니메이션 및 브이로그용"
+        },
+        "zh_yunyang": {
+                "vi": "Nam phát thanh viên đài truyền hình, đĩnh đạc, trầm ổn, rành mạch",
+                "en": "Chinese Male: authoritative TV anchor tone, structured and articulate",
+                "zh": "中文普通话男声：新闻联播范、端庄大气，大型纪实解说首选",
+                "ja": "中国語男性：テレビ局アナウンサー風、品格と安定感のある語り",
+                "ko": "중국어 남성: 방송국 앵커 스타일, 단정하고 신뢰감 있는 어조"
+        },
+        "zh_liaoning_xiaobei": {
+                "vi": "Nữ phương ngữ Đông Bắc Liêu Ninh, dí dỏm, mộc mạc, hài hước",
+                "en": "Chinese Female (Liaoning): humorous Northeastern dialect, lively and friendly",
+                "zh": "东北方言女声：唠嗑味儿十足、接地气幽默，短剧小品神器",
+                "ja": "中国東北方言女性（遼寧）：ユーモアたっぷりで親しみやすい東北訛り",
+                "ko": "중국 동북 방언 여성(랴오닝): 유머러스하고 구수한 사투리, 재미있는 꽁트용"
+        },
+        "zh_shaanxi_xiaoni": {
+                "vi": "Nữ phương ngữ Tây Bắc Thiểm Tây, chân chất, sâu lắng, đậm chất dân gian",
+                "en": "Chinese Female (Shaanxi): earthy Northwestern dialect, authentic folk warmth",
+                "zh": "陕西方言女声：原汁原味西北乡音，淳朴深情，民俗故事首选",
+                "ja": "中国陝西方言女性：素朴で味わい深い西北訛り、民話や民俗紹介向け",
+                "ko": "중국 산시 방언 여성: 순박하고 정감 넘치는 서북 사투리, 민속 이야기용"
+        },
+        "zh_hk_hiugaai": {
+                "vi": "Nữ tiếng Quảng Đông Hồng Kông chuẩn mực, lưu loát cho bản tin",
+                "en": "Cantonese Female (HK): fluent, professional Hong Kong broadcast voice",
+                "zh": "粤语（香港）女声：地道港味播报，字正腔圆，专业新闻资讯",
+                "ja": "広東語女性（香港）：流暢で端正な香港アナウンス、報道番組向け",
+                "ko": "광둥어 여성(홍콩): 유창하고 세련된 홍콩 표준어, 시사 뉴스용"
+        },
+        "zh_hk_hiumaan": {
+                "vi": "Nữ tiếng Quảng Đông Hồng Kông ngọt ngào, dịu dàng, hợp vlog thời trang",
+                "en": "Cantonese Female (HK): gentle, sweet Hong Kong accent for lifestyle and ads",
+                "zh": "粤语（香港）女声：甜美温柔、生动亲切，适合美妆穿搭与生活分享",
+                "ja": "広東語女性（香港）：優しくスウィートな港風、ライフスタイルやCM向け",
+                "ko": "광둥어 여성(홍콩): 달콤하고 친근함, 뷰티 및 패션 브이로그에 추천"
+        },
+        "zh_hk_wanlung": {
+                "vi": "Nam tiếng Quảng Đông Hồng Kông trầm ấm, đĩnh đạc, phong thái TVB",
+                "en": "Cantonese Male (HK): warm, charismatic, classic TVB drama style",
+                "zh": "粤语（香港）男声：磁性低音、儒雅稳重，TVB 经典影视剧风范",
+                "ja": "広東語男性（香港）：温かく魅力的な低音、名作香港ドラマ風",
+                "ko": "광둥어 남성(홍콩): 따뜻하고 중후한 중저음, 클래식 홍콩 드라마 톤"
+        },
+        "zh_tw_hsiaochen": {
+                "vi": "Nữ Đài Loan chuẩn âm êm dịu, ấm áp, hoàn hảo cho sách nói và radio",
+                "en": "Taiwanese Female: soothing, warm Mandarin for audiobooks and midnight radio",
+                "zh": "国语（台湾）女声：轻柔细腻、治愈人心，深夜电台与疗愈系首选",
+                "ja": "台湾華語女性：穏やかで癒やされる語り口、深夜ラジオや朗読向け",
+                "ko": "대만 중국어 여성: 부드럽고 따뜻한 톤, 심야 라디오 및 힐링 오디오북용"
+        },
+        "zh_tw_hsiaoyu": {
+                "vi": "Nữ Đài Loan tươi trẻ, sinh động, chuẩn phong cách trợ lý thông minh",
+                "en": "Taiwanese Female: bright, conversational, perfect for smart assistants",
+                "zh": "国语（台湾）女声：元气甜美、自然灵动，智能助手标配音质",
+                "ja": "台湾華語女性：明るく自然な対話スタイル、AIアシスタントに最適",
+                "ko": "대만 중국어 여성: 발랄하고 자연스러운 대화체, 스마트 비서용"
+        },
+        "zh_tw_yunjhe": {
+                "vi": "Nam Đài Loan ấm áp, chân thành, mang cảm giác nhẹ nhàng dễ chịu",
+                "en": "Taiwanese Male: gentle, authentic, warm modern drama tone",
+                "zh": "国语（台湾）男声：温和真诚、邻家大男孩风，偶像剧男主配音质感",
+                "ja": "台湾華語男性：優しく誠実な声、青春ドラマやストーリー朗読に最適",
+                "ko": "대만 중국어 남성: 따뜻하고 다정한 목소리, 로맨스 드라마 스타일"
+        },
+        "ja_nanami": {
+                "vi": "Nữ Tokyo trong sáng, dễ mến, chuẩn phong cách Anime và TV commercial",
+                "en": "Japanese Female: bright, friendly Tokyo accent, anime and commercial style",
+                "zh": "日语女声（东京腔）：清澈甜美、亲和力强，动漫与广告风格",
+                "ja": "日本語女性（東京）：明るく親しみやすい、アニメやCMナレーションに最適",
+                "ko": "일본어 여성(도쿄): 맑고 친근한 톤, 애니메이션 및 광고 스타일"
+        },
+        "ja_keita": {
+                "vi": "Nam Tokyo lịch lãm, tự nhiên, chuẩn phong cách phim truyền hình và tin tức",
+                "en": "Japanese Male: natural, polite, perfect for news and corporate narration",
+                "zh": "日语男声（东京腔）：自然文雅、成熟稳重，适合新闻报道与企业解说",
+                "ja": "日本語男性（東京）：自然で爽やか、ニュースやビジネス解説に最適",
+                "ko": "일본어 남성(도쿄): 정중하고 자연스러움, 뉴스 및 기업 소개에 추천"
+        },
+        "ko_sunhi": {
+                "vi": "Nữ Seoul trong trẻo, dịu dàng, chuẩn phong cách K-Drama và quảng cáo",
+                "en": "Korean Female: gentle, clear Seoul accent, K-drama and commercial style",
+                "zh": "韩语女声（首尔）：清澈温婉，韩剧与商业广告标准音质",
+                "ja": "韓国語女性（ソウル）：優しく透明感のある発音、K-DramaやCM風",
+                "ko": "한국어 여성(서울): 맑고 부드러운 표준어, K-드라마 및 광고에 최적"
+        },
+        "ko_injoon": {
+                "vi": "Nam Seoul ấm áp, tự nhiên, chuẩn phong cách chương trình thực tế và sách nói",
+                "en": "Korean Male: warm, natural, ideal for podcasts, audiobooks, and variety shows",
+                "zh": "韩语男声（首尔）：温和自然、娓娓道来，适合播客与有声书",
+                "ja": "韓国語男性（ソウル）：温かく誠実な声、ポッドキャストや朗読に最適",
+                "ko": "한국어 남성(서울): 따뜻하고 자연스러운 톤, 팟캐스트 및 오디오북용"
+        },
+        "ko_hyunsu": {
+                "vi": "Nam Seoul hiện đại, AI đa ngữ thế hệ mới, phát âm siêu mượt và chân thực",
+                "en": "Korean Male: next-gen multilingual AI, exceptionally natural and fluid",
+                "zh": "韩语男声（首尔）：新一代多语言神经网络模型，发音流畅极具真人感",
+                "ja": "韓国語男性（ソウル）：次世代多言語モデル、極めて滑らかで人間らしい声",
+                "ko": "한국어 남성(서울): 차세대 다국어 신경망 모델, 극도로 자연스러운 톤"
+        }
+};
 
         const SAMPLE_TEXTS = {
             vi: `Chào mừng bạn đến với AI Voice Studio.\nHệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.\n[nghỉ 1s]\nBây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!`,
@@ -1518,15 +1825,54 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             }
 
+            // Xóa nội dung tìm kiếm khi chuyển tab ngôn ngữ để hiện đủ
+            const searchInput = document.getElementById('voiceSearchInput');
+            if (searchInput) searchInput.value = '';
+
+            let count = 0;
             const cards = document.querySelectorAll('.voice-card');
             cards.forEach(card => {
                 const cardLang = card.getAttribute('data-lang');
                 if (lang === 'all' || cardLang === lang) {
                     card.classList.remove('hidden');
+                    count++;
                 } else {
                     card.classList.add('hidden');
                 }
             });
+
+            const countBadge = document.getElementById('voiceCountBadge');
+            if (countBadge) {
+                countBadge.innerText = `${count} giọng`;
+            }
+
+            const currentActive = document.querySelector('.voice-card.active');
+            if (!currentActive || currentActive.classList.contains('hidden')) {
+                const firstVisible = document.querySelector('.voice-card:not(.hidden)');
+                if (firstVisible) {
+                    firstVisible.click();
+                }
+            }
+        }
+
+        function filterVoicesBySearch(query) {
+            query = (query || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.voice-card');
+            let count = 0;
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (!query || text.includes(query)) {
+                    card.classList.remove('hidden');
+                    count++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            const countBadge = document.getElementById('voiceCountBadge');
+            if (countBadge) {
+                countBadge.innerText = `${count} kết quả`;
+            }
 
             const currentActive = document.querySelector('.voice-card.active');
             if (!currentActive || currentActive.classList.contains('hidden')) {
