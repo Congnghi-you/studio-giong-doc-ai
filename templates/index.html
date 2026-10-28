@@ -59,40 +59,26 @@
             font-weight: 600;
         }
 
-        .ui-lang-group {
-            display: inline-flex;
-            gap: 5px;
+        .ui-lang-select {
             background: rgba(15, 23, 42, 0.7);
-            padding: 4px;
-            border-radius: 20px;
+            padding: 8px 34px 8px 12px;
+            border-radius: 10px;
             border: 1px solid var(--border);
-        }
-
-        .ui-lang-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-size: 12.5px;
+            color: var(--text-main);
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            outline: none;
         }
 
-        .ui-lang-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.08);
+        .ui-lang-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
         }
 
-        .ui-lang-btn.active {
-            background: var(--accent);
-            color: #0b1120;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
+        .ui-lang-select option {
+            background: #0f172a;
+            color: var(--text-main);
         }
 
         header {
@@ -469,6 +455,13 @@
             font-weight: 600;
         }
 
+        #ttsPartSummary {
+            display: inline-block;
+            margin-left: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
         textarea {
             width: 100%;
             height: 550px;
@@ -626,6 +619,26 @@
         audio {
             width: 100%;
             margin-bottom: 12px;
+        }
+
+        .audio-parts-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .audio-part {
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .audio-part-title {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .btn-action {
@@ -842,13 +855,13 @@
         <!-- THANH CHUYỂN ĐỔI NGÔN NGỮ GIAO DIỆN (UI I18N) -->
         <div class="ui-lang-bar">
             <span class="ui-lang-label" data-i18n="ui_lang_label">🌐 Ngôn ngữ giao diện:</span>
-            <div class="ui-lang-group">
-                <button type="button" class="ui-lang-btn active" data-ui-lang="vi" onclick="setUILanguage('vi')">🇻🇳 Tiếng Việt</button>
-                <button type="button" class="ui-lang-btn" data-ui-lang="en" onclick="setUILanguage('en')">🇺🇸 English</button>
-                <button type="button" class="ui-lang-btn" data-ui-lang="zh" onclick="setUILanguage('zh')">🇨🇳 中文</button>
-                <button type="button" class="ui-lang-btn" data-ui-lang="ja" onclick="setUILanguage('ja')">🇯🇵 日本語</button>
-                <button type="button" class="ui-lang-btn" data-ui-lang="ko" onclick="setUILanguage('ko')">🇰🇷 한국어</button>
-            </div>
+            <select class="ui-lang-select" id="uiLanguageSelect" aria-label="Interface language" onchange="setUILanguage(this.value)">
+                <option value="vi">🇻🇳 Tiếng Việt</option>
+                <option value="en">🇺🇸 English</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="ko">🇰🇷 한국어</option>
+            </select>
         </div>
 
         <header>
@@ -899,7 +912,7 @@
                     <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" data-voice-key="{{ key }}" onclick="selectVoice('{{ key }}', this)">
                         <div>
                             <div class="voice-header">
-                                <span class="voice-name">{{ item.name }}</span>
+                                <span class="voice-name" data-voice-key="{{ key }}" data-original-name="{{ item.name }}">{{ item.name }}</span>
                                 <div style="display:flex; gap:6px; align-items:center;">
                                     <span style="font-size:14px;">{{ item.flag }}</span>
                                     <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}" data-gender="{{ item.gender }}">{{ item.gender }}</span>
@@ -931,6 +944,7 @@
                         </div>
                         <div class="word-stats">
                             <span data-i18n="stat_words">Số từ:</span> <span id="wordCount">0</span> <span data-i18n="stat_word_unit">từ</span> | <span data-i18n="stat_est">Ước tính thời lượng:</span> <span id="timeEst">0.0</span> <span data-i18n="stat_time_unit">phút</span>
+                            <span id="ttsPartSummary"></span>
                         </div>
                     </div>
 
@@ -987,13 +1001,11 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                 <div class="result-box" id="resultBoxTTS">
                     <div class="result-header">
-                        <span class="result-title" data-i18n="res_tts_title">✓ Đã tạo thành công file âm thanh!</span>
+                        <span class="result-title" id="ttsResultTitle">✓ Đã tạo thành công file âm thanh!</span>
                         <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
                     </div>
-                    <audio id="audioPlayer" controls></audio>
-                    <div>
-                        <a href="#" id="downloadLink" class="btn-action" download data-i18n="btn_dl_mp3">⬇ Tải File MP3 Về Máy</a>
-                    </div>
+                    <div class="audio-parts-list" id="audioPartsList"></div>
+                    <button type="button" class="btn-action" id="btnContinueTTS" onclick="generateSpeech()" style="display:none; margin-top:14px;"></button>
                 </div>
             </div>
         </div>
@@ -1434,7 +1446,260 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         }
 };
 
-        const GENDER_TRANSLATIONS = {
+const RUNTIME_I18N = {
+    vi: {
+        page_title: 'AI Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản',
+        voice_custom: '⭐ Giọng Mô Phỏng Của Bạn',
+        voice_count: '{count} giọng hiển thị',
+        voice_results: '{count} kết quả',
+        tts_part_summary: 'Tự chia {count} phần, tối đa 2.000 từ/phần.',
+        tts_parts_ready: 'Đã tạo {done}/{total} phần',
+        tts_next_action: 'Tạo phần {index}/{total}',
+        tts_retry_action: 'Thử lại phần {index}/{total}',
+        tts_new_action: 'Bắt đầu văn bản mới',
+        tts_part_start: 'Đang tạo phần {index}/{total} ({words} từ), gửi lần lượt từng đoạn...',
+        tts_part_ready: '✓ Đã tạo xong phần {index}/{total}. Bạn có thể tải xuống hoặc tạo phần kế tiếp.',
+        tts_all_done: '✓ Đã tạo xong tất cả {total} phần âm thanh!',
+        tts_chunk_error: 'Đoạn nhỏ {index}/{total} gặp lỗi. Phần đã tạo trước đó được giữ lại; bấm thử lại để tiếp tục.',
+        tts_retry_prompt: 'Đã dừng tại đoạn nhỏ bị lỗi. Tiến độ các đoạn trước vẫn được giữ.',
+        tts_empty: 'Vui lòng nhập văn bản cần đọc!',
+        tts_working_button: 'Đang chuyển đổi văn bản sang âm thanh... Xin chờ',
+        tts_working: 'Đang xử lý tổng hợp giọng đọc AI...',
+        tts_analyzing: 'Đang phân tích bài ({count} từ) và tạo các đoạn âm thanh...',
+        tts_connecting: 'Đang nhận luồng âm thanh Microsoft Edge TTS...',
+        tts_merging: 'Đang hoàn tất các đoạn âm thanh...',
+        tts_complete: '✓ Đã hoàn tất tạo giọng đọc!',
+        tts_elapsed: 'Hoàn thành thành công sau {seconds} giây!',
+        tts_part: 'Phần {index}/{total} — {words} từ',
+        tts_parts: '{count} phần âm thanh',
+        tts_words: '{count} từ',
+        tts_minutes: '~{count} phút',
+        tts_download: '⬇ Tải phần {index} xuống (MP3)',
+        tts_error: 'Lỗi: ',
+        tts_failed: 'Không thể tạo âm thanh!',
+        tts_timeout: 'Hết thời gian chờ ({minutes} phút). Vui lòng kiểm tra kết nối mạng hoặc thử lại!',
+        error_occurred: 'Có lỗi xảy ra: ',
+        stt_url_required: 'Vui lòng dán đường link video!',
+        stt_url_invalid: 'Link phải bắt đầu bằng http:// hoặc https://',
+        stt_checking: '⏳ Đang kiểm tra...',
+        stt_check_success: '✔ Link hợp lệ!',
+        stt_title: 'Tiêu đề',
+        stt_source: 'Nền tảng',
+        stt_duration: 'Thời lượng',
+        stt_minutes: 'phút',
+        stt_seconds: 'giây',
+        stt_unknown: 'không rõ',
+        stt_check_failed: 'Không kiểm tra được link này.',
+        stt_file_required: 'Vui lòng chọn 1 file âm thanh hoặc video!',
+        stt_working: 'Whisper AI đang xử lý và nhận diện văn bản... Xin chờ',
+        stt_failed: 'Không thể chuyển đổi âm thanh!',
+        stt_stats: 'Nguồn: {source} • Thời lượng: {minutes}p{seconds}s • Ngôn ngữ: {language} • Model: {model} • {words} từ{title}',
+        stt_selected: '✓ Đã chọn: {name} ({size} MB)',
+        copy_success: 'Đã sao chép toàn bộ văn bản vào bộ nhớ tạm!'
+    },
+    en: {
+        page_title: 'AI Studio - Text-to-Speech & Audio Transcription',
+        voice_custom: '⭐ Your Custom Voice',
+        voice_count: '{count} voices shown',
+        voice_results: '{count} results',
+        tts_part_summary: 'Total audio parts: {count} (up to 2,000 words each).',
+        tts_parts_ready: 'Audio parts ready: {done}/{total}',
+        tts_next_action: 'Create part {index}/{total}',
+        tts_retry_action: 'Retry part {index}/{total}',
+        tts_new_action: 'Start new text',
+        tts_part_start: 'Creating part {index}/{total} ({words} words), sending each segment sequentially...',
+        tts_part_ready: '✓ Part {index}/{total} is ready. Download it or create the next part.',
+        tts_all_done: '✓ All {total} audio parts are ready!',
+        tts_chunk_error: 'Segment {index}/{total} failed. Completed segments are saved; retry to continue.',
+        tts_retry_prompt: 'Paused at the failed segment. Earlier completed segments are saved.',
+        tts_empty: 'Please enter text to read.',
+        tts_working_button: 'Converting text to speech... Please wait',
+        tts_working: 'Generating AI voice...',
+        tts_analyzing: 'Analyzing {count} words and creating audio parts...',
+        tts_connecting: 'Receiving audio from Microsoft Edge TTS...',
+        tts_merging: 'Finalizing audio parts...',
+        tts_complete: '✓ Voice generation complete!',
+        tts_elapsed: 'Completed successfully in {seconds} seconds!',
+        tts_part: 'Part {index}/{total} — {words} words',
+        tts_parts: '{count} audio parts',
+        tts_words: '{count} words',
+        tts_minutes: '~{count} min',
+        tts_download: '⬇ Download part {index} (MP3)',
+        tts_error: 'Error: ',
+        tts_failed: 'Could not generate audio.',
+        tts_timeout: 'Timed out ({minutes} minutes). Check your internet connection or try again.',
+        error_occurred: 'An error occurred: ',
+        stt_url_required: 'Please paste a video link.',
+        stt_url_invalid: 'The link must start with http:// or https://',
+        stt_checking: '⏳ Checking...',
+        stt_check_success: '✔ Link is valid!',
+        stt_title: 'Title',
+        stt_source: 'Platform',
+        stt_duration: 'Duration',
+        stt_minutes: 'min',
+        stt_seconds: 'sec',
+        stt_unknown: 'unknown',
+        stt_check_failed: 'Could not check this link.',
+        stt_file_required: 'Please select an audio or video file.',
+        stt_working: 'Whisper AI is transcribing... Please wait',
+        stt_failed: 'Could not transcribe the audio.',
+        stt_stats: 'Source: {source} • Duration: {minutes}m {seconds}s • Language: {language} • Model: {model} • {words} words{title}',
+        stt_selected: '✓ Selected: {name} ({size} MB)',
+        copy_success: 'Text copied to the clipboard!'
+    },
+    zh: {
+        page_title: 'AI Studio - AI 配音与音视频转文字',
+        voice_custom: '⭐ 您的专属声音',
+        voice_count: '显示 {count} 个声音',
+        voice_results: '{count} 个结果',
+        tts_part_summary: '自动分为 {count} 段，每段最多 2,000 个词。',
+        tts_parts_ready: '已生成 {done}/{total} 段',
+        tts_next_action: '生成第 {index}/{total} 段',
+        tts_retry_action: '重试第 {index}/{total} 段',
+        tts_new_action: '开始新文本',
+        tts_part_start: '正在生成第 {index}/{total} 段（{words} 个词），逐段发送...',
+        tts_part_ready: '✓ 第 {index}/{total} 段已完成。您可以下载或继续生成下一段。',
+        tts_all_done: '✓ 全部 {total} 个音频片段已完成！',
+        tts_chunk_error: '小段 {index}/{total} 失败。已完成的部分已保留；点击重试以继续。',
+        tts_retry_prompt: '已暂停在失败的小段。此前完成的进度已保留。',
+        tts_empty: '请输入要朗读的文本。',
+        tts_working_button: '正在将文本转换为语音...请稍候',
+        tts_working: '正在生成 AI 语音...',
+        tts_analyzing: '正在分析 {count} 个词并生成音频片段...',
+        tts_connecting: '正在接收 Microsoft Edge TTS 音频...',
+        tts_merging: '正在完成音频片段...',
+        tts_complete: '✓ 语音生成完成！',
+        tts_elapsed: '已成功完成，用时 {seconds} 秒！',
+        tts_part: '第 {index}/{total} 段 — {words} 个词',
+        tts_parts: '{count} 个音频片段',
+        tts_words: '{count} 个词',
+        tts_minutes: '约 {count} 分钟',
+        tts_download: '⬇ 下载第 {index} 段 (MP3)',
+        tts_error: '错误：',
+        tts_failed: '无法生成音频。',
+        tts_timeout: '等待超时（{minutes} 分钟）。请检查网络连接或重试。',
+        error_occurred: '发生错误：',
+        stt_url_required: '请粘贴视频链接。',
+        stt_url_invalid: '链接必须以 http:// 或 https:// 开头',
+        stt_checking: '⏳ 正在检查...',
+        stt_check_success: '✔ 链接有效！',
+        stt_title: '标题',
+        stt_source: '平台',
+        stt_duration: '时长',
+        stt_minutes: '分钟',
+        stt_seconds: '秒',
+        stt_unknown: '未知',
+        stt_check_failed: '无法检查此链接。',
+        stt_file_required: '请选择一个音频或视频文件。',
+        stt_working: 'Whisper AI 正在识别文本...请稍候',
+        stt_failed: '无法转换音频。',
+        stt_stats: '来源：{source} • 时长：{minutes}分{seconds}秒 • 语言：{language} • 模型：{model} • {words} 个词{title}',
+        stt_selected: '✓ 已选择：{name}（{size} MB）',
+        copy_success: '文本已复制到剪贴板！'
+    },
+    ja: {
+        page_title: 'AI Studio - AI 音声合成・文字起こし',
+        voice_custom: '⭐ カスタム音声',
+        voice_count: '{count} 件の音声を表示',
+        voice_results: '{count} 件の結果',
+        tts_part_summary: '最大2,000語ずつ、{count}パートに自動分割します。',
+        tts_parts_ready: '{done}/{total} パート作成済み',
+        tts_next_action: 'パート {index}/{total} を作成',
+        tts_retry_action: 'パート {index}/{total} を再試行',
+        tts_new_action: '新しいテキストを開始',
+        tts_part_start: 'パート {index}/{total}（{words}語）を順番に送信しています...',
+        tts_part_ready: '✓ パート {index}/{total} の準備ができました。ダウンロードするか、次のパートを作成してください。',
+        tts_all_done: '✓ 全 {total} パートの音声が完成しました！',
+        tts_chunk_error: '小区間 {index}/{total} でエラーが発生しました。完了済みの区間は保存されています。再試行してください。',
+        tts_retry_prompt: 'エラーが発生した区間で停止しました。それ以前の進捗は保存されています。',
+        tts_empty: '読み上げるテキストを入力してください。',
+        tts_working_button: 'テキストを音声に変換中...お待ちください',
+        tts_working: 'AI 音声を生成中...',
+        tts_analyzing: '{count} 語を分析し、音声パートを生成中...',
+        tts_connecting: 'Microsoft Edge TTS の音声を受信中...',
+        tts_merging: '音声パートを仕上げています...',
+        tts_complete: '✓ 音声の生成が完了しました！',
+        tts_elapsed: '{seconds} 秒で正常に完了しました！',
+        tts_part: 'パート {index}/{total} — {words} 語',
+        tts_parts: '{count} 個の音声パート',
+        tts_words: '{count} 語',
+        tts_minutes: '約 {count} 分',
+        tts_download: '⬇ パート {index} をダウンロード (MP3)',
+        tts_error: 'エラー：',
+        tts_failed: '音声を生成できませんでした。',
+        tts_timeout: 'タイムアウト（{minutes} 分）しました。ネットワークを確認して再試行してください。',
+        error_occurred: 'エラーが発生しました：',
+        stt_url_required: '動画リンクを貼り付けてください。',
+        stt_url_invalid: 'リンクは http:// または https:// で始めてください',
+        stt_checking: '⏳ 確認中...',
+        stt_check_success: '✔ 有効なリンクです！',
+        stt_title: 'タイトル',
+        stt_source: 'プラットフォーム',
+        stt_duration: '再生時間',
+        stt_minutes: '分',
+        stt_seconds: '秒',
+        stt_unknown: '不明',
+        stt_check_failed: 'このリンクを確認できませんでした。',
+        stt_file_required: '音声または動画ファイルを選択してください。',
+        stt_working: 'Whisper AI が文字起こし中です...お待ちください',
+        stt_failed: '音声を変換できませんでした。',
+        stt_stats: 'ソース：{source} • 時間：{minutes}分{seconds}秒 • 言語：{language} • モデル：{model} • {words} 語{title}',
+        stt_selected: '✓ 選択済み：{name}（{size} MB）',
+        copy_success: 'テキストをクリップボードにコピーしました！'
+    },
+    ko: {
+        page_title: 'AI Studio - AI 음성 생성 및 오디오 텍스트 변환',
+        voice_custom: '⭐ 나만의 음성',
+        voice_count: '{count}개 음성 표시',
+        voice_results: '{count}개 결과',
+        tts_part_summary: '최대 2,000개 단어씩 {count}개 구간으로 자동 분할합니다.',
+        tts_parts_ready: '{done}/{total}개 구간 생성됨',
+        tts_next_action: '{index}/{total} 구간 생성',
+        tts_retry_action: '{index}/{total} 구간 다시 시도',
+        tts_new_action: '새 텍스트 시작',
+        tts_part_start: '{index}/{total} 구간({words}개 단어)을 순서대로 전송 중...',
+        tts_part_ready: '✓ {index}/{total} 구간이 준비되었습니다. 다운로드하거나 다음 구간을 생성하세요.',
+        tts_all_done: '✓ 전체 {total}개 오디오 구간이 완성되었습니다!',
+        tts_chunk_error: '{index}/{total} 작은 구간에서 오류가 발생했습니다. 완료된 구간은 저장되어 있습니다. 다시 시도하세요.',
+        tts_retry_prompt: '오류가 발생한 구간에서 일시 중지되었습니다. 이전 진행 내용은 보존되었습니다.',
+        tts_empty: '읽을 텍스트를 입력하세요.',
+        tts_working_button: '텍스트를 음성으로 변환 중... 잠시 기다려 주세요',
+        tts_working: 'AI 음성 생성 중...',
+        tts_analyzing: '{count}개 단어를 분석하고 오디오 구간을 생성 중...',
+        tts_connecting: 'Microsoft Edge TTS 오디오를 수신 중...',
+        tts_merging: '오디오 구간을 마무리하는 중...',
+        tts_complete: '✓ 음성 생성이 완료되었습니다!',
+        tts_elapsed: '{seconds}초 만에 완료되었습니다!',
+        tts_part: '{index}/{total} 구간 — {words}개 단어',
+        tts_parts: '{count}개 오디오 구간',
+        tts_words: '{count}개 단어',
+        tts_minutes: '약 {count}분',
+        tts_download: '⬇ {index}번 구간 다운로드 (MP3)',
+        tts_error: '오류: ',
+        tts_failed: '오디오를 생성할 수 없습니다.',
+        tts_timeout: '시간 초과({minutes}분)입니다. 네트워크를 확인하거나 다시 시도하세요.',
+        error_occurred: '오류가 발생했습니다: ',
+        stt_url_required: '동영상 링크를 붙여 넣으세요.',
+        stt_url_invalid: '링크는 http:// 또는 https://로 시작해야 합니다',
+        stt_checking: '⏳ 확인 중...',
+        stt_check_success: '✔ 유효한 링크입니다!',
+        stt_title: '제목',
+        stt_source: '플랫폼',
+        stt_duration: '재생 시간',
+        stt_minutes: '분',
+        stt_seconds: '초',
+        stt_unknown: '알 수 없음',
+        stt_check_failed: '이 링크를 확인할 수 없습니다.',
+        stt_file_required: '오디오 또는 비디오 파일을 선택하세요.',
+        stt_working: 'Whisper AI가 텍스트를 변환 중입니다... 잠시 기다려 주세요',
+        stt_failed: '오디오를 변환할 수 없습니다.',
+        stt_stats: '출처: {source} • 길이: {minutes}분 {seconds}초 • 언어: {language} • 모델: {model} • {words}개 단어{title}',
+        stt_selected: '✓ 선택됨: {name} ({size} MB)',
+        copy_success: '텍스트가 클립보드에 복사되었습니다!'
+    }
+};
+
+const GENDER_TRANSLATIONS = {
             vi: { "Nam": "Nam", "Nữ": "Nữ" },
             en: { "Nam": "Male", "Nữ": "Female" },
             zh: { "Nam": "男声", "Nữ": "女声" },
@@ -1720,23 +1985,125 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
         const SAMPLE_TEXTS = {
             vi: `Chào mừng bạn đến với AI Voice Studio.\nHệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.\n[nghỉ 1s]\nBây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!`,
-            en: `Welcome to AI Voice Studio.\nOur system provides natural and expressive text-to-speech with smart pause control, as well as ultra-precise speech-to-text transcription.\n[nghỉ 1s]\nPaste your text here to get started!`,
-            zh: `欢迎使用 AI Voice Studio 智能语音工作室。\n本系统提供自然流畅的多语言 AI 配音、情感停顿控制，以及超高精度的语音与视频转文字功能。\n[nghỉ 1s]\n请在下方粘贴您的文本，即刻开始体验！`,
-            ja: `AI Voice Studio へようこそ。\n自然で滑らかな多言語 AI 音声合成、スマートな間（ポーズ）の制御、高精度な音声・動画文字起こしに対応しています。\n[nghỉ 1s]\nここにテキストを貼り付けて、お試しください！`,
-            ko: `AI Voice Studio에 오신 것을 환영합니다.\n자연스러운 다국어 AI 음성 합성, 감정 기반 쉼표 제어, 초정밀 오디오/비디오 텍스트 변환 기능을 지원합니다.\n[nghỉ 1s]\n여기에 텍스트를 붙여넣고 바로 시작해 보세요!`
+            en: `Welcome to AI Voice Studio.\nOur system provides natural and expressive text-to-speech with smart pause control, as well as ultra-precise speech-to-text transcription.\n[pause 1s]\nPaste your text here to get started!`,
+            zh: `欢迎使用 AI Voice Studio 智能语音工作室。\n本系统提供自然流畅的多语言 AI 配音、情感停顿控制，以及超高精度的语音与视频转文字功能。\n[停顿 1秒]\n请在下方粘贴您的文本，即刻开始体验！`,
+            ja: `AI Voice Studio へようこそ。\n自然で滑らかな多言語 AI 音声合成、スマートな間（ポーズ）の制御、高精度な音声・動画文字起こしに対応しています。\n[休止 1秒]\nここにテキストを貼り付けて、お試しください！`,
+            ko: `AI Voice Studio에 오신 것을 환영합니다.\n자연스러운 다국어 AI 음성 합성, 감정 기반 쉼표 제어, 초정밀 오디오/비디오 텍스트 변환 기능을 지원합니다.\n[잠시 1초]\n여기에 텍스트를 붙여넣고 바로 시작해 보세요!`
         };
 
         let currentUILang = 'vi';
+        let currentAudioResult = null;
+        let selectedFileDetails = null;
+        let currentTranscriptionData = null;
+        let ttsJob = null;
+
+        function translate(key, values = {}) {
+            let message = RUNTIME_I18N[currentUILang]?.[key] || RUNTIME_I18N.vi[key] || key;
+            Object.entries(values).forEach(([name, value]) => {
+                message = message.replaceAll(`{${name}}`, value);
+            });
+            return message;
+        }
+
+        function updateAudioResultLabels(data) {
+            document.querySelectorAll('.audio-part').forEach(partBox => {
+                partBox.querySelector('.audio-part-title').innerText = translate('tts_part', {
+                    index: partBox.dataset.partIndex,
+                    total: partBox.dataset.totalParts,
+                    words: Number(partBox.dataset.wordCount).toLocaleString()
+                });
+                const downloadLink = partBox.querySelector('a[download]');
+                downloadLink.innerText = translate('tts_download', { index: partBox.dataset.partIndex });
+            });
+
+            const selectedVoice = data.preset_key
+                ? document.querySelector(`.voice-card[data-voice-key="${data.preset_key}"] .voice-name`)
+                : null;
+            const voiceName = selectedVoice?.innerText || data.voice_name;
+            document.getElementById('audioStats').innerText =
+                `${voiceName} • ${translate('tts_words', { count: data.word_count.toLocaleString() })} • ` +
+                `${translate('tts_minutes', { count: data.est_minutes })} • ` +
+                translate('tts_parts_ready', {
+                    done: data.audio_parts.length,
+                    total: data.total_parts
+                });
+            const resultTitle = document.getElementById('ttsResultTitle');
+            resultTitle.innerText = ttsJob && ttsJob.nextPartIndex >= ttsJob.totalParts
+                ? translate('tts_all_done', { total: ttsJob.totalParts })
+                : translate('tts_part_ready', {
+                    index: ttsJob?.nextPartIndex || 1,
+                    total: ttsJob?.totalParts || data.total_parts
+                });
+        }
+
+        function updateTTSButtonLabel() {
+            const mainButton = document.getElementById('btnSubmitTTS');
+            const buttonText = document.getElementById('btnTextTTS');
+            const continueButton = document.getElementById('btnContinueTTS');
+            if (mainButton.disabled) {
+                buttonText.innerText = translate('tts_working_button');
+            } else if (!ttsJob) {
+                buttonText.innerText = I18N[currentUILang]?.btn_submit_tts || '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+            } else if (ttsJob.failed) {
+                buttonText.innerText = translate('tts_retry_action', {
+                    index: ttsJob.nextPartIndex + 1,
+                    total: ttsJob.totalParts
+                });
+            } else if (ttsJob.nextPartIndex < ttsJob.totalParts) {
+                buttonText.innerText = translate('tts_next_action', {
+                    index: ttsJob.nextPartIndex + 1,
+                    total: ttsJob.totalParts
+                });
+            } else {
+                buttonText.innerText = translate('tts_new_action');
+            }
+            continueButton.innerText = buttonText.innerText;
+            continueButton.disabled = mainButton.disabled;
+            continueButton.style.display = ttsJob &&
+                (ttsJob.audioParts.length > 0 || ttsJob.failed) &&
+                ttsJob.nextPartIndex < ttsJob.totalParts
+                ? 'inline-flex'
+                : 'none';
+        }
+
+        function setTTSInputsLocked(locked) {
+            ['textContent', 'pauseStyle', 'rateSlider', 'pitchSlider'].forEach(id => {
+                document.getElementById(id).disabled = locked;
+            });
+            document.querySelectorAll('.btn-tag').forEach(button => {
+                button.disabled = locked;
+            });
+            document.querySelectorAll('.voice-card').forEach(card => {
+                card.classList.toggle('tts-locked', locked);
+                card.setAttribute('aria-disabled', String(locked));
+            });
+        }
+
+        function updateTranscriptionStats(data) {
+            const words = data.text.split(/\s+/).length;
+            const mins = Math.floor((data.duration || 0) / 60);
+            const secs = Math.round((data.duration || 0) % 60);
+            const lang = (data.language || '').toUpperCase() || 'AUTO';
+            document.getElementById('sttStats').innerText = translate('stt_stats', {
+                source: data.source || translate('stt_unknown'),
+                minutes: mins,
+                seconds: secs,
+                language: lang,
+                model: data.model || 'base',
+                words: words.toLocaleString(),
+                title: data.title ? ` • "${data.title}"` : ''
+            });
+        }
 
         function setUILanguage(lang) {
             if (!I18N[lang]) lang = 'vi';
             currentUILang = lang;
             localStorage.setItem('ui_lang', lang);
-
-            // Cập nhật trạng thái nút chuyển đổi ngôn ngữ
-            document.querySelectorAll('.ui-lang-btn').forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-ui-lang') === lang);
-            });
+            document.documentElement.lang = { vi: 'vi', en: 'en', zh: 'zh-CN', ja: 'ja', ko: 'ko' }[lang];
+            document.title = translate('page_title');
+            const languageSelect = document.getElementById('uiLanguageSelect');
+            languageSelect.value = lang;
+            languageSelect.setAttribute('aria-label', I18N[lang].ui_lang_label.replace('🌐', '').trim());
 
             // Cập nhật toàn bộ nhãn văn bản có data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1762,6 +2129,37 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             });
 
+            document.querySelectorAll('.voice-name[data-voice-key]').forEach(el => {
+                const vKey = el.getAttribute('data-voice-key');
+                const originalName = el.getAttribute('data-original-name');
+                el.innerText = lang === 'vi'
+                    ? originalName
+                    : vKey === 'giong_cua_toi'
+                        ? translate('voice_custom')
+                        : originalName.split(' - ')[0];
+            });
+
+            if (selectedFileDetails) {
+                document.getElementById('selectedFileName').innerText = translate('stt_selected', selectedFileDetails);
+            }
+            if (currentAudioResult) updateAudioResultLabels(currentAudioResult);
+            if (currentTranscriptionData) updateTranscriptionStats(currentTranscriptionData);
+            if (document.getElementById('btnSubmitTTS').disabled) {
+                document.getElementById('btnTextTTS').innerText = translate('tts_working_button');
+                document.getElementById('progressStatusTTS').innerHTML =
+                    `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> ${translate('tts_working')}`;
+                if (ttsJob) {
+                    document.getElementById('progressDetailTTS').innerText = translate('tts_part_start', {
+                        index: ttsJob.nextPartIndex + 1,
+                        total: ttsJob.totalParts,
+                        words: Math.min(ttsJob.totalWords - ttsJob.nextPartIndex * 2000, 2000).toLocaleString()
+                    });
+                }
+            }
+            if (document.getElementById('btnSubmitSTT').disabled) {
+                document.getElementById('btnTextSTT').innerText = translate('stt_working');
+            }
+
             // Cập nhật tag giới tính (Nam / Nữ)
             document.querySelectorAll('.voice-tag[data-gender]').forEach(el => {
                 const rawGender = el.getAttribute('data-gender');
@@ -1777,15 +2175,22 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
             });
 
-            // Tự động kích hoạt bộ lọc giọng đọc tương ứng
-            filterVoiceLang(lang, null);
+            const visibleVoiceCount = document.querySelectorAll('.voice-card:not(.hidden)').length;
+            const voiceSearch = document.getElementById('voiceSearchInput').value.trim();
+            document.getElementById('voiceCountBadge').innerText = translate(
+                voiceSearch ? 'voice_results' : 'voice_count',
+                { count: visibleVoiceCount }
+            );
+            updateStats();
+            updateTTSButtonLabel();
 
             // Đổi đoạn văn bản mẫu mặc định nếu người dùng chưa sửa
             const textEl = document.getElementById('textContent');
             if (textEl) {
                 const currentVal = textEl.value.trim();
-                const allSampleTexts = Object.values(SAMPLE_TEXTS).map(t => t.trim());
-                if (allSampleTexts.includes(currentVal) || currentVal === '') {
+                const normalizeSample = value => value.replace(/\s+/g, ' ').trim();
+                const allSampleTexts = Object.values(SAMPLE_TEXTS).map(normalizeSample);
+                if (allSampleTexts.includes(normalizeSample(currentVal)) || currentVal === '') {
                     textEl.value = SAMPLE_TEXTS[lang] || SAMPLE_TEXTS['vi'];
                     if (typeof updateStats === 'function') updateStats();
                 }
@@ -1806,6 +2211,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         const sampleAudio = document.getElementById('samplePlayer');
 
         function selectVoice(key, element) {
+            if (ttsJob && ttsJob.nextPartIndex < ttsJob.totalParts) return;
             selectedPreset = key;
             document.querySelectorAll('.voice-card').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
@@ -1843,7 +2249,10 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
             const countBadge = document.getElementById('voiceCountBadge');
             if (countBadge) {
-                countBadge.innerText = `${count} giọng`;
+                countBadge.innerText = translate(
+                    document.getElementById('voiceSearchInput').value.trim() ? 'voice_results' : 'voice_count',
+                    { count: count }
+                );
             }
 
             const currentActive = document.querySelector('.voice-card.active');
@@ -1871,7 +2280,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
             const countBadge = document.getElementById('voiceCountBadge');
             if (countBadge) {
-                countBadge.innerText = `${count} kết quả`;
+                countBadge.innerText = translate('voice_results', { count: count });
             }
 
             const currentActive = document.querySelector('.voice-card.active');
@@ -1919,6 +2328,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
         function insertTag(tag) {
             const textarea = document.getElementById('textContent');
+            if (textarea.disabled) return;
             const scrollTop = textarea.scrollTop;
             let start = textarea.selectionStart;
             let end = textarea.selectionEnd;
@@ -1950,6 +2360,9 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             const minutes = (words / 145).toFixed(1);
             document.getElementById('wordCount').innerText = words.toLocaleString();
             document.getElementById('timeEst').innerText = minutes;
+            document.getElementById('ttsPartSummary').innerText = words
+                ? translate('tts_part_summary', { count: Math.ceil(words / 2000) })
+                : '';
         }
 
         document.getElementById('textContent').addEventListener('input', updateStats);
@@ -1960,9 +2373,9 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         setUILanguage(savedUILang);
 
         async function generateSpeech() {
-            const text = document.getElementById('textContent').value.trim();
-            if (!text) {
-                alert(I18N[currentUILang]?.sec_text_title || 'Vui lòng nhập văn bản cần đọc!');
+            const inputText = document.getElementById('textContent').value.trim();
+            if (!inputText) {
+                alert(translate('tts_empty'));
                 return;
             }
             if (!sampleAudio.paused) {
@@ -1971,6 +2384,26 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     currentSampleBtn.classList.remove('playing');
                     currentSampleBtn.innerHTML = I18N[currentUILang]?.sample_btn || '▶ Nghe thử giọng này';
                 }
+            }
+
+            if (!ttsJob || ttsJob.nextPartIndex >= ttsJob.totalParts) {
+                const totalWords = inputText.split(/\s+/).length;
+                ttsJob = {
+                    id: crypto.randomUUID().replace(/-/g, ''),
+                    text: inputText,
+                    preset: selectedPreset,
+                    rate: (document.getElementById('rateSlider').value >= 0 ? '+' : '') +
+                        document.getElementById('rateSlider').value + '%',
+                    pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') +
+                        document.getElementById('pitchSlider').value + 'Hz',
+                    pauseStyle: document.getElementById('pauseStyle').value,
+                    totalWords: totalWords,
+                    totalParts: Math.ceil(totalWords / 2000),
+                    nextPartIndex: 0,
+                    failed: false,
+                    audioParts: []
+                };
+                setTTSInputsLocked(true);
             }
 
             const btn = document.getElementById('btnSubmitTTS');
@@ -1985,15 +2418,18 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             const countdownVal = document.getElementById('countdownValTTS');
             const elapsedVal = document.getElementById('elapsedValTTS');
             const percentVal = document.getElementById('percentValTTS');
+            const partWordCount = Math.min(
+                ttsJob.totalWords - ttsJob.nextPartIndex * 2000,
+                2000
+            );
 
             btn.disabled = true;
+            ttsJob.failed = false;
             spinner.style.display = 'inline-block';
-            btnText.innerText = 'Đang chuyển đổi văn bản sang âm thanh... Xin chờ';
-            resultBox.style.display = 'none';
+            btnText.innerText = translate('tts_working_button');
+            updateTTSButtonLabel();
 
-            // Khởi tạo bộ đếm ngược và thanh tiến trình theo độ dài thực tế
-            const words = text ? text.split(/\s+/).length : 0;
-            let estimatedSec = Math.max(8, Math.min(600, Math.ceil(words / 32) + 6));
+            let estimatedSec = Math.max(8, Math.ceil(partWordCount / 32) + 6);
             let elapsedSec = 0;
             let remainingSec = estimatedSec;
 
@@ -2002,8 +2438,12 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             percentVal.innerText = '4%';
             countdownVal.innerText = formatClock(remainingSec);
             elapsedVal.innerText = formatClock(elapsedSec);
-            progressStatus.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> Đang xử lý tổng hợp giọng đọc AI...`;
-            progressDetail.innerText = `Đang phân tích bài (${words.toLocaleString()} từ) và tải qua luồng an toàn...`;
+            progressStatus.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> ${translate('tts_working')}`;
+            progressDetail.innerText = translate('tts_part_start', {
+                index: ttsJob.nextPartIndex + 1,
+                total: ttsJob.totalParts,
+                words: partWordCount.toLocaleString()
+            });
 
             if (ttsTimerInterval) clearInterval(ttsTimerInterval);
 
@@ -2018,13 +2458,12 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 percentVal.innerText = percent + '%';
 
                 if (elapsedSec > 4 && elapsedSec <= 15) {
-                    progressDetail.innerText = 'Đang nhận luồng âm thanh Microsoft Edge TTS...';
+                    progressDetail.innerText = translate('tts_connecting');
                 } else if (elapsedSec > 15) {
-                    progressDetail.innerText = 'Đang ghép nối các đoạn âm thanh & tinh chỉnh tần số...';
+                    progressDetail.innerText = translate('tts_merging');
                 }
             }, 1000);
 
-            // Thời gian chờ tối đa 20 phút (1,200,000 ms) - cho phép bài dài 5.000 - 10.000 từ chạy thoải mái không lo bị ngắt
             const maxWaitMs = 20 * 60 * 1000;
             const abortCtrl = new AbortController();
             const clientTimeout = setTimeout(() => {
@@ -2037,11 +2476,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     headers: { 'Content-Type': 'application/json' },
                     signal: abortCtrl.signal,
                     body: JSON.stringify({
-                        text: text,
-                        preset: selectedPreset,
-                        rate: (document.getElementById('rateSlider').value >= 0 ? '+' : '') + document.getElementById('rateSlider').value + '%',
-                        pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') + document.getElementById('pitchSlider').value + 'Hz',
-                        pause_style: document.getElementById('pauseStyle').value
+                        text: ttsJob.text,
+                        job_id: ttsJob.id,
+                        part_index: ttsJob.nextPartIndex,
+                        preset: ttsJob.preset,
+                        rate: ttsJob.rate,
+                        pitch: ttsJob.pitch,
+                        pause_style: ttsJob.pauseStyle
                     })
                 });
 
@@ -2054,45 +2495,73 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                     progressBar.style.width = '100%';
                     percentVal.innerText = '100%';
                     countdownVal.innerText = '00:00';
-                    progressStatus.innerHTML = '✓ Đã hoàn tất tạo giọng đọc!';
-                    progressDetail.innerText = `Hoàn thành thành công sau ${elapsedSec} giây!`;
+                    progressStatus.innerHTML = translate('tts_complete');
+                    progressDetail.innerText = translate('tts_elapsed', { seconds: elapsedSec });
 
-                    const player = document.getElementById('audioPlayer');
-                    const downloadLink = document.getElementById('downloadLink');
+                    const audioPart = data.audio_part;
+                    ttsJob.audioParts.push(audioPart);
+                    ttsJob.nextPartIndex++;
+                    ttsJob.failed = false;
+                    currentAudioResult = {
+                        ...data,
+                        audio_parts: ttsJob.audioParts,
+                        preset_key: ttsJob.preset
+                    };
+                    const partsList = document.getElementById('audioPartsList');
+                    const partBox = document.createElement('div');
+                    partBox.className = 'audio-part';
+                    partBox.dataset.partIndex = String(ttsJob.nextPartIndex);
+                    partBox.dataset.totalParts = String(ttsJob.totalParts);
+                    partBox.dataset.wordCount = String(audioPart.word_count);
 
-                    player.src = data.audio_url;
-                    player.play();
-                    downloadLink.href = data.audio_url;
-                    downloadLink.setAttribute('download', data.filename);
+                    const partTitle = document.createElement('span');
+                    partTitle.className = 'audio-part-title';
 
-                    document.getElementById('audioStats').innerText = 
-                        `${data.voice_name} • ${data.word_count} từ (~${data.est_minutes} phút)`;
+                    const player = document.createElement('audio');
+                    player.controls = true;
+                    player.src = audioPart.audio_url;
+
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = audioPart.audio_url;
+                    downloadLink.className = 'btn-action';
+                    downloadLink.download = audioPart.filename;
+
+                    partBox.append(partTitle, player, downloadLink);
+                    partsList.appendChild(partBox);
+
+                    updateAudioResultLabels(currentAudioResult);
 
                     resultBox.style.display = 'block';
                     resultBox.scrollIntoView({ behavior: 'smooth' });
-
-                    setTimeout(() => {
-                        progressBox.style.display = 'none';
-                    }, 3500);
-                } else {
-                    if (ttsTimerInterval) {
-                        clearInterval(ttsTimerInterval);
-                        ttsTimerInterval = null;
+                    updateTTSButtonLabel();
+                    if (ttsJob.nextPartIndex >= ttsJob.totalParts) {
+                        setTTSInputsLocked(false);
                     }
-                    progressBox.style.display = 'none';
-                    alert('Lỗi: ' + (data.error || 'Không thể tạo âm thanh!'));
+                } else {
+                    ttsJob.failed = true;
+                    resultBox.style.display = 'block';
+                    if (data.failed_chunk) {
+                        progressStatus.innerText = translate('tts_retry_prompt');
+                        progressDetail.innerText = translate('tts_chunk_error', {
+                            index: data.failed_chunk,
+                            total: data.total_chunks
+                        });
+                    } else {
+                        progressStatus.innerText = translate('tts_retry_prompt');
+                        progressDetail.innerText = data.error || translate('tts_failed');
+                    }
+                    updateTTSButtonLabel();
                 }
             } catch (err) {
-                if (ttsTimerInterval) {
-                    clearInterval(ttsTimerInterval);
-                    ttsTimerInterval = null;
-                }
-                progressBox.style.display = 'none';
+                ttsJob.failed = true;
+                resultBox.style.display = 'block';
+                progressStatus.innerText = translate('tts_retry_prompt');
                 if (err.name === 'AbortError') {
-                    alert('Hết thời gian chờ (Timeout 20 phút). Vui lòng kiểm tra lại kết nối mạng hoặc thử lại!');
+                    progressDetail.innerText = translate('tts_timeout', { minutes: Math.ceil(maxWaitMs / 60000) });
                 } else {
-                    alert('Có lỗi xảy ra: ' + err);
+                    progressDetail.innerText = translate('error_occurred') + err;
                 }
+                updateTTSButtonLabel();
             } finally {
                 clearTimeout(clientTimeout);
                 if (ttsTimerInterval) {
@@ -2101,7 +2570,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 }
                 btn.disabled = false;
                 spinner.style.display = 'none';
-                btnText.innerText = I18N[currentUILang]?.btn_submit_tts || '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+                updateTTSButtonLabel();
             }
         }
 
@@ -2120,16 +2589,16 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         async function checkLink() {
             const url = document.getElementById('videoUrl').value.trim();
             if (!url) {
-                alert('Vui lòng dán đường link video!');
+                alert(translate('stt_url_required'));
                 return;
             }
             if (!/^https?:\/\//i.test(url)) {
-                alert('Link phải bắt đầu bằng http:// hoặc https://');
+                alert(translate('stt_url_invalid'));
                 return;
             }
             const btn = document.getElementById('btnCheckLink');
             btn.disabled = true;
-            btn.innerText = '⏳ Đang kiểm tra...';
+            btn.innerText = translate('stt_checking');
             try {
                 const res = await fetch('/api/link-info', {
                     method: 'POST',
@@ -2139,19 +2608,20 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 const data = await res.json();
                 if (data.success) {
                     const mins = data.duration
-                        ? Math.floor(data.duration / 60) + ' phút ' + Math.round(data.duration % 60) + ' giây'
-                        : 'không rõ';
-                    alert('✔ Link hợp lệ!\n\nTiêu đề: ' + data.title +
-                          '\nNền tảng: ' + (data.source || 'không rõ') +
-                          '\nThời lượng: ' + mins);
+                        ? Math.floor(data.duration / 60) + ' ' + translate('stt_minutes') + ' ' +
+                          Math.round(data.duration % 60) + ' ' + translate('stt_seconds')
+                        : translate('stt_unknown');
+                    alert(translate('stt_check_success') + '\n\n' + translate('stt_title') + ': ' + data.title +
+                          '\n' + translate('stt_source') + ': ' + (data.source || translate('stt_unknown')) +
+                          '\n' + translate('stt_duration') + ': ' + mins);
                 } else {
-                    alert('✖ ' + (data.error || 'Không kiểm tra được link này.'));
+                    alert('✖ ' + (data.error || translate('stt_check_failed')));
                 }
             } catch (err) {
-                alert('Có lỗi xảy ra: ' + err);
+                alert(translate('error_occurred') + err);
             } finally {
                 btn.disabled = false;
-                btn.innerText = '🔎 Kiểm tra';
+                btn.innerText = I18N[currentUILang]?.stt_btn_check || '🔎 Kiểm tra';
             }
         }
 
@@ -2159,7 +2629,9 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                document.getElementById('selectedFileName').innerText = `✓ Đã chọn: ${file.name} (${sizeMB} MB)`;
+                selectedFileDetails = { name: file.name, size: sizeMB };
+                document.getElementById('selectedFileName').innerText =
+                    translate('stt_selected', selectedFileDetails);
             }
         }
 
@@ -2189,11 +2661,11 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             if (currentSTTMode === 'link') {
                 const url = document.getElementById('videoUrl').value.trim();
                 if (!url) {
-                    alert('Vui lòng dán đường link video!');
+                    alert(translate('stt_url_required'));
                     return;
                 }
                 if (!/^https?:\/\//i.test(url)) {
-                    alert('Link phải bắt đầu bằng http:// hoặc https://');
+                    alert(translate('stt_url_invalid'));
                     return;
                 }
                 formData.append('video_url', url);
@@ -2209,7 +2681,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
             } else {
                 const fileInput = document.getElementById('audioVideoFile');
                 if (!fileInput.files || fileInput.files.length === 0) {
-                    alert('Vui lòng chọn 1 file âm thanh hoặc video!');
+                    alert(translate('stt_file_required'));
                     return;
                 }
                 formData.append('file', fileInput.files[0]);
@@ -2222,7 +2694,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
             btn.disabled = true;
             spinner.style.display = 'inline-block';
-            btnText.innerText = 'Whisper AI đang xử lý và nhận diện văn bản... Xin chờ';
+            btnText.innerText = translate('stt_working');
 
             try {
                 const response = await fetch('/api/transcribe', {
@@ -2233,21 +2705,15 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
                 if (data.success) {
                     document.getElementById('transcribeText').innerText = data.text;
-                    const words = data.text.split(/\s+/).length;
-                    const mins = Math.floor((data.duration || 0) / 60);
-                    const secs = Math.round((data.duration || 0) % 60);
-                    const lang = (data.language || '').toUpperCase() || 'AUTO';
-                    document.getElementById('sttStats').innerText =
-                        `Nguồn: ${data.source || 'không rõ'} • Thời lượng: ${mins}p${secs}s • ` +
-                        `Ngôn ngữ: ${lang} • Model: ${data.model || 'base'} • ${words} từ` +
-                        (data.title ? ` • "${data.title}"` : '');
+                    currentTranscriptionData = data;
+                    updateTranscriptionStats(data);
                     resultBox.style.display = 'block';
                     resultBox.scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    alert('Lỗi: ' + (data.error || 'Không thể chuyển đổi âm thanh!'));
+                    alert(translate('tts_error') + (data.error || translate('stt_failed')));
                 }
             } catch (err) {
-                alert('Có lỗi xảy ra: ' + err);
+                alert(translate('error_occurred') + err);
             } finally {
                 btn.disabled = false;
                 spinner.style.display = 'none';
@@ -2258,7 +2724,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         function copyTranscribeText() {
             const text = document.getElementById('transcribeText').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert('Đã sao chép toàn bộ văn bản vào bộ nhớ tạm!');
+                alert(translate('copy_success'));
             });
         }
 

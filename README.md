@@ -8,7 +8,9 @@
 - ✅ **7 phong cách giọng đọc**: 3 Nam (Kể chuyện, Thời sự, Năng động) + 3 Nữ (Dịu dàng, Thuyết minh, Trẻ trung) + 1 giọng mô phỏng
 - ✅ **Hỗ trợ văn bản dài 20+ phút**: Tự động chia đoạn, ghép nối mượt mà
 - ✅ **Nghe thử trực tiếp trên web**, tuỳ chỉnh tốc độ / cao độ, chèn khoảng nghỉ
-- ✅ **Tải file MP3** về máy
+- ✅ **Văn bản dài tự chia tối đa 2.000 từ/phần**: Tạo lần lượt từng phần, tải ngay phần hoàn tất rồi bấm tiếp tục
+- ✅ Các đoạn gửi tới TTS được xử lý tuần tự; nếu lỗi, có thể thử lại mà không tạo lại những đoạn nhỏ đã thành công
+- ✅ **Giao diện 5 ngôn ngữ**: Tiếng Việt, Anh, Trung, Nhật và Hàn
 
 ### Tab 2 — Chuyển Video → Văn bản (Speech → Text)
 - ✅ **Dán link từ 1000+ nền tảng**: YouTube, TikTok, Facebook, Instagram, X/Twitter, Vimeo, Bilibili, Douyin… (qua `yt-dlp`)

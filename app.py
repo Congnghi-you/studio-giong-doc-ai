@@ -6,6 +6,8 @@ import asyncio
 import tempfile
 import shutil
 import subprocess
+import uuid
+import hashlib
 
 if sys.platform == "win32":
     try:
@@ -24,10 +26,12 @@ app.config['MAX_CONTENT_LENGTH'] = 2048 * 1024 * 1024  # Cho phép upload file l
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
+TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
 FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe")
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(TTS_WORK_DIR, exist_ok=True)
 
 # CÁC PHONG CÁCH GIỌNG ĐỌC AI ĐA NGÔN NGỮ (VIỆT, ANH, TRUNG, NHẬT, HÀN)
 VOICE_PRESETS = {
@@ -687,8 +691,13 @@ def format_transcript(segments, pause_gap=1.0, max_sentence_words=60,
 def preprocess_text(text, pause_style="standard"):
     if not text:
         return ""
-    text = re.sub(r'\[ngh[iỉ]\s*(\d+)s?\]', lambda m: '... ' * min(int(m.group(1)), 4), text, flags=re.IGNORECASE)
-    text = re.sub(r'\[(ngh[iỉ]|pause|thở)\]', '... ', text, flags=re.IGNORECASE)
+    text = re.sub(
+        r'\[(?:ngh[iỉ]|pause|停顿|休止|잠시)\s*(\d+)\s*(?:s|秒|초)?\]',
+        lambda m: '... ' * min(int(m.group(1)), 4),
+        text,
+        flags=re.IGNORECASE
+    )
+    text = re.sub(r'\[(ngh[iỉ]|pause|停顿|休止|잠시|thở)\]', '... ', text, flags=re.IGNORECASE)
     text = re.sub(r'\s*([!?]+)\s*', r'\1 ... ', text)
     # Tránh chèn dấu phẩy ngay sau dấu hai chấm (: ,) làm lỗi bộ đọc của Edge-TTS
     text = re.sub(r'\s*([:;])\s*', r'\1 ', text)
@@ -750,55 +759,123 @@ def split_text_into_chunks(text, max_chars=350):
                 paired.append(s.strip())
 
         for sentence in paired:
-            if not current_chunk:
-                current_chunk = sentence
-            elif len(current_chunk) + len(sentence) + 1 <= max_chars:
-                current_chunk += " " + sentence
+            sentence_parts = []
+            if len(sentence) <= max_chars:
+                sentence_parts.append(sentence)
             else:
-                chunks.append(current_chunk.strip())
-                current_chunk = sentence
+                current_part = ""
+                for word in sentence.split():
+                    if len(word) > max_chars:
+                        if current_part:
+                            sentence_parts.append(current_part)
+                            current_part = ""
+                        sentence_parts.extend(
+                            word[start:start + max_chars]
+                            for start in range(0, len(word), max_chars)
+                        )
+                    elif not current_part:
+                        current_part = word
+                    elif len(current_part) + len(word) + 1 <= max_chars:
+                        current_part += " " + word
+                    else:
+                        sentence_parts.append(current_part)
+                        current_part = word
+                if current_part:
+                    sentence_parts.append(current_part)
+
+            for sentence_part in sentence_parts:
+                if not current_chunk:
+                    current_chunk = sentence_part
+                elif len(current_chunk) + len(sentence_part) + 1 <= max_chars:
+                    current_chunk += " " + sentence_part
+                else:
+                    chunks.append(current_chunk.strip())
+                    current_chunk = sentence_part
 
     if current_chunk.strip():
         chunks.append(current_chunk.strip())
 
     return chunks if chunks else [text.strip()]
 
-async def generate_speech_async(text, voice, rate, pitch, output_path):
+
+def split_text_by_word_limit(text, max_words=2000):
+    """Split into full word-limit parts while preserving paragraph breaks where possible."""
+    parts = []
+    current_sentences = []
+    current_word_count = 0
+
+    def flush():
+        nonlocal current_sentences, current_word_count
+        if current_sentences:
+            text = []
+            previous_paragraph = None
+            for paragraph_index, sentence in current_sentences:
+                separator = (
+                    "\n\n"
+                    if previous_paragraph is not None and paragraph_index != previous_paragraph
+                    else " "
+                )
+                text.extend((separator, sentence))
+                previous_paragraph = paragraph_index
+            parts.append("".join(text).strip())
+            current_sentences = []
+            current_word_count = 0
+
+    for paragraph_index, paragraph in enumerate(re.split(r"\n+", text.strip())):
+        if not paragraph.strip():
+            continue
+        sentences = re.split(r"(?<=[.!?…])\s+", paragraph.strip())
+        for sentence in sentences:
+            words = sentence.split()
+            start = 0
+            while start < len(words):
+                take = min(max_words - current_word_count, len(words) - start)
+                current_sentences.append((paragraph_index, " ".join(words[start:start + take])))
+                current_word_count += take
+                start += take
+                if current_word_count == max_words:
+                    flush()
+
+    flush()
+    return parts
+
+
+async def generate_speech_async(text, voice, rate, pitch, output_path, work_dir):
     chunks = split_text_into_chunks(text, max_chars=320)
-    temp_dir = tempfile.mkdtemp(prefix="tts_chunks_")
-    chunk_paths = [os.path.join(temp_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
+    os.makedirs(work_dir, exist_ok=True)
+    chunk_paths = [os.path.join(work_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
 
-    # Giới hạn 2 luồng đồng thời: Chuẩn mức an toàn tuyệt đối, không bao giờ bị Microsoft từ chối kết nối
-    semaphore = asyncio.Semaphore(2)
+    for idx, (chunk_text, chunk_file) in enumerate(zip(chunks, chunk_paths)):
+        if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
+            print(f"[✓] Bỏ qua đoạn {idx + 1}/{len(chunks)} đã tạo trước đó.", flush=True)
+            continue
 
-    async def fetch_chunk(idx, chunk_text, chunk_file):
-        async with semaphore:
-            clean_chunk = chunk_text.replace("\n", " ").strip()
-            if not clean_chunk:
-                return True
+        clean_chunk = chunk_text.replace("\n", " ").strip()
+        if not clean_chunk:
+            continue
 
-            # Giai đoạn 1: Thử tải với giọng và hiệu ứng tùy chỉnh (4 lần thử với timeout tăng dần)
-            for retry in range(4):
-                try:
-                    if os.path.exists(chunk_file):
-                        os.remove(chunk_file)
-                    comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch)
-                    timeout_sec = 25.0 + retry * 10.0  # 25s -> 35s -> 45s -> 55s
-                    await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
-                    if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
-                        return True
-                except Exception as e:
-                    err_msg = f"{type(e).__name__}: {e}".strip()
-                    print(f"[*] Đoạn {idx + 1}/{len(chunks)} thử lần {retry + 1}/4: {err_msg or 'Hết thời gian chờ (Timeout)'}", flush=True)
-                    if os.path.exists(chunk_file):
-                        try:
-                            os.remove(chunk_file)
-                        except Exception:
-                            pass
-                    await asyncio.sleep(1.0 + retry * 1.5)
+        generated = False
+        last_error = "Không nhận được dữ liệu âm thanh."
+        for retry in range(4):
+            try:
+                if os.path.exists(chunk_file):
+                    os.remove(chunk_file)
+                comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch)
+                timeout_sec = 25.0 + retry * 10.0
+                await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
+                if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
+                    generated = True
+                    break
+                last_error = "Microsoft TTS không trả về dữ liệu âm thanh."
+            except Exception as e:
+                last_error = f"{type(e).__name__}: {e}".strip()
+                print(f"[*] Đoạn {idx + 1}/{len(chunks)} thử lần {retry + 1}/4: {last_error}", flush=True)
+                if os.path.exists(chunk_file):
+                    os.remove(chunk_file)
+                await asyncio.sleep(1.0 + retry * 1.5)
 
-            # Giai đoạn 2: Dự phòng cứu cánh (Tải với giọng chuẩn gốc không kèm pitch/rate nếu server kén SSML)
-            print(f"[!] Đoạn {idx + 1}/{len(chunks)} kích hoạt cơ chế dự phòng giọng chuẩn...", flush=True)
+        if not generated:
+            print(f"[!] Đoạn {idx + 1}/{len(chunks)} thử lại bằng giọng chuẩn.", flush=True)
             for fallback_try in range(2):
                 try:
                     if os.path.exists(chunk_file):
@@ -806,32 +883,36 @@ async def generate_speech_async(text, voice, rate, pitch, output_path):
                     comm = edge_tts.Communicate(clean_chunk, voice=voice)
                     await asyncio.wait_for(comm.save(chunk_file), timeout=35.0)
                     if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
-                        print(f"[✓] Đoạn {idx + 1}/{len(chunks)} đã tải thành công qua luồng dự phòng!", flush=True)
-                        return True
-                except Exception as fb_err:
-                    print(f"[!] Dự phòng đoạn {idx + 1} lần {fallback_try + 1}: {fb_err}", flush=True)
+                        generated = True
+                        break
+                    last_error = "Microsoft TTS không trả về dữ liệu âm thanh."
+                except Exception as e:
+                    last_error = f"{type(e).__name__}: {e}".strip()
+                    print(f"[!] Dự phòng đoạn {idx + 1} lần {fallback_try + 1}: {last_error}", flush=True)
+                    if os.path.exists(chunk_file):
+                        os.remove(chunk_file)
                     await asyncio.sleep(2.0)
 
-            print(f"[X] Bỏ qua đoạn {idx + 1} do máy chủ Microsoft không phản hồi sau nhiều lần thử.", flush=True)
-            return False
+        if not generated:
+            raise RuntimeError(
+                f"Không thể tạo đoạn nhỏ {idx + 1}/{len(chunks)}. Lỗi cuối: {last_error}"
+            )
 
-    try:
-        tasks = [fetch_chunk(idx, chunk, chunk_paths[idx]) for idx, chunk in enumerate(chunks)]
-        # return_exceptions=True giúp các đoạn khác tiếp tục hoàn tất bình thường
-        await asyncio.gather(*tasks, return_exceptions=True)
+        print(f"[✓] Hoàn tất đoạn nhỏ {idx + 1}/{len(chunks)}.", flush=True)
+        if idx < len(chunks) - 1:
+            await asyncio.sleep(0.5)
 
-        # Ghép nối các đoạn đã tạo thành file MP3 duy nhất
-        written_chunks = 0
-        with open(output_path, "wb") as outfile:
-            for cf in chunk_paths:
-                if os.path.exists(cf) and os.path.getsize(cf) > 100:
-                    with open(cf, "rb") as infile:
-                        shutil.copyfileobj(infile, outfile)
-                    written_chunks += 1
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    with open(output_path, "wb") as outfile:
+        for chunk_file in chunk_paths:
+            if not os.path.exists(chunk_file) or os.path.getsize(chunk_file) <= 100:
+                raise RuntimeError("Thiếu dữ liệu một đoạn âm thanh trước khi ghép file.")
+            with open(chunk_file, "rb") as infile:
+                shutil.copyfileobj(infile, outfile)
 
-        print(f"[✓] Hoàn tất ghép nối {written_chunks}/{len(chunks)} đoạn vào file: {os.path.basename(output_path)}", flush=True)
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
+    print(f"[✓] Hoàn tất ghép {len(chunk_paths)} đoạn vào file: {os.path.basename(output_path)}", flush=True)
+    shutil.rmtree(work_dir, ignore_errors=True)
 
 @app.after_request
 def add_no_cache_headers(response):
@@ -850,6 +931,11 @@ def generate():
     try:
         data = request.get_json(force=True, silent=True) or {}
         raw_text = data.get("text", "").strip()
+        job_id = data.get("job_id") or uuid.uuid4().hex
+        try:
+            part_index = int(data.get("part_index", 0))
+        except (TypeError, ValueError):
+            return jsonify({"success": False, "error": "Chỉ số phần không hợp lệ."}), 400
         preset_key = data.get("preset", "giong_cua_toi")
         custom_rate = data.get("rate")
         custom_pitch = data.get("pitch")
@@ -857,33 +943,73 @@ def generate():
 
         if not raw_text:
             return jsonify({"success": False, "error": "Vui lòng nhập văn bản cần đọc!"}), 400
+        if not isinstance(job_id, str) or not re.fullmatch(r"[a-f0-9]{32}", job_id):
+            return jsonify({"success": False, "error": "Mã phiên tạo âm thanh không hợp lệ."}), 400
 
-        preset = VOICE_PRESETS.get(preset_key, VOICE_PRESETS["giong_cua_toi"])
+        if preset_key not in VOICE_PRESETS:
+            preset_key = "giong_cua_toi"
+        preset = VOICE_PRESETS[preset_key]
         voice = preset["voice"]
         rate = custom_rate if custom_rate else preset["rate"]
         pitch = custom_pitch if custom_pitch else preset["pitch"]
 
-        processed_text = preprocess_text(raw_text, pause_style=pause_style)
-        filename = f"audio_{int(time.time())}_{preset_key}.mp3"
-        output_path = os.path.join(AUDIO_DIR, filename)
+        text_parts = split_text_by_word_limit(raw_text, max_words=2000)
+        if part_index < 0 or part_index >= len(text_parts):
+            return jsonify({"success": False, "error": "Không tìm thấy phần văn bản yêu cầu."}), 400
 
-        asyncio.run(generate_speech_async(processed_text, voice, rate, pitch, output_path))
+        text_part = text_parts[part_index]
+        processed_text = preprocess_text(text_part, pause_style=pause_style)
+        work_dir = os.path.join(TTS_WORK_DIR, f"{job_id}_{part_index:03d}")
+        manifest_path = os.path.join(work_dir, "manifest.txt")
+        fingerprint = hashlib.sha256(
+            "\0".join((processed_text, voice, rate, pitch)).encode("utf-8")
+        ).hexdigest()
+        if os.path.exists(manifest_path):
+            with open(manifest_path, "r", encoding="ascii") as manifest:
+                previous_fingerprint = manifest.read().strip()
+            if previous_fingerprint != fingerprint:
+                shutil.rmtree(work_dir, ignore_errors=True)
+        os.makedirs(work_dir, exist_ok=True)
+        with open(manifest_path, "w", encoding="ascii") as manifest:
+            manifest.write(fingerprint)
+
+        filename = f"audio_{job_id}_{part_index + 1:03d}_{preset_key}.mp3"
+        output_path = os.path.join(AUDIO_DIR, filename)
+        try:
+            asyncio.run(generate_speech_async(
+                processed_text, voice, rate, pitch, output_path, work_dir
+            ))
+        except Exception as e:
+            error_match = re.search(r"đoạn nhỏ (\d+)/(\d+)", str(e), flags=re.IGNORECASE)
+            return jsonify({
+                "success": False,
+                "error": str(e),
+                "failed_chunk": int(error_match.group(1)) if error_match else None,
+                "total_chunks": int(error_match.group(2)) if error_match else None,
+                "part_index": part_index,
+                "total_parts": len(text_parts)
+            }), 503
 
         if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
-            if os.path.exists(output_path):
-                os.remove(output_path)
-            return jsonify({"success": False, "error": "Không thể tạo file âm thanh hoặc kết nối bị gián đoạn. Vui lòng thử lại!"}), 500
+            return jsonify({"success": False, "error": "Không thể tạo file âm thanh."}), 500
 
         word_count = len(raw_text.split())
         est_minutes = round(word_count / 145, 1)
 
         return jsonify({
             "success": True,
-            "audio_url": f"/static/audio/{filename}",
-            "filename": filename,
+            "audio_part": {
+                "audio_url": f"/static/audio/{filename}",
+                "filename": filename,
+                "word_count": len(text_part.split()),
+                "part_index": part_index,
+                "total_parts": len(text_parts)
+            },
             "word_count": word_count,
             "est_minutes": est_minutes,
-            "voice_name": preset["name"]
+            "voice_name": preset["name"],
+            "part_index": part_index,
+            "total_parts": len(text_parts)
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
