@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Voice Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0b1120;
-            --bg-secondary: #1e293b;
-            --bg-card: rgba(30, 41, 59, 0.75);
-            --accent: #38bdf8;
-            --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(148, 163, 184, 0.15);
-            --success: #34d399;
-            --warning: #fbbf24;
+            --bg-primary: #f7f5f0;
+            --bg-secondary: #efede7;
+            --bg-card: #ffffff;
+            --accent: #0f766e;
+            --accent-gradient: linear-gradient(135deg, #0f766e 0%, #2b9c8c 100%);
+            --text-main: #202b33;
+            --text-muted: #69767d;
+            --border: #e3e4dd;
+            --success: #15803d;
+            --warning: #b45309;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Be Vietnam Pro', sans-serif;
         }
 
         body {
@@ -32,8 +32,8 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.12) 0px, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.07) 0px, transparent 48%),
+                              radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.05) 0px, transparent 45%);
         }
 
         .container {
@@ -476,7 +476,7 @@
             resize: vertical;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Be Vietnam Pro', sans-serif;
         }
 
         textarea:focus {
@@ -848,6 +848,343 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .container { max-width: 1080px; padding: 24px 24px 48px; }
+        header { margin-bottom: 24px; }
+        h1 {
+            color: #155e56;
+            background: none;
+            -webkit-text-fill-color: currentColor;
+            font-size: clamp(28px, 4vw, 38px);
+            letter-spacing: -1.2px;
+        }
+        p.subtitle { max-width: 760px; margin: 0 auto; line-height: 1.7; }
+        .badge {
+            background: #e3f2ed;
+            color: #0f766e;
+            border-color: #c8e5da;
+            letter-spacing: .04em;
+        }
+        .ui-lang-select, .tab-nav, .lang-pill, .voice-search-wrapper,
+        .controls-grid, .control-item, .stt-option-btn, .advanced-box,
+        .transcribe-result-box, .audio-part {
+            background-color: #fff;
+            border-color: var(--border);
+            color: var(--text-main);
+            backdrop-filter: none;
+        }
+        .progress-box { background: #f8f8f5 !important; }
+        .ui-lang-select option, .control-item select, .advanced-grid select {
+            background: #fff;
+            color: var(--text-main);
+        }
+        .tab-nav { box-shadow: 0 5px 16px rgba(32, 43, 51, .045); }
+        .tab-btn:hover { color: var(--accent); }
+        .tab-btn.active { color: #fff; }
+        .main-card {
+            background: rgba(255, 255, 255, .92);
+            border-color: #e7e5df;
+            box-shadow: 0 10px 30px rgba(41, 49, 45, .055);
+            backdrop-filter: none;
+        }
+        .section-title { color: #29363b; }
+        .lang-pill {
+            border-color: #e5e7e1;
+            color: #526168;
+        }
+        .lang-pill:hover {
+            border-color: #80bdb1;
+            background: #f2faf7;
+            color: var(--accent);
+        }
+        .lang-pill.active {
+            background: var(--accent-gradient);
+            color: #fff;
+            box-shadow: 0 5px 14px rgba(15, 118, 110, .2);
+        }
+        .voice-search-wrapper {
+            background: #f7f8f5;
+            border-color: #e5e8e1;
+        }
+        .voice-search-input, .voice-name { color: var(--text-main); }
+        .voice-count-badge { background: #e3f2ed; color: var(--accent); border-color: #c8e5da; }
+        .voice-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+        .voice-card {
+            background: #fff;
+            border-color: #e8e9e3;
+            box-shadow: 0 3px 12px rgba(32, 43, 51, .035);
+            backdrop-filter: none;
+        }
+        .voice-card:hover {
+            background: #fbfefc;
+            border-color: #80bdb1;
+            box-shadow: 0 8px 18px rgba(15, 118, 110, .09);
+            transform: translateY(-2px);
+        }
+        .voice-card.active {
+            background: linear-gradient(145deg, #eff9f5, #fff);
+            border-color: var(--accent);
+            box-shadow: 0 8px 22px rgba(15, 118, 110, .12);
+        }
+        .voice-footer { border-top-color: #edf0ea; }
+        .tag-nam { background: #e3f2ed; color: #0f766e; }
+        .tag-nu { background: #fce7f3; color: #be185d; }
+        .btn-play-sample {
+            background: #e8f4f0;
+            border-color: #c9e5db;
+            color: #0f766e;
+        }
+        .btn-play-sample:hover { color: #fff; box-shadow: 0 5px 14px rgba(15, 118, 110, .2); }
+        .btn-tag { background: #f6f7f3; color: #526168; }
+        .btn-tag:hover { background: #e3f2ed; color: var(--accent); }
+        textarea {
+            height: 300px;
+            min-height: 230px;
+            background: #fff;
+            border-color: #dfe3dc;
+            color: #263238;
+            box-shadow: inset 0 1px 2px rgba(32, 43, 51, .025);
+        }
+        textarea:focus { box-shadow: 0 0 0 4px rgba(15, 118, 110, .11); }
+        .controls-grid { background: #f8f8f5; }
+        .control-item { background: #fff; }
+        .control-item select, .advanced-grid select, .advanced-grid input[type="file"] {
+            background: #fff;
+            border-color: #dfe3dc;
+            color: var(--text-main);
+        }
+        .btn-submit {
+            background: linear-gradient(120deg, #0f766e, #168b7e);
+            box-shadow: 0 9px 22px rgba(15, 118, 110, .19);
+        }
+        .btn-submit:hover:not(:disabled) {
+            box-shadow: 0 13px 26px rgba(15, 118, 110, .24);
+        }
+        .result-box { background: #eff8f4; border-color: #cde7da; }
+        .audio-part, .transcribe-result-box { background: #fff; }
+        .btn-secondary { background: #eef1ed; color: #34434a; }
+        .btn-secondary:hover { background: #e1e8e2; }
+        .stt-option-btn { background: #f8f8f5; }
+        .stt-option-btn:hover, .stt-option-btn.active { background: #eaf5f1; }
+        .dropzone { background: #f8faf7; }
+        .dropzone:hover, .dropzone.dragover { background: #eff8f4; }
+        .link-row input[type="text"], .transcribe-output {
+            background: #fff;
+            color: var(--text-main);
+        }
+        .advanced-box { background: #f8f8f5; }
+        .voice-picker {
+            margin: 0 0 22px;
+            border: 1px solid #e8ebe5;
+            border-radius: 14px;
+            background: #fbfcfa;
+        }
+        .voice-picker-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+        }
+        .voice-picker-current { min-width: 0; flex: 1; }
+        .voice-picker-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .voice-picker-name {
+            display: block;
+            overflow: hidden;
+            color: #29363b;
+            font-size: 14px;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .voice-picker-actions { display: flex; align-items: center; gap: 8px; }
+        .voice-picker-toggle {
+            min-height: 36px;
+            padding: 0 13px;
+            border: 1px solid #dfe7e1;
+            border-radius: 10px;
+            background: #fff;
+            color: #405057;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .voice-picker-toggle:hover { border-color: #9dc9bc; color: var(--accent); }
+        .voice-picker-toggle[aria-expanded="true"] { background: #eaf5f1; color: var(--accent); }
+        .voice-picker-panel { padding: 0 14px 14px; }
+        .voice-picker-panel[hidden] { display: none; }
+        .voice-picker-panel .voice-grid { margin-bottom: 0; max-height: 440px; overflow-y: auto; padding: 2px 3px 4px; }
+        .pause-tools { position: relative; }
+        .pause-tools > summary {
+            color: #64737a;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .pause-tools .insert-btns { margin-top: 8px; }
+        .tts-advanced, .stt-advanced {
+            margin: 16px 0 20px;
+            border: 1px solid #e8ebe5;
+            border-radius: 12px;
+            background: #fafbf9;
+        }
+        .tts-advanced > summary, .stt-advanced > summary {
+            padding: 13px 15px;
+            color: #526168;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            list-style-position: inside;
+        }
+        .tts-advanced[open] > summary, .stt-advanced[open] > summary {
+            border-bottom: 1px solid #e8ebe5;
+            color: var(--accent);
+        }
+        .tts-advanced .controls-grid {
+            margin: 0;
+            border: 0;
+            background: transparent;
+        }
+        .studio-step-title {
+            margin-bottom: 12px;
+            color: #29363b;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .stt-options { gap: 10px; }
+        .stt-option-btn { min-height: 48px; padding: 12px 16px; }
+        .dropzone { padding: 28px 20px; }
+        .stt-advanced .advanced-grid { padding: 0 14px 14px; }
+        .stt-advanced .cookies-option { display: none; }
+        .stt-advanced .cookies-option.is-visible { display: block; }
+        .spinner { border-color: #dce5df; border-top-color: var(--accent); }
+        .account-btn {
+            border: 1px solid #c8e5da;
+            border-radius: 999px;
+            padding: 8px 14px;
+            background: #eaf5f1;
+            color: #0f766e;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s, background .2s;
+        }
+        .account-btn:hover { transform: translateY(-2px); background: #dff0e9; box-shadow: 0 6px 16px rgba(15, 118, 110, .12); }
+        .login-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(32, 43, 51, .44);
+            backdrop-filter: blur(7px);
+        }
+        .login-modal.is-open { display: flex; animation: fadeIn .2s ease; }
+        .login-card {
+            width: min(100%, 440px);
+            padding: 34px;
+            border: 1px solid rgba(255, 255, 255, .75);
+            border-radius: 24px;
+            background: #fffefa;
+            box-shadow: 0 28px 80px rgba(24, 39, 38, .22);
+            text-align: center;
+        }
+        .login-icon {
+            display: grid;
+            place-items: center;
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            background: #e3f2ed;
+            color: var(--accent);
+            font-size: 26px;
+        }
+        .login-card h2 { margin-bottom: 8px; color: var(--text-main); font-size: 24px; }
+        .login-card p { color: var(--text-muted); font-size: 14px; line-height: 1.65; }
+        .login-notice {
+            margin: 20px 0;
+            padding: 12px 14px;
+            border: 1px solid #f1dfb8;
+            border-radius: 12px;
+            background: #fff8e9;
+            color: #805c1a;
+            font-size: 13px;
+            line-height: 1.55;
+            text-align: left;
+        }
+        .login-google, .login-continue {
+            width: 100%;
+            min-height: 46px;
+            border-radius: 12px;
+            font: inherit;
+            font-weight: 700;
+        }
+        .login-google {
+            margin-bottom: 12px;
+            border: 1px solid #dfe3dc;
+            background: #fff;
+            color: #526168;
+        }
+        .login-continue {
+            border: 0;
+            background: var(--accent-gradient);
+            color: #fff;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .login-continue:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15, 118, 110, .2); }
+        .login-email-label { display: block; margin: 16px 0 7px; color: #526168; font-size: 13px; font-weight: 600; text-align: left; }
+        .login-email {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #dfe3dc;
+            border-radius: 11px;
+            background: #f6f7f3;
+            color: #8a9698;
+            font: inherit;
+        }
+        .login-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .9);
+            color: #405057;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 18px 14px 32px; }
+            .main-card { padding: 18px; border-radius: 17px; }
+            .tab-nav { width: 100%; gap: 5px; }
+            .tab-btn { flex: 1; justify-content: center; padding: 10px 8px; font-size: 12px; }
+            .voice-grid { grid-template-columns: 1fr; }
+            .voice-picker-bar { gap: 8px; padding: 10px; }
+            .voice-picker-actions { gap: 6px; }
+            .voice-picker-actions .btn-play-sample { padding: 7px 9px; font-size: 11px; }
+            .voice-picker-toggle { padding: 0 9px; font-size: 11px; }
+            .voice-picker-panel { padding: 0 9px 10px; }
+            .quick-actions { align-items: flex-start; }
+            .word-stats { line-height: 1.6; }
+            .stt-options { flex-direction: column; }
+            textarea { height: 260px; min-height: 200px; }
+            .login-card { padding: 28px 22px; }
+        }
     </style>
 </head>
 <body>
@@ -862,11 +1199,11 @@
                 <option value="ja">🇯🇵 日本語</option>
                 <option value="ko">🇰🇷 한국어</option>
             </select>
+            <button type="button" class="account-btn" data-login-i18n="account" onclick="openLoginPreview()">Đăng nhập</button>
         </div>
 
         <header>
-            <span class="badge" data-i18n="badge">🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT</span>
-            <h1 data-i18n="title">AI Voice & Transcribe Studio</h1>
+            <h1 data-i18n="title">Voice & Transcribe Studio</h1>
             <p class="subtitle" data-i18n="subtitle">Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn</p>
         </header>
 
@@ -883,98 +1220,124 @@
         <!-- ==================== TAB 1: TẠO GIỌNG ĐỌC AI ==================== -->
         <div id="ttsTab" class="tab-content active">
             <div class="main-card">
-                <div class="section-title">
-                    <span data-i18n="sec_voice_title">1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)</span>
-                    <span class="hint" data-i18n="sec_voice_hint">Bấm nút "▶ Nghe thử" trên từng thẻ để nghe mẫu</span>
-                </div>
-                
-                <!-- BỘ LỌC NGÔN NGỮ ĐA QUỐC GIA -->
-                <div class="lang-filter-bar">
-                    <button type="button" class="lang-pill active" data-lang-pill="vi" data-i18n="filter_vi" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="en" data-i18n="filter_en" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (13)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="zh" data-i18n="filter_zh" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (14)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="ja" data-i18n="filter_ja" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="ko" data-i18n="filter_ko" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (3)</button>
-                    <button type="button" class="lang-pill" data-lang-pill="all" data-i18n="filter_all" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (39)</button>
-                </div>
-
-                <!-- THANH TÌM KIẾM NHANH GIỌNG ĐỌC -->
-                <div class="voice-search-wrapper">
-                    <div class="voice-search-box">
-                        <span class="voice-search-icon">🔍</span>
-                        <input type="text" id="voiceSearchInput" class="voice-search-input" data-i18n-ph="voice_search_ph" placeholder="Tìm nhanh giọng đọc theo tên, phong cách, giới tính, vùng miền..." oninput="filterVoicesBySearch(this.value)">
-                    </div>
-                    <span class="voice-count-badge" id="voiceCountBadge">7 giọng hiển thị</span>
-                </div>
-
-                <div class="voice-grid">
-                    {% for key, item in presets.items() %}
-                    <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" data-voice-key="{{ key }}" onclick="selectVoice('{{ key }}', this)">
-                        <div>
-                            <div class="voice-header">
-                                <span class="voice-name" data-voice-key="{{ key }}" data-original-name="{{ item.name }}">{{ item.name }}</span>
-                                <div style="display:flex; gap:6px; align-items:center;">
-                                    <span style="font-size:14px;">{{ item.flag }}</span>
-                                    <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}" data-gender="{{ item.gender }}">{{ item.gender }}</span>
-                                </div>
-                            </div>
-                            <div class="voice-desc" data-voice-key="{{ key }}">{{ item.desc }}</div>
+                <div class="voice-picker">
+                    <div class="voice-picker-bar">
+                        <div class="voice-picker-current">
+                            <span class="voice-picker-label" data-i18n="sec_voice_title">Giọng đọc</span>
+                            <span class="voice-picker-name" id="selectedVoiceName">{{ presets['giong_cua_toi'].name }}</span>
                         </div>
-                        <div class="voice-footer">
-                            <span style="font-size:12px; color: var(--text-muted);" data-i18n="sample_label">Mẫu giọng:</span>
-                            <button type="button" class="btn-play-sample" data-i18n="sample_btn" onclick="playSample(event, '{{ item.sample }}', this)">
-                                ▶ Nghe thử giọng này
+                        <div class="voice-picker-actions">
+                            <button type="button" class="btn-play-sample" id="selectedVoiceSample" data-i18n="sample_btn"
+                                    onclick="playSelectedVoice(event)">▶ Nghe thử</button>
+                            <button type="button" class="voice-picker-toggle" id="voicePickerToggle"
+                                    aria-expanded="false" aria-controls="voicePickerPanel" onclick="toggleVoicePicker()">
+                                <span data-i18n="voice_change">Đổi giọng</span> <span aria-hidden="true">⌄</span>
                             </button>
                         </div>
                     </div>
-                    {% endfor %}
+
+                    <div class="voice-picker-panel" id="voicePickerPanel" hidden>
+                        <div class="lang-filter-bar">
+                            <button type="button" class="lang-pill active" data-lang-pill="vi" data-i18n="filter_vi" onclick="filterVoiceLang('vi', this)">🇻🇳 Tiếng Việt (7)</button>
+                            <button type="button" class="lang-pill" data-lang-pill="en" data-i18n="filter_en" onclick="filterVoiceLang('en', this)">🇺🇸 Tiếng Anh (13)</button>
+                            <button type="button" class="lang-pill" data-lang-pill="zh" data-i18n="filter_zh" onclick="filterVoiceLang('zh', this)">🇨🇳 Tiếng Trung (14)</button>
+                            <button type="button" class="lang-pill" data-lang-pill="ja" data-i18n="filter_ja" onclick="filterVoiceLang('ja', this)">🇯🇵 Tiếng Nhật (2)</button>
+                            <button type="button" class="lang-pill" data-lang-pill="ko" data-i18n="filter_ko" onclick="filterVoiceLang('ko', this)">🇰🇷 Tiếng Hàn (3)</button>
+                            <button type="button" class="lang-pill" data-lang-pill="all" data-i18n="filter_all" onclick="filterVoiceLang('all', this)">🌐 Xem Tất Cả (39)</button>
+                        </div>
+
+                        <div class="voice-search-wrapper">
+                            <div class="voice-search-box">
+                                <span class="voice-search-icon">🔍</span>
+                                <input type="text" id="voiceSearchInput" class="voice-search-input" data-i18n-ph="voice_search_ph" placeholder="Tìm giọng đọc..." oninput="filterVoicesBySearch(this.value)">
+                            </div>
+                            <span class="voice-count-badge" id="voiceCountBadge">7 giọng hiển thị</span>
+                        </div>
+
+                        <div class="voice-grid">
+                            {% for key, item in presets.items() %}
+                            <div class="voice-card {% if loop.first %}active{% endif %} {% if item.lang != 'vi' %}hidden{% endif %}" data-lang="{{ item.lang }}" data-voice-key="{{ key }}" onclick="selectVoice('{{ key }}', this)">
+                                <div>
+                                    <div class="voice-header">
+                                        <span class="voice-name" data-voice-key="{{ key }}" data-original-name="{{ item.name }}">{{ item.name }}</span>
+                                        <div style="display:flex; gap:6px; align-items:center;">
+                                            <span style="font-size:14px;">{{ item.flag }}</span>
+                                            <span class="voice-tag {% if item.gender == 'Nam' %}tag-nam{% else %}tag-nu{% endif %}" data-gender="{{ item.gender }}">{{ item.gender }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="voice-desc" data-voice-key="{{ key }}">{{ item.desc }}</div>
+                                </div>
+                                <div class="voice-footer">
+                                    <span style="font-size:12px; color: var(--text-muted);" data-i18n="sample_label">Mẫu giọng:</span>
+                                    <button type="button" class="btn-play-sample" data-sample="{{ item.sample }}" data-i18n="sample_btn" onclick="playSample(event, '{{ item.sample }}', this)">
+                                        ▶ Nghe thử giọng này
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="section-title">
-                    <span data-i18n="sec_text_title">2. Nhập Hoặc Dán Văn Bản Cần Đọc</span>
-                </div>
+                <div class="studio-step-title" data-i18n="sec_text_title">Văn bản cần đọc</div>
 
                 <div class="editor-wrapper">
                     <div class="quick-actions">
-                        <div class="insert-btns">
-                            <span style="font-size: 12px; color: var(--text-muted); align-self: center;" data-i18n="insert_label">Chèn ngắt nghỉ:</span>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 1s]')" data-i18n="btn_pause_1s">+ Dừng 1 giây</button>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 2s]')" data-i18n="btn_pause_2s">+ Dừng 2 giây</button>
-                            <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('... ')" data-i18n="btn_pause_dot">+ Ngắt nhịp (...) </button>
-                        </div>
+                        <details class="pause-tools">
+                            <summary data-i18n="insert_label">Chèn ngắt nghỉ</summary>
+                            <div class="insert-btns">
+                                <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 1s]')" data-i18n="btn_pause_1s">+ Dừng 1 giây</button>
+                                <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('[nghỉ 2s]')" data-i18n="btn_pause_2s">+ Dừng 2 giây</button>
+                                <button type="button" class="btn-tag" onmousedown="event.preventDefault()" onclick="insertTag('... ')" data-i18n="btn_pause_dot">+ Ngắt nhịp (...) </button>
+                            </div>
+                        </details>
                         <div class="word-stats">
                             <span data-i18n="stat_words">Số từ:</span> <span id="wordCount">0</span> <span data-i18n="stat_word_unit">từ</span> | <span data-i18n="stat_est">Ước tính thời lượng:</span> <span id="timeEst">0.0</span> <span data-i18n="stat_time_unit">phút</span>
                             <span id="ttsPartSummary"></span>
                         </div>
                     </div>
 
-                    <textarea id="textContent" data-i18n-ph="text_placeholder" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn.">Chào mừng bạn đến với AI Voice Studio. 
-Hệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.
-[nghỉ 1s]
-Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!</textarea>
+                    <textarea id="textContent" data-i18n-ph="text_placeholder" placeholder="Dán văn bản bạn muốn đọc vào đây... Hệ thống hỗ trợ đọc bài dài 20 - 60 phút không giới hạn. Tự động ngắt nghỉ mượt mà theo dấu chấm, dấu phẩy và đoạn văn."></textarea>
                 </div>
 
-                <div class="controls-grid">
-                    <div class="control-item">
-                        <label data-i18n="lbl_pause_style">Chế độ ngắt nhịp dấu câu:</label>
-                        <select id="pauseStyle">
-                            <option value="standard" data-i18n="opt_pause_std">⚡ Tiêu chuẩn (Tự nhiên, rành mạch)</option>
-                            <option value="deep" data-i18n="opt_pause_deep">📖 Sâu lắng & Đọc truyện (Nghỉ dài, giàu cảm xúc)</option>
-                            <option value="fast_paced" data-i18n="opt_pause_fast">🔥 Nhanh & Kịch tính (Tin vắn, review TikTok, Shorts)</option>
-                            <option value="calm_podcast" data-i18n="opt_pause_podcast">☕ Thong thả & Podcast (Thư thái, nhịp thở nhẹ nhàng)</option>
-                            <option value="documentary" data-i18n="opt_pause_doc">🎙️ Thuyết minh & Tài liệu (Trang trọng, gãy gọn chuẩn truyền hình)</option>
-                            <option value="energetic_ad" data-i18n="opt_pause_ad">💥 Hào sảng & Quảng cáo (Sôi động, nhấn mạnh bán hàng)</option>
-                        </select>
+                <details class="tts-advanced">
+                    <summary data-i18n="tts_advanced">Tùy chỉnh giọng đọc</summary>
+                    <div class="controls-grid">
+                        <div class="control-item">
+                            <label data-i18n="lbl_voice_style">Phong cách giọng đọc:</label>
+                            <select id="voiceStyle" onchange="applyVoiceStyle(this.value)">
+                                <option value="custom" data-i18n="voice_style_custom">Tùy chỉnh</option>
+                                <option value="natural" data-i18n="voice_style_natural">Tự nhiên</option>
+                                <option value="warm" data-i18n="voice_style_warm">Ấm áp</option>
+                                <option value="calm" data-i18n="voice_style_calm">Chậm rãi</option>
+                                <option value="energetic" data-i18n="voice_style_energetic">Năng động</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label data-i18n="lbl_pause_style">Chế độ ngắt nhịp dấu câu:</label>
+                            <select id="pauseStyle" onchange="markVoiceStyleCustom()">
+                                <option value="standard" data-i18n="opt_pause_std">⚡ Tiêu chuẩn (Tự nhiên, rành mạch)</option>
+                                <option value="deep" data-i18n="opt_pause_deep">📖 Sâu lắng & Đọc truyện (Nghỉ dài, giàu cảm xúc)</option>
+                                <option value="fast_paced" data-i18n="opt_pause_fast">🔥 Nhanh & Kịch tính (Tin vắn, review TikTok, Shorts)</option>
+                                <option value="calm_podcast" data-i18n="opt_pause_podcast">☕ Thong thả & Podcast (Thư thái, nhịp thở nhẹ nhàng)</option>
+                                <option value="documentary" data-i18n="opt_pause_doc">🎙️ Thuyết minh & Tài liệu (Trang trọng, gãy gọn chuẩn truyền hình)</option>
+                                <option value="energetic_ad" data-i18n="opt_pause_ad">💥 Hào sảng & Quảng cáo (Sôi động, nhấn mạnh bán hàng)</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label><span data-i18n="lbl_speed">Tốc độ đọc (Speed):</span> <span id="rateVal" style="color:var(--accent);">0%</span></label>
+                            <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
+                        </div>
+                        <div class="control-item">
+                            <label><span data-i18n="lbl_pitch">Cao độ giọng (Pitch):</span> <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
+                            <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
+                        </div>
+                        <div class="control-item">
+                            <label><span data-i18n="lbl_volume">Âm lượng:</span> <span id="volumeVal" style="color:var(--accent);">0%</span></label>
+                            <input type="range" id="volumeSlider" min="-50" max="50" value="0" step="5" oninput="updateVolumeLabel(this.value)">
+                        </div>
                     </div>
-                    <div class="control-item">
-                        <label><span data-i18n="lbl_speed">Tốc độ đọc (Speed):</span> <span id="rateVal" style="color:var(--accent);">0%</span></label>
-                        <input type="range" id="rateSlider" min="-30" max="30" value="0" step="5" oninput="updateRateLabel(this.value)">
-                    </div>
-                    <div class="control-item">
-                        <label><span data-i18n="lbl_pitch">Cao độ giọng (Pitch):</span> <span id="pitchVal" style="color:var(--accent);">0Hz</span></label>
-                        <input type="range" id="pitchSlider" min="-20" max="20" value="0" step="2" oninput="updatePitchLabel(this.value)">
-                    </div>
-                </div>
+                </details>
 
                 <button class="btn-submit" id="btnSubmitTTS" onclick="generateSpeech()">
                     <div class="spinner" id="spinnerTTS"></div>
@@ -990,7 +1353,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                         </span>
                         <span id="countdownLabelTTS" style="color:var(--text-muted);"><span data-i18n="prog_countdown">Ước tính còn:</span> <strong id="countdownValTTS" style="color:#fbbf24; font-size:16px; font-family:monospace;">00:00</strong></span>
                     </div>
-                    <div style="width:100%; height:9px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden;">
+                    <div style="width:100%; height:9px; background:#e7ece8; border-radius:10px; overflow:hidden;">
                         <div id="progressBarTTS" style="width:0%; height:100%; background:var(--accent-gradient); transition:width 0.4s ease; border-radius:10px;"></div>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
@@ -1013,17 +1376,14 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         <!-- ==================== TAB 2: SPEECH TO TEXT (STT) ==================== -->
         <div id="sttTab" class="tab-content">
             <div class="main-card">
-                <div class="section-title">
-                    <span data-i18n="stt_sec_title">1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản</span>
-                    <span class="hint" data-i18n="stt_sec_hint">Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)</span>
-                </div>
+                <div class="studio-step-title" data-i18n="stt_sec_title">Chọn nguồn cần chuyển</div>
 
                 <div class="stt-options">
                     <button type="button" class="stt-option-btn active" id="btnModeFile" data-i18n="stt_opt_file" onclick="setSTTMode('file')">
-                        📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)
+                        📁 Tải tệp lên
                     </button>
                     <button type="button" class="stt-option-btn" id="btnModeLink" data-i18n="stt_opt_link" onclick="setSTTMode('link')">
-                        🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)
+                        🔗 Dán liên kết
                     </button>
                 </div>
 
@@ -1044,51 +1404,50 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                         <button type="button" class="btn-action btn-secondary" id="btnCheckLink" data-i18n="stt_btn_check" onclick="checkLink()">🔎 Kiểm tra</button>
                     </div>
                     <div class="link-hint" data-i18n="stt_link_hint">
-                        Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn.
-                        Video riêng tư / bị chặn cần cookies.
+                        Hỗ trợ link từ YouTube, TikTok, Facebook và nhiều nền tảng khác.
                     </div>
-
-                    <details class="advanced-box">
-                        <summary data-i18n="stt_adv_title">⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies</summary>
-                        <div class="advanced-grid">
-                            <div>
-                                <label for="sttLanguage" data-i18n="stt_lbl_lang">Ngôn ngữ trong video</label>
-                                <select id="sttLanguage">
-                                    <option value="auto">Tự động nhận diện</option>
-                                    <option value="vi" selected>Tiếng Việt (đúng dấu, có chấm câu)</option>
-                                    <option value="en">English</option>
-                                    <option value="zh">中文</option>
-                                    <option value="ja">日本語</option>
-                                    <option value="ko">한국어</option>
-                                    <option value="th">ไทย</option>
-                                    <option value="id">Bahasa Indonesia</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="sttModel" data-i18n="stt_lbl_model">Độ chính xác (model Whisper)</label>
-                                <select id="sttModel">
-                                    <option value="base">Base — nhanh nhất (kém chính xác)</option>
-                                    <option value="small" selected>Small — khuyên dùng (nhanh, khá chính xác)</option>
-                                    <option value="medium">Medium — chính xác nhất (chậm gấp ~5 lần)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="cookiesBrowser" data-i18n="stt_lbl_cookies_browser">Lấy cookies từ trình duyệt</label>
-                                <select id="cookiesBrowser">
-                                    <option value="" selected>Không dùng</option>
-                                    <option value="edge">Microsoft Edge</option>
-                                    <option value="chrome">Google Chrome</option>
-                                    <option value="firefox">Firefox</option>
-                                    <option value="brave">Brave</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="cookiesFile" data-i18n="stt_lbl_cookies_file">Hoặc tải file cookies.txt</label>
-                                <input type="file" id="cookiesFile" accept=".txt">
-                            </div>
-                        </div>
-                    </details>
                 </div>
+
+                <details class="stt-advanced">
+                    <summary data-i18n="stt_adv_title">Tùy chọn nâng cao</summary>
+                    <div class="advanced-grid">
+                        <div>
+                            <label for="sttLanguage" data-i18n="stt_lbl_lang">Ngôn ngữ trong video</label>
+                            <select id="sttLanguage">
+                                <option value="auto">Tự động nhận diện</option>
+                                <option value="vi" selected>Tiếng Việt (đúng dấu, có chấm câu)</option>
+                                <option value="en">English</option>
+                                <option value="zh">中文</option>
+                                <option value="ja">日本語</option>
+                                <option value="ko">한국어</option>
+                                <option value="th">ไทย</option>
+                                <option value="id">Bahasa Indonesia</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sttModel" data-i18n="stt_lbl_model">Độ chính xác (model Whisper)</label>
+                            <select id="sttModel">
+                                <option value="base">Base — nhanh nhất (kém chính xác)</option>
+                                <option value="small" selected>Small — khuyên dùng (nhanh, khá chính xác)</option>
+                                <option value="medium">Medium — chính xác nhất (chậm gấp ~5 lần)</option>
+                            </select>
+                        </div>
+                        <div class="cookies-option">
+                            <label for="cookiesBrowser" data-i18n="stt_lbl_cookies_browser">Lấy cookies từ trình duyệt</label>
+                            <select id="cookiesBrowser">
+                                <option value="" selected>Không dùng</option>
+                                <option value="edge">Microsoft Edge</option>
+                                <option value="chrome">Google Chrome</option>
+                                <option value="firefox">Firefox</option>
+                                <option value="brave">Brave</option>
+                            </select>
+                        </div>
+                        <div class="cookies-option">
+                            <label for="cookiesFile" data-i18n="stt_lbl_cookies_file">Hoặc tải file cookies.txt</label>
+                            <input type="file" id="cookiesFile" accept=".txt">
+                        </div>
+                    </div>
+                </details>
 
                 <button class="btn-submit" id="btnSubmitSTT" onclick="transcribeAudio()">
                     <div class="spinner" id="spinnerSTT"></div>
@@ -1116,17 +1475,37 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
     <audio id="samplePlayer"></audio>
 
+    <div class="login-modal{% if show_login|default(false) %} is-open{% endif %}"
+         id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle"
+         aria-hidden="{{ 'false' if show_login|default(false) else 'true' }}"
+         onclick="if (event.target === this) closeLoginPreview()">
+        <button type="button" class="login-close" aria-label="Đóng" onclick="closeLoginPreview()">×</button>
+        <section class="login-card">
+            <div class="login-icon" aria-hidden="true">✦</div>
+            <h2 id="loginTitle" data-login-i18n="title">Chào mừng bạn</h2>
+            <p data-login-i18n="description">Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.</p>
+            <div class="login-notice" data-login-i18n="notice">
+                Bản local hiện chưa kết nối đăng nhập. Bạn có thể tiếp tục sử dụng studio ngay mà không cần tài khoản.
+            </div>
+            <button type="button" class="login-google" data-login-i18n="google" disabled>G Tiếp tục với Google · sắp ra mắt</button>
+            <label class="login-email-label" for="loginEmail" data-login-i18n="email_label">Hoặc đăng nhập bằng email</label>
+            <input class="login-email" id="loginEmail" type="email" data-login-i18n-ph="email_placeholder" placeholder="name@example.com" disabled>
+            <button type="button" class="login-continue" data-login-i18n="continue" style="margin-top:16px" onclick="continueLocally()">Tiếp tục không đăng nhập</button>
+        </section>
+    </div>
+
     <script>
         // ================= I18N MULTILINGUAL DICTIONARY =================
         const I18N = {
         "vi": {
                 "ui_lang_label": "🌐 Ngôn ngữ giao diện:",
-                "badge": "🚀 CÔNG NGHỆ AI DUAL: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
-                "title": "AI Voice & Transcribe Studio",
-                "subtitle": "Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn",
-                "tab_tts": "🎙️ Tạo Giọng Đọc AI (Text ➔ Voice)",
-                "tab_stt": "📝 Chuyển Âm Thanh / Video Sang Văn Bản (Voice ➔ Text)",
-                "sec_voice_title": "1. Chọn Giọng Đọc Đa Ngôn Ngữ (Việt, Anh, Trung, Nhật, Hàn)",
+                "title": "Voice & Transcribe Studio",
+                "subtitle": "Tạo giọng đọc tự nhiên, chuyển âm thanh thành văn bản.",
+                "tab_tts": "🎙️ Tạo giọng đọc",
+                "tab_stt": "📝 Chuyển thành văn bản",
+                "sec_voice_title": "Giọng đọc",
+                "voice_change": "Đổi giọng",
+                "tts_advanced": "Tùy chỉnh giọng đọc",
                 "sec_voice_hint": "Bấm nút \"▶ Nghe thử\" trên từng thẻ để nghe mẫu",
                 "filter_vi": "🇻🇳 Tiếng Việt (7)",
                 "filter_en": "🇺🇸 Tiếng Anh (13)",
@@ -1138,7 +1517,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "sample_label": "Mẫu giọng:",
                 "sample_btn": "▶ Nghe thử giọng này",
                 "sample_playing": "⏸ Đang phát... (Dừng)",
-                "sec_text_title": "2. Nhập Hoặc Dán Văn Bản Cần Đọc",
+                "sec_text_title": "Văn bản cần đọc",
                 "insert_label": "Chèn ngắt nghỉ:",
                 "btn_pause_1s": "+ Dừng 1 giây",
                 "btn_pause_2s": "+ Dừng 2 giây",
@@ -1157,28 +1536,35 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "opt_pause_ad": "💥 Hào sảng & Quảng cáo (Sôi động, nhấn mạnh bán hàng)",
                 "lbl_speed": "Tốc độ đọc (Speed):",
                 "lbl_pitch": "Cao độ giọng (Pitch):",
-                "btn_submit_tts": "🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3",
+                "lbl_volume": "Âm lượng:",
+                "lbl_voice_style": "Phong cách giọng đọc:",
+                "voice_style_custom": "Tùy chỉnh",
+                "voice_style_natural": "Tự nhiên",
+                "voice_style_warm": "Ấm áp",
+                "voice_style_calm": "Chậm rãi",
+                "voice_style_energetic": "Năng động",
+                "btn_submit_tts": "🎧 Tạo âm thanh MP3",
                 "prog_tts_status": "Đang xử lý tổng hợp giọng đọc AI...",
                 "prog_countdown": "Ước tính còn:",
                 "prog_tts_detail": "Đang chia đoạn văn bản và gửi xử lý song song...",
                 "prog_elapsed": "Đã chạy:",
                 "res_tts_title": "✓ Đã tạo thành công file âm thanh!",
                 "btn_dl_mp3": "⬇ Tải File MP3 Về Máy",
-                "stt_sec_title": "1. Chọn Nguồn Âm Thanh / Video Cần Chuyển Sang Văn Bản",
-                "stt_sec_hint": "Không giới hạn dung lượng file (Hỗ trợ file đến 2GB)",
-                "stt_opt_file": "📁 Tải Lên File (Ghi âm .m4a/.mp3 hoặc Video .mp4/.mkv)",
-                "stt_opt_link": "🔗 Dán Link Video (YouTube, TikTok, Facebook, Instagram…)",
+                "stt_sec_title": "Chọn nguồn cần chuyển",
+                "stt_sec_hint": "Hỗ trợ tệp lên đến 2GB",
+                "stt_opt_file": "📁 Tải tệp lên",
+                "stt_opt_link": "🔗 Dán liên kết",
                 "stt_drop_text": "Bấm để chọn file hoặc Kéo & Thả file vào đây",
-                "stt_drop_hint": "Hỗ trợ: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (Không giới hạn dung lượng)",
+                "stt_drop_hint": ".mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm · tối đa 2GB",
                 "stt_link_ph": "Dán link video từ YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
                 "stt_btn_check": "🔎 Kiểm tra",
-                "stt_link_hint": "Hỗ trợ 1000+ nền tảng (yt-dlp). Văn bản được tự động viết hoa, chấm câu và chia đoạn. Video riêng tư / bị chặn cần cookies.",
-                "stt_adv_title": "⚙️ Tuỳ chọn nâng cao: ngôn ngữ, độ chính xác, cookies",
+                "stt_link_hint": "Hỗ trợ YouTube, TikTok, Facebook và nhiều nền tảng khác.",
+                "stt_adv_title": "Tùy chọn nâng cao",
                 "stt_lbl_lang": "Ngôn ngữ trong video",
                 "stt_lbl_model": "Độ chính xác (model Whisper)",
                 "stt_lbl_cookies_browser": "Lấy cookies từ trình duyệt",
                 "stt_lbl_cookies_file": "Hoặc tải file cookies.txt",
-                "stt_btn_start": "📝 BẮT ĐẦU CHUYỂN SANG VĂN BẢN (WHISPER AI)",
+                "stt_btn_start": "📝 Chuyển thành văn bản",
                 "stt_res_title": "✓ Đã chuyển đổi hoàn tất!",
                 "stt_btn_copy": "📋 Sao Chép Văn Bản",
                 "stt_btn_send_tts": "🎙️ Đưa Sang Tab Giọng Đọc AI",
@@ -1186,12 +1572,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         },
         "en": {
                 "ui_lang_label": "🌐 Interface Language:",
-                "badge": "🚀 DUAL AI ENGINE: TEXT-TO-SPEECH & SPEECH-TO-TEXT",
-                "title": "AI Voice & Transcribe Studio",
-                "subtitle": "Generate natural multilingual AI speech & Transcribe audio, video, YouTube to text with high precision",
-                "tab_tts": "🎙️ AI Text-to-Speech (Text ➔ Voice)",
-                "tab_stt": "📝 Transcribe Audio / Video to Text (Voice ➔ Text)",
-                "sec_voice_title": "1. Select Multilingual AI Voice (Vietnamese, English, Chinese, Japanese, Korean)",
+                "title": "Voice & Transcribe Studio",
+                "subtitle": "Create natural voiceovers and turn audio into text.",
+                "tab_tts": "🎙️ Create voice",
+                "tab_stt": "📝 Transcribe audio",
+                "sec_voice_title": "Voice",
+                "voice_change": "Change",
+                "tts_advanced": "Voice settings",
                 "sec_voice_hint": "Click \"▶ Sample\" on any card to preview the voice",
                 "filter_vi": "🇻🇳 Vietnamese (7)",
                 "filter_en": "🇺🇸 English (13)",
@@ -1203,7 +1590,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "sample_label": "Sample:",
                 "sample_btn": "▶ Play voice sample",
                 "sample_playing": "⏸ Playing... (Stop)",
-                "sec_text_title": "2. Enter or Paste Text to Read",
+                "sec_text_title": "Text to read",
                 "insert_label": "Insert pause:",
                 "btn_pause_1s": "+ Pause 1s",
                 "btn_pause_2s": "+ Pause 2s",
@@ -1222,28 +1609,35 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "opt_pause_ad": "💥 High-Energy & Commercial (Vibrant, persuasive promo)",
                 "lbl_speed": "Speed:",
                 "lbl_pitch": "Pitch:",
-                "btn_submit_tts": "🎧 GENERATE MP3 AUDIO FILE",
+                "lbl_volume": "Volume:",
+                "lbl_voice_style": "Voice style:",
+                "voice_style_custom": "Custom",
+                "voice_style_natural": "Natural",
+                "voice_style_warm": "Warm",
+                "voice_style_calm": "Calm",
+                "voice_style_energetic": "Energetic",
+                "btn_submit_tts": "🎧 Create MP3 audio",
                 "prog_tts_status": "Synthesizing AI voice...",
                 "prog_countdown": "Est. remaining:",
                 "prog_tts_detail": "Splitting text segments and processing in parallel...",
                 "prog_elapsed": "Elapsed:",
                 "res_tts_title": "✓ Audio generated successfully!",
                 "btn_dl_mp3": "⬇ Download MP3 Audio",
-                "stt_sec_title": "1. Select Audio / Video Source for Transcription",
-                "stt_sec_hint": "No file size limit (Supports up to 2GB)",
-                "stt_opt_file": "📁 Upload File (Audio .m4a/.mp3 or Video .mp4/.mkv)",
-                "stt_opt_link": "🔗 Paste Video Link (YouTube, TikTok, Facebook, Instagram…)",
+                "stt_sec_title": "Choose a source",
+                "stt_sec_hint": "Supports files up to 2GB",
+                "stt_opt_file": "📁 Upload a file",
+                "stt_opt_link": "🔗 Paste a link",
                 "stt_drop_text": "Click to select a file or Drag & Drop here",
-                "stt_drop_hint": "Supports: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (No size limit)",
+                "stt_drop_hint": ".mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm · up to 2GB",
                 "stt_link_ph": "Paste video link from YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili…",
                 "stt_btn_check": "🔎 Check Link",
-                "stt_link_hint": "Supports 1,000+ platforms (yt-dlp). Automatic capitalization, punctuation, and paragraphs. Private videos require cookies.",
-                "stt_adv_title": "⚙️ Advanced options: language, accuracy model, cookies",
+                "stt_link_hint": "Supports YouTube, TikTok, Facebook, and more.",
+                "stt_adv_title": "Advanced options",
                 "stt_lbl_lang": "Language in video",
                 "stt_lbl_model": "Accuracy (Whisper model)",
                 "stt_lbl_cookies_browser": "Import cookies from browser",
                 "stt_lbl_cookies_file": "Or upload cookies.txt",
-                "stt_btn_start": "📝 START TRANSCRIBING TO TEXT (WHISPER AI)",
+                "stt_btn_start": "📝 Transcribe to text",
                 "stt_res_title": "✓ Transcription completed!",
                 "stt_btn_copy": "📋 Copy Text",
                 "stt_btn_send_tts": "🎙️ Send to AI Voice Tab",
@@ -1251,12 +1645,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         },
         "zh": {
                 "ui_lang_label": "🌐 界面语言：",
-                "badge": "🚀 双核 AI 引擎：文字转语音 & 语音转文字",
-                "title": "AI Voice & Transcribe Studio",
-                "subtitle": "生成自然流畅的多语言 AI 配音，并高精度转换音频、视频、YouTube 为文本",
-                "tab_tts": "🎙️ AI 文本转语音 (Text ➔ Voice)",
-                "tab_stt": "📝 音频 / 视频转文本 (Voice ➔ Text)",
-                "sec_voice_title": "1. 选择多语言 AI 配音（越语、英语、中文、日语、韩语）",
+                "title": "Voice & Transcribe Studio",
+                "subtitle": "自然配音，轻松将音频转换为文字。",
+                "tab_tts": "🎙️ 生成语音",
+                "tab_stt": "📝 转换为文字",
+                "sec_voice_title": "配音",
+                "voice_change": "更换",
+                "tts_advanced": "声音设置",
                 "sec_voice_hint": "点击卡片上的 \"▶ 试听\" 按钮试听样音",
                 "filter_vi": "🇻🇳 越南语 (7)",
                 "filter_en": "🇺🇸 英语 (13)",
@@ -1268,7 +1663,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "sample_label": "样音试听：",
                 "sample_btn": "▶ 试听此声音",
                 "sample_playing": "⏸ 播放中... (停止)",
-                "sec_text_title": "2. 输入或粘贴要朗读的文本",
+                "sec_text_title": "朗读文本",
                 "insert_label": "插入停顿：",
                 "btn_pause_1s": "+ 停顿 1 秒",
                 "btn_pause_2s": "+ 停顿 2 秒",
@@ -1287,28 +1682,35 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "opt_pause_ad": "💥 活力带货广告（热情洋溢、强力强调）",
                 "lbl_speed": "语速 (Speed)：",
                 "lbl_pitch": "声调音高 (Pitch)：",
-                "btn_submit_tts": "🎧 开始生成 MP3 音频文件",
+                "lbl_volume": "音量：",
+                "lbl_voice_style": "语音风格：",
+                "voice_style_custom": "自定义",
+                "voice_style_natural": "自然",
+                "voice_style_warm": "温暖",
+                "voice_style_calm": "舒缓",
+                "voice_style_energetic": "活力",
+                "btn_submit_tts": "🎧 生成 MP3 音频",
                 "prog_tts_status": "正在合成 AI 语音配音...",
                 "prog_countdown": "预计剩余：",
                 "prog_tts_detail": "正在分段文本并并行处理...",
                 "prog_elapsed": "已耗时：",
                 "res_tts_title": "✓ 音频生成成功！",
                 "btn_dl_mp3": "⬇ 下载 MP3 音频文件",
-                "stt_sec_title": "1. 选择需要转为文本的音频或视频源",
-                "stt_sec_hint": "不限文件大小（支持最大 2GB 文件）",
-                "stt_opt_file": "📁 上传本地文件（录音 .m4a/.mp3 或视频 .mp4/.mkv）",
-                "stt_opt_link": "🔗 粘贴在线视频链接（YouTube、TikTok、Facebook、Instagram 等）",
+                "stt_sec_title": "选择来源",
+                "stt_sec_hint": "支持最大 2GB 的文件",
+                "stt_opt_file": "📁 上传文件",
+                "stt_opt_link": "🔗 粘贴链接",
                 "stt_drop_text": "点击选择文件，或直接拖拽文件到此处",
-                "stt_drop_hint": "支持格式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（无文件大小限制）",
+                "stt_drop_hint": ".mp4、.m4a、.mp3、.wav、.mkv、.mov、.webm · 最大 2GB",
                 "stt_link_ph": "粘贴来自 YouTube、TikTok、Facebook、Instagram、Bilibili 等平台的视频链接...",
                 "stt_btn_check": "🔎 检查链接",
-                "stt_link_hint": "支持 1000+ 平台 (yt-dlp)。自动首字母大写、标点符号与智能分段。私密视频需要 cookies。",
-                "stt_adv_title": "⚙️ 高级选项：视频语言、识别模型精度、Cookies",
+                "stt_link_hint": "支持 YouTube、TikTok、Facebook 等平台。",
+                "stt_adv_title": "高级选项",
                 "stt_lbl_lang": "视频语言",
                 "stt_lbl_model": "识别精度 (Whisper 模型)",
                 "stt_lbl_cookies_browser": "从浏览器导入 Cookies",
                 "stt_lbl_cookies_file": "或者上传 cookies.txt 文件",
-                "stt_btn_start": "📝 开始转换为文本 (WHISPER AI)",
+                "stt_btn_start": "📝 转换为文字",
                 "stt_res_title": "✓ 转换已完成！",
                 "stt_btn_copy": "📋 复制文本",
                 "stt_btn_send_tts": "🎙️ 发送到 AI 配音标签页",
@@ -1316,12 +1718,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         },
         "ja": {
                 "ui_lang_label": "🌐 表示言語：",
-                "badge": "🚀 デュアル AI エンジン：テキスト音声合成 & 音声認識文字起こし",
-                "title": "AI Voice & Transcribe Studio",
-                "subtitle": "自然で滑らかな多言語 AI 音声合成 ＆ 音声・動画・YouTube の高精度文字起こし",
-                "tab_tts": "🎙️ AI 音声合成 (Text ➔ Voice)",
-                "tab_stt": "📝 音声・動画文字起こし (Voice ➔ Text)",
-                "sec_voice_title": "1. 多言語 AI 音声を選択（ベトナム語・英語・中国語・日本語・韓国語）",
+                "title": "Voice & Transcribe Studio",
+                "subtitle": "自然な音声を作成し、音声をテキストに変換します。",
+                "tab_tts": "🎙️ 音声を作成",
+                "tab_stt": "📝 文字起こし",
+                "sec_voice_title": "音声",
+                "voice_change": "変更",
+                "tts_advanced": "音声設定",
                 "sec_voice_hint": "各カードの「▶ サンプル再生」をクリックして試聴できます",
                 "filter_vi": "🇻🇳 ベトナム語 (7)",
                 "filter_en": "🇺🇸 英語 (13)",
@@ -1333,7 +1736,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "sample_label": "サンプル：",
                 "sample_btn": "▶ サンプルを再生",
                 "sample_playing": "⏸ 再生中... (停止)",
-                "sec_text_title": "2. 読み上げテキストを入力または貼り付け",
+                "sec_text_title": "読み上げテキスト",
                 "insert_label": "ポーズを挿入：",
                 "btn_pause_1s": "+ 1秒停止",
                 "btn_pause_2s": "+ 2秒停止",
@@ -1352,28 +1755,35 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "opt_pause_ad": "💥 パワフルCM（活気がありアピール度抜群）",
                 "lbl_speed": "読み上げ速度 (Speed)：",
                 "lbl_pitch": "声の高さ (Pitch)：",
-                "btn_submit_tts": "🎧 MP3 音声ファイルを生成",
+                "lbl_volume": "音量：",
+                "lbl_voice_style": "話し方：",
+                "voice_style_custom": "カスタム",
+                "voice_style_natural": "自然",
+                "voice_style_warm": "温かい",
+                "voice_style_calm": "ゆったり",
+                "voice_style_energetic": "はきはき",
+                "btn_submit_tts": "🎧 MP3 音声を作成",
                 "prog_tts_status": "AI 音声を合成中...",
                 "prog_countdown": "推定残り時間：",
                 "prog_tts_detail": "テキストを分割し並列処理中...",
                 "prog_elapsed": "経過時間：",
                 "res_tts_title": "✓ 音声の生成が完了しました！",
                 "btn_dl_mp3": "⬇ MP3 ファイルをダウンロード",
-                "stt_sec_title": "1. 文字起こしする音声・動画ソースを選択",
-                "stt_sec_hint": "ファイルサイズ無制限（最大2GBまで対応）",
-                "stt_opt_file": "📁 ファイルをアップロード（音声 .m4a/.mp3 または動画 .mp4/.mkv）",
-                "stt_opt_link": "🔗 動画リンクを貼り付け（YouTube、TikTok、Facebook、Instagram など）",
+                "stt_sec_title": "変換する素材を選択",
+                "stt_sec_hint": "最大2GBのファイルに対応",
+                "stt_opt_file": "📁 ファイルをアップロード",
+                "stt_opt_link": "🔗 リンクを貼り付け",
                 "stt_drop_text": "クリックしてファイルを選択、またはここにドラッグ＆ドロップ",
-                "stt_drop_hint": "対応形式：.mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm（容量無制限）",
+                "stt_drop_hint": ".mp4、.m4a、.mp3、.wav、.mkv、.mov、.webm · 最大2GB",
                 "stt_link_ph": "YouTube、TikTok、Facebook、Instagram、X、Vimeo、Bilibili などの動画URLを貼り付け...",
                 "stt_btn_check": "🔎 リンク確認",
-                "stt_link_hint": "1000以上の動画配信サイトに対応 (yt-dlp)。大文字・句読点・段落を自動整形。非公開動画には cookies が必要です。",
-                "stt_adv_title": "⚙️ 高度な設定：動画の言語、認識モデル精度、Cookies",
+                "stt_link_hint": "YouTube、TikTok、Facebook などに対応。",
+                "stt_adv_title": "詳細設定",
                 "stt_lbl_lang": "動画内の言語",
                 "stt_lbl_model": "精度 (Whisper モデル)",
                 "stt_lbl_cookies_browser": "ブラウザから Cookies を取得",
                 "stt_lbl_cookies_file": "または cookies.txt ファイルをアップロード",
-                "stt_btn_start": "📝 音声文字起こしを開始 (WHISPER AI)",
+                "stt_btn_start": "📝 文字起こしを開始",
                 "stt_res_title": "✓ 文字起こしが完了しました！",
                 "stt_btn_copy": "📋 テキストをコピー",
                 "stt_btn_send_tts": "🎙️ AI 音声タブへ送る",
@@ -1381,12 +1791,13 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
         },
         "ko": {
                 "ui_lang_label": "🌐 인터페이스 언어:",
-                "badge": "🚀 듀얼 AI 엔진: 텍스트 음성 변환 (TTS) & 음성 인식 (STT)",
-                "title": "AI Voice & Transcribe Studio",
-                "subtitle": "자연스러운 다국어 AI 음성 생성 및 오디오·비디오·YouTube 초정밀 텍스트 변환",
-                "tab_tts": "🎙️ AI 텍스트 음성 변환 (Text ➔ Voice)",
-                "tab_stt": "📝 오디오 / 비디오 텍스트 변환 (Voice ➔ Text)",
-                "sec_voice_title": "1. 다국어 AI 음성 선택 (베트남어, 영어, 중국어, 일본어, 한국어)",
+                "title": "Voice & Transcribe Studio",
+                "subtitle": "자연스러운 음성을 만들고 오디오를 텍스트로 변환하세요.",
+                "tab_tts": "🎙️ 음성 만들기",
+                "tab_stt": "📝 텍스트로 변환",
+                "sec_voice_title": "음성",
+                "voice_change": "변경",
+                "tts_advanced": "음성 설정",
                 "sec_voice_hint": "각 카드의 \"▶ 샘플 듣기\"를 클릭하여 미리 들을 수 있습니다",
                 "filter_vi": "🇻🇳 베트남어 (7)",
                 "filter_en": "🇺🇸 영어 (13)",
@@ -1398,7 +1809,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "sample_label": "샘플 음성:",
                 "sample_btn": "▶ 음성 샘플 듣기",
                 "sample_playing": "⏸ 재생 중... (정지)",
-                "sec_text_title": "2. 읽을 텍스트 입력 또는 붙여넣기",
+                "sec_text_title": "읽을 텍스트",
                 "insert_label": "쉼표/휴지 삽입:",
                 "btn_pause_1s": "+ 1초 쉬기",
                 "btn_pause_2s": "+ 2초 쉬기",
@@ -1417,28 +1828,35 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
                 "opt_pause_ad": "💥 활력 넘치는 광고 (열정적이고 설득력 있는 강조)",
                 "lbl_speed": "읽기 속도 (Speed):",
                 "lbl_pitch": "음높이 (Pitch):",
-                "btn_submit_tts": "🎧 MP3 오디오 파일 생성 시작",
+                "lbl_volume": "음량:",
+                "lbl_voice_style": "음성 스타일:",
+                "voice_style_custom": "사용자 지정",
+                "voice_style_natural": "자연스럽게",
+                "voice_style_warm": "따뜻하게",
+                "voice_style_calm": "차분하게",
+                "voice_style_energetic": "활기차게",
+                "btn_submit_tts": "🎧 MP3 음성 만들기",
                 "prog_tts_status": "AI 음성 합성 처리 중...",
                 "prog_countdown": "예상 남은 시간:",
                 "prog_tts_detail": "텍스트 분할 및 병렬 처리 진행 중...",
                 "prog_elapsed": "진행 시간:",
                 "res_tts_title": "✓ 오디오가 성공적으로 생성되었습니다!",
                 "btn_dl_mp3": "⬇ MP3 파일 다운로드",
-                "stt_sec_title": "1. 텍스트로 변환할 오디오 / 비디오 소스 선택",
-                "stt_sec_hint": "파일 크기 무제한 (최대 2GB 파일 지원)",
-                "stt_opt_file": "📁 파일 업로드 (음성 .m4a/.mp3 또는 영상 .mp4/.mkv)",
-                "stt_opt_link": "🔗 동영상 링크 붙여넣기 (YouTube, TikTok, Facebook, Instagram 등)",
+                "stt_sec_title": "변환할 소스 선택",
+                "stt_sec_hint": "최대 2GB 파일 지원",
+                "stt_opt_file": "📁 파일 업로드",
+                "stt_opt_link": "🔗 링크 붙여넣기",
                 "stt_drop_text": "파일을 선택하거나 여기로 드래그 앤 드롭하세요",
-                "stt_drop_hint": "지원 형식: .mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm (무제한 용량)",
+                "stt_drop_hint": ".mp4, .m4a, .mp3, .wav, .mkv, .mov, .webm · 최대 2GB",
                 "stt_link_ph": "YouTube, TikTok, Facebook, Instagram, X, Vimeo, Bilibili 등의 영상 링크를 붙여넣으세요...",
                 "stt_btn_check": "🔎 링크 확인",
-                "stt_link_hint": "1,000개 이상의 플랫폼 지원 (yt-dlp). 자동 대문자 변환, 문장 부호 및 단락 구분. 비공개 영상은 cookies가 필요합니다.",
-                "stt_adv_title": "⚙️ 고급 옵션: 비디오 언어, 정확도 모델, Cookies",
+                "stt_link_hint": "YouTube, TikTok, Facebook 등 다양한 플랫폼을 지원합니다.",
+                "stt_adv_title": "고급 옵션",
                 "stt_lbl_lang": "비디오 언어",
                 "stt_lbl_model": "정확도 (Whisper 모델)",
                 "stt_lbl_cookies_browser": "브라우저에서 Cookies 가져오기",
                 "stt_lbl_cookies_file": "또는 cookies.txt 파일 업로드",
-                "stt_btn_start": "📝 텍스트 변환 시작 (WHISPER AI)",
+                "stt_btn_start": "📝 텍스트 변환 시작",
                 "stt_res_title": "✓ 텍스트 변환 완료!",
                 "stt_btn_copy": "📋 텍스트 복사",
                 "stt_btn_send_tts": "🎙️ AI 음성 탭으로 보내기",
@@ -1448,7 +1866,7 @@ Bây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nh
 
 const RUNTIME_I18N = {
     vi: {
-        page_title: 'AI Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản',
+        page_title: 'Voice Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản',
         voice_custom: '⭐ Giọng Mô Phỏng Của Bạn',
         voice_count: '{count} giọng hiển thị',
         voice_results: '{count} kết quả',
@@ -1498,7 +1916,7 @@ const RUNTIME_I18N = {
         copy_success: 'Đã sao chép toàn bộ văn bản vào bộ nhớ tạm!'
     },
     en: {
-        page_title: 'AI Studio - Text-to-Speech & Audio Transcription',
+        page_title: 'Voice Studio - Text-to-Speech & Audio Transcription',
         voice_custom: '⭐ Your Custom Voice',
         voice_count: '{count} voices shown',
         voice_results: '{count} results',
@@ -1548,7 +1966,7 @@ const RUNTIME_I18N = {
         copy_success: 'Text copied to the clipboard!'
     },
     zh: {
-        page_title: 'AI Studio - AI 配音与音视频转文字',
+        page_title: 'Voice Studio - 配音与音视频转文字',
         voice_custom: '⭐ 您的专属声音',
         voice_count: '显示 {count} 个声音',
         voice_results: '{count} 个结果',
@@ -1598,7 +2016,7 @@ const RUNTIME_I18N = {
         copy_success: '文本已复制到剪贴板！'
     },
     ja: {
-        page_title: 'AI Studio - AI 音声合成・文字起こし',
+        page_title: 'Voice Studio - 音声合成・文字起こし',
         voice_custom: '⭐ カスタム音声',
         voice_count: '{count} 件の音声を表示',
         voice_results: '{count} 件の結果',
@@ -1648,7 +2066,7 @@ const RUNTIME_I18N = {
         copy_success: 'テキストをクリップボードにコピーしました！'
     },
     ko: {
-        page_title: 'AI Studio - AI 음성 생성 및 오디오 텍스트 변환',
+        page_title: 'Voice Studio - 음성 생성 및 오디오 텍스트 변환',
         voice_custom: '⭐ 나만의 음성',
         voice_count: '{count}개 음성 표시',
         voice_results: '{count}개 결과',
@@ -1983,19 +2401,64 @@ const GENDER_TRANSLATIONS = {
         }
 };
 
-        const SAMPLE_TEXTS = {
-            vi: `Chào mừng bạn đến với AI Voice Studio.\nHệ thống hỗ trợ tạo giọng đọc tự nhiên, ngắt nghỉ theo mạch cảm xúc và hỗ trợ chuyển đổi video, ghi âm sang văn bản tiếng Việt cực kỳ chuẩn xác.\n[nghỉ 1s]\nBây giờ, hãy dán văn bản của bạn và bắt đầu trải nghiệm nhé!`,
-            en: `Welcome to AI Voice Studio.\nOur system provides natural and expressive text-to-speech with smart pause control, as well as ultra-precise speech-to-text transcription.\n[pause 1s]\nPaste your text here to get started!`,
-            zh: `欢迎使用 AI Voice Studio 智能语音工作室。\n本系统提供自然流畅的多语言 AI 配音、情感停顿控制，以及超高精度的语音与视频转文字功能。\n[停顿 1秒]\n请在下方粘贴您的文本，即刻开始体验！`,
-            ja: `AI Voice Studio へようこそ。\n自然で滑らかな多言語 AI 音声合成、スマートな間（ポーズ）の制御、高精度な音声・動画文字起こしに対応しています。\n[休止 1秒]\nここにテキストを貼り付けて、お試しください！`,
-            ko: `AI Voice Studio에 오신 것을 환영합니다.\n자연스러운 다국어 AI 음성 합성, 감정 기반 쉼표 제어, 초정밀 오디오/비디오 텍스트 변환 기능을 지원합니다.\n[잠시 1초]\n여기에 텍스트를 붙여넣고 바로 시작해 보세요!`
-        };
-
         let currentUILang = 'vi';
         let currentAudioResult = null;
         let selectedFileDetails = null;
         let currentTranscriptionData = null;
         let ttsJob = null;
+
+        const LOGIN_I18N = {
+            vi: {
+                account: 'Đăng nhập',
+                title: 'Chào mừng bạn',
+                description: 'Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.',
+                notice: 'Bản local hiện chưa kết nối đăng nhập. Bạn có thể tiếp tục sử dụng studio ngay mà không cần tài khoản.',
+                google: 'G Tiếp tục với Google · sắp ra mắt',
+                email_label: 'Hoặc đăng nhập bằng email',
+                email_placeholder: 'name@example.com',
+                continue: 'Tiếp tục không đăng nhập'
+            },
+            en: {
+                account: 'Sign in',
+                title: 'Welcome',
+                description: 'Sign in to save your voices and processing history.',
+                notice: 'Sign-in is not connected in this local version. You can continue using the studio without an account.',
+                google: 'G Continue with Google · coming soon',
+                email_label: 'Or sign in with email',
+                email_placeholder: 'name@example.com',
+                continue: 'Continue without signing in'
+            },
+            zh: {
+                account: '登录',
+                title: '欢迎',
+                description: '登录以保存您的语音和处理记录。',
+                notice: '本地版本尚未连接登录功能。您可以无需账号继续使用工作室。',
+                google: 'G 使用 Google 继续 · 即将推出',
+                email_label: '或使用电子邮件登录',
+                email_placeholder: 'name@example.com',
+                continue: '不登录，继续使用'
+            },
+            ja: {
+                account: 'ログイン',
+                title: 'ようこそ',
+                description: 'ログインすると音声と処理履歴を保存できます。',
+                notice: 'ローカル版ではログイン機能は未接続です。アカウントなしで引き続き利用できます。',
+                google: 'G Google で続行 · 準備中',
+                email_label: 'またはメールでログイン',
+                email_placeholder: 'name@example.com',
+                continue: 'ログインせずに続ける'
+            },
+            ko: {
+                account: '로그인',
+                title: '환영합니다',
+                description: '로그인하면 음성과 처리 기록을 저장할 수 있습니다.',
+                notice: '로컬 버전에서는 로그인이 연결되지 않았습니다. 계정 없이 계속 사용할 수 있습니다.',
+                google: 'G Google로 계속 · 준비 중',
+                email_label: '또는 이메일로 로그인',
+                email_placeholder: 'name@example.com',
+                continue: '로그인 없이 계속'
+            }
+        };
 
         function translate(key, values = {}) {
             let message = RUNTIME_I18N[currentUILang]?.[key] || RUNTIME_I18N.vi[key] || key;
@@ -2067,7 +2530,7 @@ const GENDER_TRANSLATIONS = {
         }
 
         function setTTSInputsLocked(locked) {
-            ['textContent', 'pauseStyle', 'rateSlider', 'pitchSlider'].forEach(id => {
+            ['textContent', 'voiceStyle', 'pauseStyle', 'rateSlider', 'pitchSlider', 'volumeSlider'].forEach(id => {
                 document.getElementById(id).disabled = locked;
             });
             document.querySelectorAll('.btn-tag').forEach(button => {
@@ -2120,6 +2583,14 @@ const GENDER_TRANSLATIONS = {
                     el.setAttribute('placeholder', I18N[lang][key]);
                 }
             });
+            document.querySelectorAll('[data-login-i18n]').forEach(el => {
+                const key = el.getAttribute('data-login-i18n');
+                el.textContent = LOGIN_I18N[lang][key];
+            });
+            document.querySelectorAll('[data-login-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-login-i18n-ph');
+                el.setAttribute('placeholder', LOGIN_I18N[lang][key]);
+            });
 
             // Cập nhật mô tả giọng đọc
             document.querySelectorAll('.voice-desc[data-voice-key]').forEach(el => {
@@ -2138,6 +2609,8 @@ const GENDER_TRANSLATIONS = {
                         ? translate('voice_custom')
                         : originalName.split(' - ')[0];
             });
+            const selectedVoice = document.querySelector(`.voice-card[data-voice-key="${selectedPreset}"] .voice-name`);
+            if (selectedVoice) document.getElementById('selectedVoiceName').innerText = selectedVoice.innerText;
 
             if (selectedFileDetails) {
                 document.getElementById('selectedFileName').innerText = translate('stt_selected', selectedFileDetails);
@@ -2184,17 +2657,6 @@ const GENDER_TRANSLATIONS = {
             updateStats();
             updateTTSButtonLabel();
 
-            // Đổi đoạn văn bản mẫu mặc định nếu người dùng chưa sửa
-            const textEl = document.getElementById('textContent');
-            if (textEl) {
-                const currentVal = textEl.value.trim();
-                const normalizeSample = value => value.replace(/\s+/g, ' ').trim();
-                const allSampleTexts = Object.values(SAMPLE_TEXTS).map(normalizeSample);
-                if (allSampleTexts.includes(normalizeSample(currentVal)) || currentVal === '') {
-                    textEl.value = SAMPLE_TEXTS[lang] || SAMPLE_TEXTS['vi'];
-                    if (typeof updateStats === 'function') updateStats();
-                }
-            }
         }
 
         // TAB SWITCHING
@@ -2215,6 +2677,28 @@ const GENDER_TRANSLATIONS = {
             selectedPreset = key;
             document.querySelectorAll('.voice-card').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
+            document.getElementById('selectedVoiceName').innerText = element.querySelector('.voice-name').innerText;
+            closeVoicePicker();
+        }
+
+        function toggleVoicePicker() {
+            const panel = document.getElementById('voicePickerPanel');
+            const button = document.getElementById('voicePickerToggle');
+            const isOpen = panel.hidden;
+            panel.hidden = !isOpen;
+            button.setAttribute('aria-expanded', String(isOpen));
+        }
+
+        function closeVoicePicker() {
+            document.getElementById('voicePickerPanel').hidden = true;
+            document.getElementById('voicePickerToggle').setAttribute('aria-expanded', 'false');
+        }
+
+        function playSelectedVoice(event) {
+            const selectedSample = document.querySelector('.voice-card.active .btn-play-sample');
+            if (selectedSample) {
+                playSample(event, selectedSample.dataset.sample, document.getElementById('selectedVoiceSample'));
+            }
         }
 
         function filterVoiceLang(lang, btn) {
@@ -2255,13 +2739,6 @@ const GENDER_TRANSLATIONS = {
                 );
             }
 
-            const currentActive = document.querySelector('.voice-card.active');
-            if (!currentActive || currentActive.classList.contains('hidden')) {
-                const firstVisible = document.querySelector('.voice-card:not(.hidden)');
-                if (firstVisible) {
-                    firstVisible.click();
-                }
-            }
         }
 
         function filterVoicesBySearch(query) {
@@ -2283,13 +2760,6 @@ const GENDER_TRANSLATIONS = {
                 countBadge.innerText = translate('voice_results', { count: count });
             }
 
-            const currentActive = document.querySelector('.voice-card.active');
-            if (!currentActive || currentActive.classList.contains('hidden')) {
-                const firstVisible = document.querySelector('.voice-card:not(.hidden)');
-                if (firstVisible) {
-                    firstVisible.click();
-                }
-            }
         }
 
         function playSample(event, url, btn) {
@@ -2346,12 +2816,38 @@ const GENDER_TRANSLATIONS = {
             updateStats();
         }
 
-        function updateRateLabel(val) {
-            document.getElementById('rateVal').innerText = (val >= 0 ? '+' : '') + val + '%';
+        function markVoiceStyleCustom() {
+            document.getElementById('voiceStyle').value = 'custom';
         }
 
-        function updatePitchLabel(val) {
+        function applyVoiceStyle(style) {
+            const profiles = {
+                natural: { rate: 0, pitch: 0, pause: 'standard' },
+                warm: { rate: -5, pitch: -4, pause: 'calm_podcast' },
+                calm: { rate: -10, pitch: -2, pause: 'deep' },
+                energetic: { rate: 10, pitch: 2, pause: 'energetic_ad' }
+            };
+            const profile = profiles[style];
+            if (!profile) return;
+            document.getElementById('rateSlider').value = profile.rate;
+            document.getElementById('pitchSlider').value = profile.pitch;
+            document.getElementById('pauseStyle').value = profile.pause;
+            updateRateLabel(profile.rate, false);
+            updatePitchLabel(profile.pitch, false);
+        }
+
+        function updateRateLabel(val, manualChange = true) {
+            document.getElementById('rateVal').innerText = (val >= 0 ? '+' : '') + val + '%';
+            if (manualChange) markVoiceStyleCustom();
+        }
+
+        function updatePitchLabel(val, manualChange = true) {
             document.getElementById('pitchVal').innerText = (val >= 0 ? '+' : '') + val + 'Hz';
+            if (manualChange) markVoiceStyleCustom();
+        }
+
+        function updateVolumeLabel(val) {
+            document.getElementById('volumeVal').innerText = (val >= 0 ? '+' : '') + val + '%';
         }
 
         function updateStats() {
@@ -2372,10 +2868,48 @@ const GENDER_TRANSLATIONS = {
         const savedUILang = localStorage.getItem('ui_lang') || 'vi';
         setUILanguage(savedUILang);
 
+        let localAccessGranted = false;
+        let pendingLocalAction = null;
+
+        function openLoginPreview(action) {
+            pendingLocalAction = action || null;
+            const modal = document.getElementById('loginModal');
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            document.querySelector('.login-continue').focus();
+        }
+
+        function closeLoginPreview() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            pendingLocalAction = null;
+        }
+
+        function continueLocally() {
+            const action = pendingLocalAction;
+            localAccessGranted = true;
+            closeLoginPreview();
+            if (action === 'tts') generateSpeech();
+            if (action === 'stt') transcribeAudio();
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && document.getElementById('loginModal').classList.contains('is-open')) {
+                closeLoginPreview();
+            }
+        });
+
         async function generateSpeech() {
             const inputText = document.getElementById('textContent').value.trim();
             if (!inputText) {
                 alert(translate('tts_empty'));
+                return;
+            }
+            if (!localAccessGranted) {
+                openLoginPreview('tts');
                 return;
             }
             if (!sampleAudio.paused) {
@@ -2396,6 +2930,8 @@ const GENDER_TRANSLATIONS = {
                         document.getElementById('rateSlider').value + '%',
                     pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') +
                         document.getElementById('pitchSlider').value + 'Hz',
+                    volume: (document.getElementById('volumeSlider').value >= 0 ? '+' : '') +
+                        document.getElementById('volumeSlider').value + '%',
                     pauseStyle: document.getElementById('pauseStyle').value,
                     totalWords: totalWords,
                     totalParts: Math.ceil(totalWords / 2000),
@@ -2482,6 +3018,7 @@ const GENDER_TRANSLATIONS = {
                         preset: ttsJob.preset,
                         rate: ttsJob.rate,
                         pitch: ttsJob.pitch,
+                        volume: ttsJob.volume,
                         pause_style: ttsJob.pauseStyle
                     })
                 });
@@ -2584,6 +3121,9 @@ const GENDER_TRANSLATIONS = {
             document.getElementById('btnModeLink').classList.toggle('active', !isFile);
             document.getElementById('fileUploadArea').style.display = isFile ? 'block' : 'none';
             document.getElementById('linkInputArea').style.display = isFile ? 'none' : 'block';
+            document.querySelectorAll('.cookies-option').forEach(option => {
+                option.classList.toggle('is-visible', !isFile);
+            });
         }
 
         async function checkLink() {
@@ -2685,6 +3225,11 @@ const GENDER_TRANSLATIONS = {
                     return;
                 }
                 formData.append('file', fileInput.files[0]);
+            }
+
+            if (!localAccessGranted) {
+                openLoginPreview('stt');
+                return;
             }
 
             const btn = document.getElementById('btnSubmitSTT');

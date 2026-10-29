@@ -43,6 +43,8 @@ python app.py
 
 Mở trình duyệt tại: http://localhost:5000
 
+Giao diện có nền sáng trắng ngà, tiêu đề **Voice & Transcribe Studio** và dùng Be Vietnam Pro để hiển thị tiếng Việt. Trình tạo giọng mở sẵn vùng nhập văn bản; chọn giọng và tinh chỉnh nằm trong mục thu gọn, gồm phong cách đọc nhanh, nhịp nghỉ, tốc độ, cao độ và âm lượng. Tab chuyển âm thanh cho phép tải tệp hoặc dán liên kết, với tùy chọn nâng cao được thu gọn riêng. Khi bắt đầu xử lý, bản local sẽ hiện màn hình xem trước đăng nhập; chọn **Tiếp tục không đăng nhập** để tiếp tục. Đăng nhập email/Google hiện chưa được tích hợp.
+
 ## Mẹo dùng tab chuyển video thành văn bản
 
 | Tình huống | Cách xử lý |

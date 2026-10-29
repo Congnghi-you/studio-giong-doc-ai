@@ -840,7 +840,7 @@ def split_text_by_word_limit(text, max_words=2000):
     return parts
 
 
-async def generate_speech_async(text, voice, rate, pitch, output_path, work_dir):
+async def generate_speech_async(text, voice, rate, pitch, volume, output_path, work_dir):
     chunks = split_text_into_chunks(text, max_chars=320)
     os.makedirs(work_dir, exist_ok=True)
     chunk_paths = [os.path.join(work_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
@@ -860,7 +860,7 @@ async def generate_speech_async(text, voice, rate, pitch, output_path, work_dir)
             try:
                 if os.path.exists(chunk_file):
                     os.remove(chunk_file)
-                comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch)
+                comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch, volume=volume)
                 timeout_sec = 25.0 + retry * 10.0
                 await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
                 if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
@@ -880,7 +880,7 @@ async def generate_speech_async(text, voice, rate, pitch, output_path, work_dir)
                 try:
                     if os.path.exists(chunk_file):
                         os.remove(chunk_file)
-                    comm = edge_tts.Communicate(clean_chunk, voice=voice)
+                    comm = edge_tts.Communicate(clean_chunk, voice=voice, volume=volume)
                     await asyncio.wait_for(comm.save(chunk_file), timeout=35.0)
                     if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
                         generated = True
@@ -925,6 +925,10 @@ def add_no_cache_headers(response):
 def index():
     return render_template("index.html", presets=VOICE_PRESETS)
 
+@app.route("/login")
+def login_preview():
+    return render_template("index.html", presets=VOICE_PRESETS, show_login=True)
+
 # API 1: TẠO GIỌNG ĐỌC AI TỪ VĂN BẢN
 @app.route("/api/generate", methods=["POST"])
 def generate():
@@ -939,8 +943,11 @@ def generate():
         preset_key = data.get("preset", "giong_cua_toi")
         custom_rate = data.get("rate")
         custom_pitch = data.get("pitch")
+        volume = data.get("volume", "+0%")
         pause_style = data.get("pause_style", "standard")
 
+        if not isinstance(volume, str) or not re.fullmatch(r"[+-](?:0|[1-9]\d?|100)%", volume):
+            return jsonify({"success": False, "error": "Mức âm lượng không hợp lệ."}), 400
         if not raw_text:
             return jsonify({"success": False, "error": "Vui lòng nhập văn bản cần đọc!"}), 400
         if not isinstance(job_id, str) or not re.fullmatch(r"[a-f0-9]{32}", job_id):
@@ -962,7 +969,7 @@ def generate():
         work_dir = os.path.join(TTS_WORK_DIR, f"{job_id}_{part_index:03d}")
         manifest_path = os.path.join(work_dir, "manifest.txt")
         fingerprint = hashlib.sha256(
-            "\0".join((processed_text, voice, rate, pitch)).encode("utf-8")
+            "\0".join((processed_text, voice, rate, pitch, volume)).encode("utf-8")
         ).hexdigest()
         if os.path.exists(manifest_path):
             with open(manifest_path, "r", encoding="ascii") as manifest:
@@ -977,7 +984,7 @@ def generate():
         output_path = os.path.join(AUDIO_DIR, filename)
         try:
             asyncio.run(generate_speech_async(
-                processed_text, voice, rate, pitch, output_path, work_dir
+                processed_text, voice, rate, pitch, volume, output_path, work_dir
             ))
         except Exception as e:
             error_match = re.search(r"đoạn nhỏ (\d+)/(\d+)", str(e), flags=re.IGNORECASE)
