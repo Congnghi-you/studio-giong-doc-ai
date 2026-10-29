@@ -2,9 +2,41 @@ create table if not exists public.voice_billing_purchases (
     transaction_id text primary key,
     user_id uuid not null references auth.users (id) on delete cascade,
     purchased_at timestamptz not null default now(),
-    expires_at timestamptz not null,
+    expires_at timestamptz,
+    plan_type text not null default 'annual',
+    monthly_limit_minutes numeric(12, 2) not null default 3600,
     refunded_at timestamptz
 );
+
+alter table public.voice_billing_purchases
+    add column if not exists plan_type text not null default 'annual',
+    add column if not exists monthly_limit_minutes numeric(12, 2) not null default 3600,
+    alter column expires_at drop not null;
+
+do $$
+begin
+    if not exists (
+        select 1
+        from pg_constraint
+        where conrelid = 'public.voice_billing_purchases'::regclass
+          and conname = 'voice_billing_purchases_plan_type_check'
+    ) then
+        alter table public.voice_billing_purchases
+            add constraint voice_billing_purchases_plan_type_check
+            check (plan_type in ('annual', 'lifetime'));
+    end if;
+    if not exists (
+        select 1
+        from pg_constraint
+        where conrelid = 'public.voice_billing_purchases'::regclass
+          and conname = 'voice_billing_purchases_monthly_limit_check'
+    ) then
+        alter table public.voice_billing_purchases
+            add constraint voice_billing_purchases_monthly_limit_check
+            check (monthly_limit_minutes > 0);
+    end if;
+end;
+$$;
 
 create index if not exists voice_billing_purchases_user_expiry_idx
     on public.voice_billing_purchases (user_id, expires_at desc)
@@ -37,11 +69,16 @@ alter table public.voice_billing_events enable row level security;
 alter table public.voice_billing_adjustments enable row level security;
 alter table public.voice_stt_usage enable row level security;
 
+drop function if exists public.apply_paddle_billing_event(text, text, jsonb, text);
+drop function if exists public.get_voice_billing_status(uuid, numeric, integer);
+drop function if exists public.reserve_voice_stt_minutes(uuid, numeric, uuid, numeric, integer, integer);
+
 create or replace function public.apply_paddle_billing_event(
     p_event_id text,
     p_event_type text,
     p_payload jsonb,
-    p_expected_price_id text
+    p_expected_annual_price_id text,
+    p_expected_lifetime_price_id text
 )
 returns jsonb
 language plpgsql
@@ -52,6 +89,7 @@ declare
     event_data jsonb := coalesce(p_payload->'data', '{}'::jsonb);
     account_id uuid;
     target_transaction_id text;
+    purchased_plan text;
     occurred_at timestamptz := coalesce((p_payload->>'occurred_at')::timestamptz, now());
     inserted_rows integer;
 begin
@@ -71,17 +109,40 @@ begin
     if p_event_type = 'transaction.completed' then
         target_transaction_id := event_data->>'id';
 
-        if event_data->>'status' is distinct from 'completed'
-            or target_transaction_id is null
-            or not exists (
-                select 1
-                from jsonb_array_elements(coalesce(event_data->'items', '[]'::jsonb)) as item
-                where coalesce(item->>'price_id', item->'price'->>'id') = p_expected_price_id
-                  and coalesce(item->'price'->'billing_cycle', 'null'::jsonb) = 'null'::jsonb
-                  and item->'price'->'unit_price'->>'amount' = '4990'
-                  and item->'price'->'unit_price'->>'currency_code' = 'USD'
-            )
-        then
+        if event_data->>'status' is distinct from 'completed' or target_transaction_id is null then
+            return jsonb_build_object('ignored', true);
+        end if;
+
+        if jsonb_typeof(event_data->'items') is distinct from 'array' then
+            return jsonb_build_object('ignored', true);
+        end if;
+        if jsonb_array_length(event_data->'items') <> 1 then
+            return jsonb_build_object('ignored', true);
+        end if;
+
+        select case
+            when coalesce(item->>'price_id', item->'price'->>'id') = p_expected_annual_price_id
+                then 'annual'
+            when coalesce(item->>'price_id', item->'price'->>'id') = p_expected_lifetime_price_id
+                then 'lifetime'
+        end
+        into purchased_plan
+        from jsonb_array_elements(coalesce(event_data->'items', '[]'::jsonb)) as entries(item)
+        where coalesce(item->>'price_id', item->'price'->>'id')
+                in (p_expected_annual_price_id, p_expected_lifetime_price_id)
+          and coalesce(item->'price'->'billing_cycle', 'null'::jsonb) = 'null'::jsonb
+          and item->>'quantity' = '1'
+          and item->'price'->'unit_price'->>'currency_code' = 'USD'
+          and (
+              (coalesce(item->>'price_id', item->'price'->>'id') = p_expected_annual_price_id
+                  and item->'price'->'unit_price'->>'amount' = '4990')
+              or
+              (coalesce(item->>'price_id', item->'price'->>'id') = p_expected_lifetime_price_id
+                  and item->'price'->'unit_price'->>'amount' = '49900')
+          )
+        limit 1;
+
+        if purchased_plan is null then
             return jsonb_build_object('ignored', true);
         end if;
 
@@ -96,20 +157,27 @@ begin
         end if;
 
         insert into public.voice_billing_purchases
-            (transaction_id, user_id, purchased_at, expires_at, refunded_at)
+            (transaction_id, user_id, purchased_at, expires_at, plan_type,
+             monthly_limit_minutes, refunded_at)
         values (
             target_transaction_id,
             account_id,
             occurred_at,
-            greatest(
-                occurred_at,
-                coalesce((
+            case when purchased_plan = 'lifetime' then null else
+                greatest(
+                    occurred_at,
+                    coalesce((
                     select max(purchase.expires_at)
                     from public.voice_billing_purchases as purchase
                     where purchase.user_id = account_id
                       and purchase.refunded_at is null
-                ), occurred_at)
-            ) + interval '365 days',
+                      and purchase.plan_type = 'annual'
+                      and purchase.expires_at > occurred_at
+                    ), occurred_at)
+                ) + interval '365 days'
+            end,
+            purchased_plan,
+            case when purchased_plan = 'lifetime' then 1000000 else 3600 end,
             (
                 select adjustment.refunded_at
                 from public.voice_billing_adjustments as adjustment
@@ -146,7 +214,6 @@ $$;
 
 create or replace function public.get_voice_billing_status(
     p_user_id uuid,
-    p_monthly_minutes numeric,
     p_window_days integer
 )
 returns jsonb
@@ -155,11 +222,14 @@ security definer
 set search_path = ''
 as $$
     with entitlement as (
-        select max(expires_at) as expires_at
+        select
+            bool_or(plan_type = 'lifetime') as lifetime_active,
+            max(expires_at) filter (where plan_type = 'annual') as annual_expires_at,
+            max(monthly_limit_minutes) as monthly_limit_minutes
         from public.voice_billing_purchases
         where user_id = p_user_id
           and refunded_at is null
-          and expires_at > now()
+          and (expires_at is null or expires_at > now())
     ),
     usage as (
         select coalesce(sum(duration_seconds), 0) / 60.0 as used_minutes
@@ -172,11 +242,20 @@ as $$
           and created_at >= now() - make_interval(days => p_window_days)
     )
     select jsonb_build_object(
-        'active', entitlement.expires_at is not null,
-        'expires_at', entitlement.expires_at,
+        'active', coalesce(entitlement.lifetime_active, false)
+            or entitlement.annual_expires_at is not null,
+        'plan_type', case when coalesce(entitlement.lifetime_active, false)
+            then 'lifetime'
+            when entitlement.annual_expires_at is not null then 'annual'
+            else null
+        end,
+        'expires_at', case when coalesce(entitlement.lifetime_active, false)
+            then null else entitlement.annual_expires_at end,
         'used_minutes', round(usage.used_minutes, 2),
-        'remaining_minutes', greatest(0, round(p_monthly_minutes - usage.used_minutes, 2)),
-        'monthly_limit_minutes', p_monthly_minutes,
+        'remaining_minutes', greatest(0, round(
+            coalesce(entitlement.monthly_limit_minutes, 0) - usage.used_minutes, 2
+        )),
+        'monthly_limit_minutes', coalesce(entitlement.monthly_limit_minutes, 0),
         'window_days', p_window_days
     )
     from entitlement cross join usage;
@@ -186,7 +265,6 @@ create or replace function public.reserve_voice_stt_minutes(
     p_user_id uuid,
     p_duration_seconds numeric,
     p_request_id uuid,
-    p_monthly_minutes numeric,
     p_window_days integer,
     p_max_job_seconds integer
 )
@@ -197,7 +275,8 @@ set search_path = ''
 as $$
 declare
     used_seconds numeric;
-    current_expiry timestamptz;
+    current_monthly_minutes numeric;
+    has_active_plan boolean;
 begin
     if p_duration_seconds <= 0 or p_duration_seconds > p_max_job_seconds then
         return jsonb_build_object('reserved', false, 'reason', 'duration_limit');
@@ -205,14 +284,14 @@ begin
 
     perform pg_advisory_xact_lock(hashtextextended(p_user_id::text, 0));
 
-    select max(expires_at)
-    into current_expiry
+    select count(*) > 0, max(monthly_limit_minutes)
+    into has_active_plan, current_monthly_minutes
     from public.voice_billing_purchases
     where user_id = p_user_id
       and refunded_at is null
-      and expires_at > now();
+      and (expires_at is null or expires_at > now());
 
-    if current_expiry is null then
+    if not has_active_plan then
         return jsonb_build_object('reserved', false, 'reason', 'plan_required');
     end if;
 
@@ -226,7 +305,7 @@ begin
       )
       and created_at >= now() - make_interval(days => p_window_days);
 
-    if used_seconds + p_duration_seconds > p_monthly_minutes * 60 then
+    if used_seconds + p_duration_seconds > current_monthly_minutes * 60 then
         return jsonb_build_object('reserved', false, 'reason', 'quota_exceeded');
     end if;
 
@@ -269,12 +348,12 @@ begin
 end;
 $$;
 
-revoke all on function public.apply_paddle_billing_event(text, text, jsonb, text) from public, anon, authenticated;
-revoke all on function public.get_voice_billing_status(uuid, numeric, integer) from public, anon, authenticated;
-revoke all on function public.reserve_voice_stt_minutes(uuid, numeric, uuid, numeric, integer, integer) from public, anon, authenticated;
+revoke all on function public.apply_paddle_billing_event(text, text, jsonb, text, text) from public, anon, authenticated;
+revoke all on function public.get_voice_billing_status(uuid, integer) from public, anon, authenticated;
+revoke all on function public.reserve_voice_stt_minutes(uuid, numeric, uuid, integer, integer) from public, anon, authenticated;
 revoke all on function public.finish_voice_stt_usage(uuid, numeric, boolean) from public, anon, authenticated;
 
-grant execute on function public.apply_paddle_billing_event(text, text, jsonb, text) to service_role;
-grant execute on function public.get_voice_billing_status(uuid, numeric, integer) to service_role;
-grant execute on function public.reserve_voice_stt_minutes(uuid, numeric, uuid, numeric, integer, integer) to service_role;
+grant execute on function public.apply_paddle_billing_event(text, text, jsonb, text, text) to service_role;
+grant execute on function public.get_voice_billing_status(uuid, integer) to service_role;
+grant execute on function public.reserve_voice_stt_minutes(uuid, numeric, uuid, integer, integer) to service_role;
 grant execute on function public.finish_voice_stt_usage(uuid, numeric, boolean) to service_role;

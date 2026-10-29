@@ -1,3 +1,13 @@
+---
+title: Studio Giong Doc AI
+emoji: 🎙️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🎙️ Studio Giọng Đọc AI Tiếng Việt
 
 Ứng dụng web chuyển đổi văn bản dài (20+ phút) thành âm thanh giọng đọc AI tự nhiên, mượt mà — kèm công cụ chuyển video/âm thanh thành văn bản (Whisper AI).
@@ -47,15 +57,15 @@ Giao diện có nền sáng trắng ngà, tiêu đề **Voice & Transcribe Studi
 
 ## Bản web có tài khoản và thanh toán (Paddle Sandbox)
 
-Mặc định `BILLING_ENABLED` tắt để giữ nguyên chế độ local. Khi bật, Edge TTS vẫn là tính năng dùng thử; chuyển âm thanh thành văn bản yêu cầu người dùng đăng nhập và có quyền sử dụng còn hạn. Gói hiện được cấu hình là **$49.90 thanh toán một lần cho 365 ngày**, có thể mua lại để gia hạn, gồm **300 phút STT trong cửa sổ 30 ngày lăn** và tối đa **60 phút cho mỗi tác vụ**. Tác vụ đang chạy giữ trước quota để tránh hai yêu cầu đồng thời dùng vượt hạn mức; khi thất bại quota được trả lại, còn reservation bị treo do tiến trình dừng sẽ tự hết hiệu lực sau 24 giờ.
+Mặc định `BILLING_ENABLED` tắt để giữ nguyên chế độ local. Khi bật, chuyển âm thanh thành văn bản yêu cầu người dùng đăng nhập và có quyền sử dụng còn hạn. Có hai gói thanh toán một lần: **Annual $49.90**, hiệu lực 365 ngày và gồm **3.600 phút STT mỗi chu kỳ 30 ngày**; **Lifetime $499**, không hết hạn và gồm **1.000.000 phút STT mỗi chu kỳ 30 ngày**. Không gói nào tự động gia hạn; cả hai giới hạn mỗi tác vụ ở 60 phút. Tác vụ STT đang chạy giữ trước quota theo gói đã mua để tránh hai yêu cầu đồng thời dùng vượt hạn mức; khi thất bại quota được trả lại, còn reservation bị treo do tiến trình dừng sẽ tự hết hiệu lực sau 24 giờ.
 
-**Chưa mở công khai ngay sau khi bật billing:** Edge TTS dùng thử hiện chưa có quota hoặc rate limit theo tài khoản/IP. Trước khi đưa lên Internet, cần đặt giới hạn dùng thử và bổ sung bảo vệ/rate limit ở ứng dụng hoặc reverse proxy để tránh lạm dụng và giảm nguy cơ Edge TTS chặn máy chủ.
+Tạo giọng miễn phí được giới hạn thật ở **40 phút âm thanh đầu ra mỗi ngày** và **10 phút cho mỗi file**. Máy chủ đo thời lượng MP3 sau khi tạo; file vượt giới hạn sẽ bị từ chối và không được tính vào quota. Quota được lưu trong SQLite tại `instance/free_tts_usage.sqlite3` (có thể đổi bằng `FREE_TTS_USAGE_DB`), dùng tài khoản Supabase khi billing đã cấu hình và có access token, nếu không thì gom theo địa chỉ IP. Ngày quota đổi theo múi giờ local của máy chủ. SQLite phù hợp cho một máy chủ có ổ đĩa lưu bền; khi chạy nhiều replica cần thay bằng kho dùng chung để tránh mỗi replica có quota riêng. Cần bổ sung rate limit ở ứng dụng hoặc reverse proxy trước khi đưa dịch vụ công khai để giảm lạm dụng và nguy cơ Edge TTS chặn máy chủ.
 
 Tích hợp này cần tài khoản Supabase và Paddle:
 
 1. Tạo project Supabase; bật đăng nhập bằng email (magic link/OTP), và cấu hình Google OAuth nếu muốn nút Google hoạt động. Đặt URL trang web trong danh sách redirect được phép.
-2. Chạy [database/saas_billing.sql](<database/saas_billing.sql>) trong Supabase SQL Editor để tạo bảng quyền sử dụng, sự kiện webhook và quota cùng các hàm RPC.
-3. Trong Paddle **Sandbox**, tạo sản phẩm/giá thanh toán một lần USD **49.90**. Lấy API key, client-side token, price ID và secret của notification destination.
+2. Chạy [database/saas_billing.sql](<database/saas_billing.sql>) trong Supabase SQL Editor để tạo/nâng cấp bảng quyền sử dụng, sự kiện webhook, quota và các hàm RPC. Script giữ các giao dịch năm hiện có, cập nhật quota của chúng lên 3.600 phút/30 ngày và cho phép quyền Lifetime không có ngày hết hạn.
+3. Trong Paddle **Sandbox**, tạo hai giá thanh toán một lần bằng USD: **49.90** cho Annual và **499.00** cho Lifetime. Lấy cả hai price ID, API key, client-side token và secret của notification destination.
 4. Cấu hình notification destination tới `https://<domain>/api/billing/webhook`, tối thiểu bật `transaction.completed`, `adjustment.created` và `adjustment.updated` để cấp quyền sau thanh toán và thu hồi quyền khi hoàn tiền.
 5. Đặt các biến môi trường sau trên máy chủ. Không commit service-role key, Paddle API key hay webhook secret:
 
@@ -67,9 +77,12 @@ Tích hợp này cần tài khoản Supabase và Paddle:
    PADDLE_API_KEY=<sandbox-api-key>
    PADDLE_CLIENT_TOKEN=<sandbox-client-side-token>
    PADDLE_WEBHOOK_SECRET=<notification-destination-secret>
-   PADDLE_PRICE_ID=<one-time-price-id>
+   PADDLE_ANNUAL_PRICE_ID=<annual-one-time-price-id>
+   PADDLE_LIFETIME_PRICE_ID=<lifetime-one-time-price-id>
    PADDLE_ENVIRONMENT=sandbox
    ```
+
+`PADDLE_PRICE_ID` cũ vẫn được chấp nhận như bí danh cho `PADDLE_ANNUAL_PRICE_ID`, nhưng vẫn cần đặt `PADDLE_LIFETIME_PRICE_ID` để bật thanh toán. Backend chỉ nhận khóa gói `annual` hoặc `lifetime` từ trình duyệt rồi tự chọn price ID đã cấu hình; webhook xác minh đúng ID, đơn giá USD, loại thanh toán một lần và số lượng trước khi cấp quyền. Hạn mức và thời hạn được lưu trong cơ sở dữ liệu theo gói.
 
 Chỉ đặt `PADDLE_ENVIRONMENT=production` và dùng credentials Live sau khi tài khoản Paddle, sản phẩm, domain và webhook đã được duyệt/cấu hình. Backend kiểm tra Supabase access token; trình duyệt chỉ nhận public anon key và Paddle client token. `SUPABASE_SERVICE_ROLE_KEY`, Paddle API key và webhook secret chỉ được dùng phía máy chủ.
 

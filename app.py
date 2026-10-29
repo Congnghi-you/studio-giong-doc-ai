@@ -8,7 +8,11 @@ import shutil
 import subprocess
 import uuid
 import hashlib
+import hmac
 import json
+import secrets
+import sqlite3
+from datetime import datetime
 
 if sys.platform == "win32":
     try:
@@ -29,8 +33,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
-FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe")
+FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BASE_DIR, "ffmpeg.exe")) else (shutil.which("ffmpeg") or "ffmpeg")
 BILLING_CONFIG = saas_billing.BillingConfig()
+FREE_TTS_DAILY_LIMIT_SECONDS = 40 * 60
+FREE_TTS_MAX_JOB_SECONDS = 10 * 60
+FREE_TTS_USAGE_DB = os.path.abspath(os.getenv(
+    "FREE_TTS_USAGE_DB",
+    os.path.join(BASE_DIR, "instance", "free_tts_usage.sqlite3")
+))
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -957,6 +967,197 @@ def get_media_duration_seconds(file_path):
     raise ValueError("Không xác định được thời lượng âm thanh.")
 
 
+class FreeTTSQuotaError(Exception):
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code = code
+
+
+def _connect_free_tts_usage_db():
+    os.makedirs(os.path.dirname(FREE_TTS_USAGE_DB) or ".", exist_ok=True)
+    connection = sqlite3.connect(FREE_TTS_USAGE_DB, timeout=30)
+    connection.execute("PRAGMA busy_timeout = 30000")
+    connection.execute("PRAGMA journal_mode = WAL")
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS free_tts_usage (
+            usage_day TEXT NOT NULL,
+            client_key TEXT NOT NULL,
+            request_key TEXT NOT NULL,
+            fingerprint TEXT NOT NULL,
+            status TEXT NOT NULL CHECK (status IN ('reserved', 'completed')),
+            reserved_seconds INTEGER NOT NULL,
+            actual_seconds REAL,
+            created_at TEXT NOT NULL,
+            PRIMARY KEY (usage_day, client_key, request_key)
+        )
+    """)
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS free_tts_metadata (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            client_key_salt TEXT NOT NULL
+        )
+    """)
+    connection.execute(
+        "INSERT OR IGNORE INTO free_tts_metadata (id, client_key_salt) VALUES (1, ?)",
+        (secrets.token_hex(32),),
+    )
+    connection.commit()
+    return connection
+
+
+def _free_tts_client_key():
+    authorization = request.headers.get("Authorization", "")
+    if authorization and BILLING_CONFIG.enabled and BILLING_CONFIG.configured:
+        user = _billing_user_from_request()
+        identity = f"account:{user['id']}"
+    else:
+        identity = f"ip:{request.remote_addr or 'unknown'}"
+
+    connection = _connect_free_tts_usage_db()
+    try:
+        salt = connection.execute(
+            "SELECT client_key_salt FROM free_tts_metadata WHERE id = 1"
+        ).fetchone()[0]
+    finally:
+        connection.close()
+    return hmac.new(bytes.fromhex(salt), identity.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def reserve_free_tts_usage(client_key, request_key, fingerprint, usage_day=None):
+    usage_day = usage_day or datetime.now().astimezone().date().isoformat()
+    connection = _connect_free_tts_usage_db()
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        connection.execute(
+            "DELETE FROM free_tts_usage WHERE usage_day < date(?, '-45 days')",
+            (usage_day,),
+        )
+        existing = connection.execute(
+            """
+            SELECT fingerprint, status
+            FROM free_tts_usage
+            WHERE usage_day = ? AND client_key = ? AND request_key = ?
+            """,
+            (usage_day, client_key, request_key),
+        ).fetchone()
+        if existing:
+            if existing[0] != fingerprint:
+                raise FreeTTSQuotaError(
+                    "duplicate_request",
+                    "Mã tác vụ đã được dùng cho nội dung khác.",
+                )
+            if existing[1] == "completed":
+                connection.commit()
+                return False
+            raise FreeTTSQuotaError(
+                "duplicate_request",
+                "Tác vụ này đang được xử lý.",
+            )
+
+        used_seconds = connection.execute(
+            """
+            SELECT COALESCE(SUM(
+                CASE WHEN status = 'reserved' THEN reserved_seconds
+                     ELSE actual_seconds END
+            ), 0)
+            FROM free_tts_usage
+            WHERE usage_day = ? AND client_key = ?
+            """,
+            (usage_day, client_key),
+        ).fetchone()[0]
+        if used_seconds + FREE_TTS_MAX_JOB_SECONDS > FREE_TTS_DAILY_LIMIT_SECONDS:
+            raise FreeTTSQuotaError(
+                "daily_quota_exceeded",
+                "Bạn đã dùng hết 40 phút tạo giọng miễn phí hôm nay.",
+            )
+
+        connection.execute(
+            """
+            INSERT INTO free_tts_usage (
+                usage_day, client_key, request_key, fingerprint, status,
+                reserved_seconds, actual_seconds, created_at
+            ) VALUES (?, ?, ?, ?, 'reserved', ?, NULL, ?)
+            """,
+            (
+                usage_day,
+                client_key,
+                request_key,
+                fingerprint,
+                FREE_TTS_MAX_JOB_SECONDS,
+                datetime.now().astimezone().isoformat(),
+            ),
+        )
+        connection.commit()
+        return True
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+
+
+def finish_free_tts_usage(client_key, request_key, duration_seconds, usage_day=None):
+    usage_day = usage_day or datetime.now().astimezone().date().isoformat()
+    connection = _connect_free_tts_usage_db()
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        updated = connection.execute(
+            """
+            UPDATE free_tts_usage
+            SET status = 'completed', actual_seconds = ?, reserved_seconds = 0
+            WHERE usage_day = ? AND client_key = ? AND request_key = ?
+              AND status = 'reserved'
+            """,
+            (duration_seconds, usage_day, client_key, request_key),
+        ).rowcount
+        if updated == 0:
+            completed = connection.execute(
+                """
+                SELECT 1 FROM free_tts_usage
+                WHERE usage_day = ? AND client_key = ? AND request_key = ?
+                  AND status = 'completed'
+                """,
+                (usage_day, client_key, request_key),
+            ).fetchone()
+            if not completed:
+                raise RuntimeError("Không tìm thấy lượt giữ hạn mức tạo giọng.")
+        used_seconds = connection.execute(
+            """
+            SELECT COALESCE(SUM(
+                CASE WHEN status = 'reserved' THEN reserved_seconds
+                     ELSE actual_seconds END
+            ), 0)
+            FROM free_tts_usage
+            WHERE usage_day = ? AND client_key = ?
+            """,
+            (usage_day, client_key),
+        ).fetchone()[0]
+        connection.commit()
+        return max(0, FREE_TTS_DAILY_LIMIT_SECONDS - used_seconds)
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+
+
+def release_free_tts_usage(client_key, request_key, usage_day=None):
+    usage_day = usage_day or datetime.now().astimezone().date().isoformat()
+    connection = _connect_free_tts_usage_db()
+    try:
+        connection.execute(
+            """
+            DELETE FROM free_tts_usage
+            WHERE usage_day = ? AND client_key = ? AND request_key = ?
+              AND status = 'reserved'
+            """,
+            (usage_day, client_key, request_key),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+
 def _billing_user_from_request():
     authorization = request.headers.get("Authorization", "")
     scheme, separator, token = authorization.partition(" ")
@@ -988,9 +1189,15 @@ def billing_status():
 @app.route("/api/billing/checkout", methods=["POST"])
 def billing_checkout():
     try:
+        payload = request.get_json(silent=True) or {}
+        if not isinstance(payload, dict):
+            return jsonify({"success": False, "error": "Please select a valid plan."}), 400
+        plan = payload.get("plan")
+        if plan not in ("annual", "lifetime"):
+            return jsonify({"success": False, "error": "Please select a valid plan."}), 400
         user = _billing_user_from_request()
         transaction_id = saas_billing.create_checkout_transaction(
-            BILLING_CONFIG, user["id"]
+            BILLING_CONFIG, user["id"], plan
         )
         return jsonify({"success": True, "transaction_id": transaction_id})
     except saas_billing.AuthenticationRequired as error:
@@ -1035,7 +1242,12 @@ def billing_webhook():
 def generate():
     try:
         data = request.get_json(force=True, silent=True) or {}
-        raw_text = data.get("text", "").strip()
+        if not isinstance(data, dict):
+            return jsonify({"success": False, "error": "Yêu cầu tạo giọng không hợp lệ."}), 400
+        raw_text = data.get("text", "")
+        if not isinstance(raw_text, str):
+            return jsonify({"success": False, "error": "Văn bản cần đọc không hợp lệ."}), 400
+        raw_text = raw_text.strip()
         job_id = data.get("job_id") or uuid.uuid4().hex
         try:
             part_index = int(data.get("part_index", 0))
@@ -1072,22 +1284,58 @@ def generate():
         fingerprint = hashlib.sha256(
             "\0".join((processed_text, voice, rate, pitch, volume)).encode("utf-8")
         ).hexdigest()
-        if os.path.exists(manifest_path):
-            with open(manifest_path, "r", encoding="ascii") as manifest:
-                previous_fingerprint = manifest.read().strip()
-            if previous_fingerprint != fingerprint:
-                shutil.rmtree(work_dir, ignore_errors=True)
-        os.makedirs(work_dir, exist_ok=True)
-        with open(manifest_path, "w", encoding="ascii") as manifest:
-            manifest.write(fingerprint)
-
         filename = f"audio_{job_id}_{part_index + 1:03d}_{preset_key}.mp3"
         output_path = os.path.join(AUDIO_DIR, filename)
+        request_key = f"{job_id}:{part_index}"
+        usage_day = datetime.now().astimezone().date().isoformat()
+        try:
+            client_key = _free_tts_client_key()
+            reservation_created = reserve_free_tts_usage(
+                client_key, request_key, fingerprint, usage_day
+            )
+        except FreeTTSQuotaError as error:
+            status_code = 429 if error.code == "daily_quota_exceeded" else 409
+            return jsonify({
+                "success": False,
+                "code": error.code,
+                "error": str(error),
+                "daily_limit_minutes": FREE_TTS_DAILY_LIMIT_SECONDS // 60,
+                "max_job_minutes": FREE_TTS_MAX_JOB_SECONDS // 60,
+            }), status_code
+        except saas_billing.AuthenticationRequired as error:
+            return jsonify({"success": False, "error": str(error)}), 401
+        except sqlite3.Error as error:
+            app.logger.error("Could not reserve free TTS quota: %s", error)
+            return jsonify({
+                "success": False,
+                "error": "Không thể kiểm tra hạn mức tạo giọng lúc này.",
+            }), 503
+
+        if reservation_created:
+            try:
+                if os.path.exists(manifest_path):
+                    with open(manifest_path, "r", encoding="ascii") as manifest:
+                        previous_fingerprint = manifest.read().strip()
+                    if previous_fingerprint != fingerprint:
+                        shutil.rmtree(work_dir, ignore_errors=True)
+                os.makedirs(work_dir, exist_ok=True)
+                with open(manifest_path, "w", encoding="ascii") as manifest:
+                    manifest.write(fingerprint)
+            except OSError as error:
+                release_free_tts_usage(client_key, request_key, usage_day)
+                app.logger.error("Could not prepare TTS work directory: %s", error)
+                return jsonify({
+                    "success": False,
+                    "error": "Không thể chuẩn bị tệp âm thanh lúc này.",
+                }), 503
+
         try:
             asyncio.run(generate_speech_async(
                 processed_text, voice, rate, pitch, volume, output_path, work_dir
             ))
         except Exception as e:
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
             error_match = re.search(r"đoạn nhỏ (\d+)/(\d+)", str(e), flags=re.IGNORECASE)
             return jsonify({
                 "success": False,
@@ -1099,7 +1347,76 @@ def generate():
             }), 503
 
         if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
             return jsonify({"success": False, "error": "Không thể tạo file âm thanh."}), 500
+
+        try:
+            audio_duration_seconds = get_media_duration_seconds(output_path)
+        except Exception:
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
+            app.logger.exception("Could not measure generated TTS audio duration")
+            try:
+                os.remove(output_path)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                app.logger.exception("Could not remove unverified TTS audio output")
+            return jsonify({
+                "success": False,
+                "error": "Không xác định được thời lượng âm thanh đầu ra.",
+            }), 503
+
+        if audio_duration_seconds <= 0:
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
+            try:
+                os.remove(output_path)
+            except FileNotFoundError:
+                pass
+            return jsonify({
+                "success": False,
+                "error": "Âm thanh đầu ra không có thời lượng hợp lệ.",
+            }), 500
+        if audio_duration_seconds > FREE_TTS_MAX_JOB_SECONDS:
+            try:
+                os.remove(output_path)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                app.logger.exception("Could not remove over-limit TTS audio output")
+                return jsonify({
+                    "success": False,
+                    "error": "Không thể loại bỏ âm thanh vượt giới hạn.",
+                }), 503
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
+            return jsonify({
+                "success": False,
+                "code": "job_limit_exceeded",
+                "error": "Mỗi lần tạo chỉ được tối đa 10 phút âm thanh.",
+                "max_job_minutes": FREE_TTS_MAX_JOB_SECONDS // 60,
+            }), 413
+
+        try:
+            daily_remaining_seconds = finish_free_tts_usage(
+                client_key, request_key, audio_duration_seconds, usage_day
+            )
+        except Exception as error:
+            app.logger.exception("Could not record free TTS usage")
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
+            try:
+                os.remove(output_path)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                app.logger.exception("Could not remove untracked TTS audio output")
+            return jsonify({
+                "success": False,
+                "error": "Không thể cập nhật hạn mức tạo giọng lúc này.",
+            }), 503
 
         word_count = len(raw_text.split())
         est_minutes = round(word_count / 145, 1)
@@ -1115,6 +1432,8 @@ def generate():
             },
             "word_count": word_count,
             "est_minutes": est_minutes,
+            "audio_duration_seconds": round(audio_duration_seconds, 2),
+            "daily_tts_minutes_remaining": round(daily_remaining_seconds / 60, 2),
             "voice_name": preset["name"],
             "part_index": part_index,
             "total_parts": len(text_parts)
@@ -1152,7 +1471,7 @@ def transcribe_audio():
                 return jsonify({
                     "success": False,
                     "code": "quota_exceeded",
-                    "error": "Bạn đã dùng hết 300 phút trong cửa sổ 30 ngày hiện tại."
+                    "error": "Bạn đã dùng hết hạn mức trong cửa sổ 30 ngày hiện tại."
                 }), 429
 
         source_type = (request.form.get("source_type") or "file").strip().lower()
@@ -1292,7 +1611,7 @@ def transcribe_audio():
 
         wav_converted = os.path.join(UPLOAD_DIR, f"conv_{uuid.uuid4().hex}.wav")
 
-        if os.path.exists(FFMPEG_PATH):
+        if os.path.exists(FFMPEG_PATH) or shutil.which(FFMPEG_PATH):
             cleanup_paths.append(wav_converted)
             cmd = [FFMPEG_PATH, "-y", "-i", audio_target, "-vn", "-ar", "16000", "-ac", "1",
                    "-c:a", "pcm_s16le", wav_converted]
@@ -1340,7 +1659,7 @@ def transcribe_audio():
                     return jsonify({
                         "success": False,
                         "code": "quota_exceeded",
-                        "error": "Bạn đã dùng hết 300 phút trong chu kỳ 30 ngày hiện tại."
+                        "error": "Bạn đã dùng hết hạn mức trong chu kỳ 30 ngày hiện tại."
                     }), 429
                 if reason == "plan_required":
                     return jsonify({
@@ -1482,10 +1801,12 @@ def download_file(filename):
     return send_from_directory(AUDIO_DIR, filename, as_attachment=False)
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    host = os.environ.get("HOST", "0.0.0.0" if os.environ.get("PORT") else "127.0.0.1")
     print("Studio Giọng Đọc & Chuyển Đổi AI Tiếng Việt đang chạy...")
-    print("Mở trình duyệt tại: http://localhost:5000")
+    print(f"Mở trình duyệt tại: http://{host}:{port}")
     try:
         from waitress import serve
-        serve(app, host="127.0.0.1", port=5000, threads=8)
+        serve(app, host=host, port=port, threads=8)
     except ImportError:
-        app.run(host="127.0.0.1", port=5000, debug=False, threaded=True)
+        app.run(host=host, port=port, debug=False, threaded=True)

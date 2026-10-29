@@ -11,8 +11,8 @@
     {% endif %}
     <style>
         :root {
-            --bg-primary: #f7f5f0;
-            --bg-secondary: #efede7;
+            --bg-primary: #fbfcfa;
+            --bg-secondary: #f0f7f1;
             --bg-card: #ffffff;
             --accent: #0f766e;
             --accent-gradient: linear-gradient(135deg, #0f766e 0%, #2b9c8c 100%);
@@ -36,8 +36,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.07) 0px, transparent 48%),
-                              radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.05) 0px, transparent 45%);
+            background-image: radial-gradient(ellipse 43% 72% at 52% 54%, rgba(134, 239, 172, 0.4) 0%, rgba(187, 247, 208, 0.2) 48%, transparent 100%),
+                              radial-gradient(ellipse 60% 45% at 60% 80%, rgba(220, 252, 231, 0.45) 0%, transparent 100%);
+            background-attachment: fixed;
         }
 
         .container {
@@ -50,23 +51,110 @@
         /* UI LANGUAGE SELECTOR BAR */
         .ui-lang-bar {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
             margin-bottom: 16px;
             flex-wrap: wrap;
         }
 
-        .ui-lang-label {
+        .home-menu {
+            position: relative;
+            z-index: 5;
+        }
+        .home-menu > summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(226, 232, 228, .95);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .9);
+            box-shadow: 0 6px 18px rgba(31, 65, 53, .06);
+            color: #405057;
+            cursor: pointer;
+            list-style: none;
+        }
+        .home-menu > summary::-webkit-details-marker { display: none; }
+        .home-menu > summary svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .home-menu > summary .menu-indicator {
+            width: 12px;
+            height: 12px;
+            color: #74827c;
+        }
+        .home-menu > summary:hover, .home-menu[open] > summary {
+            border-color: #c8e5da;
+            color: var(--accent);
+        }
+        .home-menu .site-nav {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            display: grid;
+            gap: 4px;
+            width: 180px;
+            margin: 0;
+            padding: 6px;
+            border: 1px solid rgba(226, 232, 228, .95);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, .98);
+            box-shadow: 0 14px 32px rgba(31, 65, 53, .14);
+        }
+        .home-menu .site-nav a {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 9px;
+            color: #526168;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color .2s, background .2s;
+        }
+        .home-menu .site-nav a:hover {
+            background: #eaf5f1;
+            color: var(--accent);
+        }
+        .account-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ui-lang-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+            border: 1px solid rgba(226, 232, 228, .95);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .9);
             font-size: 13px;
             color: var(--text-muted);
             font-weight: 600;
+            line-height: 1;
+            box-shadow: 0 6px 18px rgba(31, 65, 53, .06);
         }
 
         .ui-lang-select {
-            background: rgba(15, 23, 42, 0.7);
-            padding: 8px 34px 8px 12px;
-            border-radius: 10px;
+            width: 78px;
+            height: 40px;
+            min-width: 0;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 8px 18px 8px 8px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             color: var(--text-main);
             font-size: 13px;
@@ -77,17 +165,24 @@
 
         .ui-lang-select:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
         }
 
         .ui-lang-select option {
-            background: #0f172a;
+            background: #ffffff;
             color: var(--text-main);
         }
 
         header {
             text-align: center;
-            margin-bottom: 25px;
+            margin: 0 auto 28px;
+            padding: 18px 30px 20px;
+            width: fit-content;
+            max-width: 100%;
+            border: 1px solid #e8e5dc;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f3d37a 0%, #ffd45e 100%);
+            box-shadow: 0 12px 30px rgba(117, 81, 11, .16);
         }
 
         .badge {
@@ -103,18 +198,117 @@
         }
 
         h1 {
-            font-size: 32px;
+            font-size: clamp(25px, 4vw, 34px);
             font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            color: #111820;
+            background: none;
+            -webkit-text-fill-color: currentColor;
+            letter-spacing: -.8px;
+            line-height: 1.25;
+            margin-bottom: 7px;
         }
 
         p.subtitle {
             color: var(--text-muted);
             font-size: 15px;
         }
+
+        .info-section {
+            scroll-margin-top: 24px;
+            margin: 26px 0;
+            padding: 30px;
+            border: 1px solid rgba(226, 232, 228, .9);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .88);
+            box-shadow: 0 16px 40px rgba(31, 65, 53, .07);
+        }
+        .info-section h2 {
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-size: 24px;
+        }
+        .info-section-intro {
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 18px; }
+        .pricing-card {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 24px;
+            border: 1px solid #cfe5dc;
+            border-radius: 16px;
+            background: linear-gradient(125deg, #f1f8f4, #f7f7ff);
+        }
+        .pricing-card-lifetime { border-color: #ddd1fb; background: linear-gradient(125deg, #f7f3ff, #fff8ed); }
+        .pricing-card-free { border-color: #b8dfc7; background: linear-gradient(145deg, #eff9f1, #f8fcf8); }
+        .pricing-free-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 5px 10px;
+            border: 1px solid #c6e7d0;
+            border-radius: 999px;
+            background: #e5f5e9;
+            color: #247044;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .pricing-card-free .pricing-price { color: #247044; }
+        .pricing-action .pricing-register {
+            display: inline-flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(120deg, #f3c94f, #f5b932);
+            box-shadow: 0 7px 16px rgba(175, 125, 22, .18);
+            color: #202b33;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        .pricing-action .pricing-register::before { content: "✦"; }
+        .pricing-action .pricing-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(175, 125, 22, .24);
+            filter: saturate(1.08);
+        }
+        .pricing-register-note { margin-top: 9px; color: #526168; font-size: 11px; line-height: 1.5; text-align: center; }
+        .pricing-card h3 { margin-bottom: 8px; font-size: 18px; line-height: 1.4; }
+        .pricing-price { margin: 4px 0 16px; color: #2563eb; font-size: 32px; font-weight: 800; line-height: 1.25; }
+        .pricing-price span { display: inline-block; margin-left: 4px; color: var(--text-muted); font-size: 13px; font-weight: 500; }
+        .pricing-benefits { display: grid; gap: 10px; color: #526168; font-size: 13px; line-height: 1.55; }
+        .pricing-action { width: 100%; min-width: 0; text-align: center; }
+        .pricing-action .login-continue { width: 100%; margin-top: 0; }
+        .pricing-unavailable { margin-top: 9px; color: var(--text-muted); font-size: 11px; line-height: 1.5; text-align: center; }
+        .faq-list { display: grid; gap: 10px; }
+        .faq-item {
+            padding: 16px 18px;
+            border: 1px solid #e5e9e4;
+            border-radius: 13px;
+            background: #fcfdfb;
+        }
+        .faq-item summary {
+            color: #29363b;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .faq-item p { margin: 10px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.7; }
 
         /* TAB NAVIGATION */
         .tab-nav {
@@ -854,9 +1048,9 @@
         }
 
         .container { max-width: 1080px; padding: 24px 24px 48px; }
-        header { margin-bottom: 24px; }
+        header { margin-bottom: 26px; }
         h1 {
-            color: #155e56;
+            color: #111820;
             background: none;
             -webkit-text-fill-color: currentColor;
             font-size: clamp(28px, 4vw, 38px);
@@ -1071,9 +1265,11 @@
         .stt-advanced .cookies-option.is-visible { display: block; }
         .spinner { border-color: #dce5df; border-top-color: var(--accent); }
         .account-btn {
+            height: 40px;
+            box-sizing: border-box;
             border: 1px solid #c8e5da;
             border-radius: 999px;
-            padding: 8px 14px;
+            padding: 0 14px;
             background: #eaf5f1;
             color: #0f766e;
             font: inherit;
@@ -1173,6 +1369,7 @@
         .billing-plan strong { display: block; color: var(--text-main); font-size: 15px; }
         .billing-plan p { margin: 6px 0 12px; font-size: 13px; }
         .billing-feedback { min-height: 20px; margin-top: 10px; color: var(--text-muted); font-size: 12px; }
+        .billing-feedback:empty { display: none; }
         .billing-signout {
             margin-top: 10px;
             padding: 6px 0;
@@ -1200,6 +1397,16 @@
         @media (max-width: 600px) {
             .container { padding: 18px 14px 32px; }
             .main-card { padding: 18px; border-radius: 17px; }
+            .ui-lang-bar { gap: 8px; }
+            .account-controls { gap: 6px; }
+            .ui-lang-select { width: 78px; height: 40px; padding-right: 17px; padding-left: 7px; font-size: 12px; }
+            .account-btn { height: 40px; min-width: 74px; padding: 0 10px; font-size: 12px; }
+            .home-menu > summary { width: 40px; }
+            header { padding: 16px 18px 18px; border-radius: 16px; }
+            h1 { font-size: clamp(24px, 7vw, 32px); letter-spacing: -.6px; }
+            .info-section { padding: 20px 16px; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .pricing-action { min-width: 0; }
             .tab-nav { width: 100%; gap: 5px; }
             .tab-btn { flex: 1; justify-content: center; padding: 10px 8px; font-size: 12px; }
             .voice-grid { grid-template-columns: 1fr; }
@@ -1220,18 +1427,40 @@
     <div class="container">
         <!-- THANH CHUYỂN ĐỔI NGÔN NGỮ GIAO DIỆN (UI I18N) -->
         <div class="ui-lang-bar">
-            <span class="ui-lang-label" data-i18n="ui_lang_label">🌐 Ngôn ngữ giao diện:</span>
-            <select class="ui-lang-select" id="uiLanguageSelect" aria-label="Interface language" onchange="setUILanguage(this.value)">
-                <option value="vi">🇻🇳 Tiếng Việt</option>
-                <option value="en">🇺🇸 English</option>
-                <option value="zh">🇨🇳 中文</option>
-                <option value="ja">🇯🇵 日本語</option>
-                <option value="ko">🇰🇷 한국어</option>
-            </select>
-            <button type="button" class="account-btn" id="accountButton" data-login-i18n="account" onclick="openLoginPreview()">Đăng nhập</button>
+            <details class="home-menu">
+                <summary aria-label="Home menu" data-i18n-aria="nav_home">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m3 10 9-7 9 7"></path>
+                        <path d="M5 9.5V21h14V9.5"></path>
+                        <path d="M9 21v-7h6v7"></path>
+                    </svg>
+                    <svg class="menu-indicator" viewBox="0 0 12 12" aria-hidden="true">
+                        <circle cx="3" cy="3" r="1"></circle>
+                        <circle cx="9" cy="3" r="1"></circle>
+                        <circle cx="3" cy="9" r="1"></circle>
+                        <circle cx="9" cy="9" r="1"></circle>
+                    </svg>
+                </summary>
+                <nav class="site-nav" aria-label="Main navigation">
+                    <a href="#home" data-i18n="nav_home" onclick="this.closest('details').open = false">Home</a>
+                    <a href="#pricing" data-i18n="nav_pricing" onclick="this.closest('details').open = false">Pricing</a>
+                    <a href="#faq" data-i18n="nav_faq" onclick="this.closest('details').open = false">FAQ</a>
+                </nav>
+            </details>
+            <div class="account-controls">
+                <span class="ui-lang-icon" aria-hidden="true">🌐</span>
+                <select class="ui-lang-select" id="uiLanguageSelect" aria-label="Interface language" onchange="setUILanguage(this.value, true)">
+                    <option value="vi">VN</option>
+                    <option value="en">EN</option>
+                    <option value="zh">CN</option>
+                    <option value="ja">JP</option>
+                    <option value="ko">KR</option>
+                </select>
+                <button type="button" class="account-btn" id="accountButton" data-login-i18n="account" onclick="openLoginPreview()">Đăng nhập</button>
+            </div>
         </div>
 
-        <header>
+        <header id="home">
             <h1 data-i18n="title">Voice & Transcribe Studio</h1>
             <p class="subtitle" data-i18n="subtitle">Tạo giọng đọc AI mượt mà và Chuyển âm thanh / Video / YouTube thành văn bản tiếng Việt cực chuẩn</p>
         </header>
@@ -1502,6 +1731,95 @@
         </div>
     </div>
 
+    <div class="container info-container">
+    <section class="info-section" id="pricing" aria-labelledby="pricingTitle">
+        <h2 id="pricingTitle" data-i18n="pricing_title">Choose your plan</h2>
+        <p class="info-section-intro" data-i18n="pricing_intro">Try voice generation for free, or choose a one-time plan for transcription.</p>
+        <div class="pricing-grid">
+            <article class="pricing-card pricing-card-free">
+                <div>
+                    <span class="pricing-free-badge" data-i18n="pricing_free_badge">Free · no payment method</span>
+                    <h3 data-i18n="pricing_free_plan">Free Voice Trial</h3>
+                    <div class="pricing-price" data-i18n="pricing_free_price">Free</div>
+                    <div class="pricing-benefits">
+                        <span data-i18n="pricing_free_daily">✓ 40 minutes of voice generation per day</span>
+                        <span data-i18n="pricing_free_job">✓ Up to 10 minutes per audio file</span>
+                        <span data-i18n="pricing_free_edge">✓ Create voices with Edge TTS</span>
+                        <span data-i18n="pricing_free_stt">✓ Audio transcription available with a paid plan</span>
+                    </div>
+                </div>
+                <div class="pricing-action">
+                    <button type="button" class="pricing-register" data-i18n="pricing_free_signup" onclick="openFreeSignup()">
+                        Create a free account
+                    </button>
+                    <p class="pricing-register-note" data-i18n="pricing_free_no_payment">No credit card or payment method required.</p>
+                </div>
+            </article>
+            <article class="pricing-card">
+                <div>
+                    <h3 data-i18n="pricing_annual_plan">Voice Studio Annual</h3>
+                    <div class="pricing-price">$49.90 <span data-i18n="pricing_once">one-time payment</span></div>
+                    <div class="pricing-benefits">
+                        <span data-i18n="pricing_annual_access">✓ 365 days of access · no automatic renewal</span>
+                        <span data-i18n="pricing_annual_quota">✓ 3,600 transcription minutes per 30 days</span>
+                        <span data-i18n="pricing_job">✓ Up to 60 minutes per transcription</span>
+                    </div>
+                </div>
+                <div class="pricing-action">
+                    {% if billing_settings.enabled %}
+                    <button type="button" class="login-continue" data-i18n="pricing_buy_annual" onclick="openPlanPurchase('annual')">Buy annual plan</button>
+                    {% else %}
+                    <button type="button" class="login-continue" data-i18n="pricing_coming" disabled>Online checkout coming soon</button>
+                    <p class="pricing-unavailable" data-i18n="pricing_local_note">This local version is a preview. Online checkout is not connected.</p>
+                    {% endif %}
+                </div>
+            </article>
+            <article class="pricing-card pricing-card-lifetime">
+                <div>
+                    <h3 data-i18n="pricing_lifetime_plan">Voice Studio Lifetime</h3>
+                    <div class="pricing-price">$499 <span data-i18n="pricing_once">one-time payment</span></div>
+                    <div class="pricing-benefits">
+                        <span data-i18n="pricing_lifetime_access">✓ Access never expires</span>
+                        <span data-i18n="pricing_lifetime_quota">✓ 1,000,000 transcription minutes per 30 days</span>
+                        <span data-i18n="pricing_job">✓ Up to 60 minutes per transcription</span>
+                    </div>
+                </div>
+                <div class="pricing-action">
+                    {% if billing_settings.enabled %}
+                    <button type="button" class="login-continue" data-i18n="pricing_buy_lifetime" onclick="openPlanPurchase('lifetime')">Buy lifetime</button>
+                    {% else %}
+                    <button type="button" class="login-continue" data-i18n="pricing_coming" disabled>Online checkout coming soon</button>
+                    <p class="pricing-unavailable" data-i18n="pricing_local_note">This local version is a preview. Online checkout is not connected.</p>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="info-section" id="faq" aria-labelledby="faqTitle">
+        <h2 id="faqTitle" data-i18n="faq_title">Frequently asked questions</h2>
+        <p class="info-section-intro" data-i18n="faq_intro">Plan details and how the studio works.</p>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary data-i18n="faq_q1">Do plans renew automatically?</summary>
+                <p data-i18n="faq_a1">No. Both are one-time payments. The annual plan lasts 365 days; lifetime access does not expire.</p>
+            </details>
+            <details class="faq-item">
+                <summary data-i18n="faq_q2">How much transcription is included?</summary>
+                <p data-i18n="faq_a2">The annual plan includes 3,600 minutes and lifetime includes 1,000,000 minutes per 30 days. Each task is limited to 60 minutes.</p>
+            </details>
+            <details class="faq-item">
+                <summary data-i18n="faq_q3">Is voice generation included in the paid plan?</summary>
+                <p data-i18n="faq_a3">Edge TTS voice generation remains a free trial. Both paid plans unlock audio transcription with faster-whisper.</p>
+            </details>
+            <details class="faq-item">
+                <summary data-i18n="faq_q4">Can I buy the plan in this local preview?</summary>
+                <p data-i18n="faq_a4">No. This local preview does not connect to sign-in or checkout. Online purchases become available after the service is configured.</p>
+            </details>
+        </div>
+    </section>
+    </div>
+
     <audio id="samplePlayer"></audio>
 
     <div class="login-modal{% if show_login|default(false) %} is-open{% endif %}"
@@ -1515,16 +1833,21 @@
             <p data-login-i18n="{% if billing_settings.enabled %}online_description{% else %}description{% endif %}">Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.</p>
             {% if billing_settings.enabled %}
             <div class="login-notice" data-login-i18n="online_notice">
-                Tạo giọng đọc Edge TTS hiện có thể dùng thử miễn phí. Gói năm mở tính năng chuyển âm thanh thành văn bản.
+                Dùng thử tạo giọng đọc miễn phí 40 phút mỗi ngày, không cần phương thức thanh toán.
             </div>
             <button type="button" class="login-google" data-login-i18n="google_online" onclick="signInWithGoogle()">G Tiếp tục với Google</button>
-            <label class="login-email-label" for="loginEmail" data-login-i18n="email_label">Hoặc đăng nhập bằng email</label>
+            <label class="login-email-label" for="loginEmail" data-login-i18n="email_signup_label">Đăng ký hoặc đăng nhập bằng email</label>
             <input class="login-email" id="loginEmail" type="email" data-login-i18n-ph="email_placeholder" placeholder="name@example.com" autocomplete="email">
             <button type="button" class="login-continue" data-login-i18n="email_signin" style="margin-top:12px" onclick="signInWithEmail()">Gửi liên kết đăng nhập</button>
             <div class="billing-plan">
-                <strong data-login-i18n="plan_title">Voice Studio - 1 năm</strong>
-                <p data-login-i18n="plan_details">$49.90 thanh toán một lần / 365 ngày · 300 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ</p>
-                <button type="button" class="login-continue" id="buyPlanButton" data-login-i18n="buy_plan" onclick="startPlanCheckout()">Mua gói - $49.90</button>
+                <strong data-login-i18n="annual_title">Voice Studio - 1 năm</strong>
+                <p data-login-i18n="annual_details">$49.90 một lần / 365 ngày · 3.600 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ</p>
+                <button type="button" class="login-continue" id="buyPlanButton" data-login-i18n="buy_annual" onclick="startPlanCheckout('annual')">Mua gói năm - $49.90</button>
+            </div>
+            <div class="billing-plan">
+                <strong data-login-i18n="lifetime_title">Voice Studio trọn đời</strong>
+                <p data-login-i18n="lifetime_details">$499 một lần · không hết hạn · 1.000.000 phút STT mỗi 30 ngày</p>
+                <button type="button" class="login-continue" id="buyLifetimeButton" data-login-i18n="buy_lifetime" onclick="startPlanCheckout('lifetime')">Mua gói trọn đời - $499</button>
             </div>
             <div class="billing-panel" id="billingPanel">
                 <button type="button" class="billing-signout" data-login-i18n="signout" onclick="signOutAccount()">Đăng xuất</button>
@@ -1913,6 +2236,149 @@
         }
 };
 
+const SITE_I18N = {
+    vi: {
+        nav_home: 'Trang chủ', nav_pricing: 'Bảng giá', nav_faq: 'FAQ',
+        pricing_title: 'Chọn gói phù hợp với bạn', pricing_intro: 'Dùng thử tạo giọng đọc miễn phí hoặc chọn gói thanh toán một lần để chuyển âm thanh thành văn bản.',
+        pricing_free_badge: 'Miễn phí · không cần thanh toán',
+        pricing_free_plan: 'Gói dùng thử miễn phí',
+        pricing_free_price: 'Miễn phí',
+        pricing_free_daily: '✓ Tạo giọng đọc tối đa 40 phút mỗi ngày',
+        pricing_free_job: '✓ Tối đa 10 phút âm thanh mỗi lần tạo',
+        pricing_free_edge: '✓ Tạo giọng đọc với Edge TTS',
+        pricing_free_stt: '✓ Chuyển âm thanh thành văn bản với gói trả phí',
+        pricing_free_signup: 'Đăng ký tài khoản miễn phí',
+        pricing_free_no_payment: 'Không cần thẻ tín dụng hoặc phương thức thanh toán.',
+        pricing_annual_plan: 'Voice Studio - Gói năm', pricing_lifetime_plan: 'Voice Studio - Trọn đời',
+        pricing_once: 'thanh toán một lần',
+        pricing_annual_access: '✓ Sử dụng 365 ngày · không tự động gia hạn',
+        pricing_annual_quota: '✓ 3.600 phút chuyển văn bản mỗi 30 ngày',
+        pricing_lifetime_access: '✓ Quyền sử dụng không hết hạn',
+        pricing_lifetime_quota: '✓ 1.000.000 phút chuyển văn bản mỗi 30 ngày',
+        pricing_job: '✓ Tối đa 60 phút cho mỗi tác vụ',
+        pricing_buy_annual: 'Mua gói năm', pricing_buy_lifetime: 'Mua gói trọn đời',
+        pricing_coming: 'Sắp ra mắt',
+        pricing_local_note: 'Đây là bản xem trước local; thanh toán trực tuyến chưa được kết nối.',
+        faq_title: 'Câu hỏi thường gặp', faq_intro: 'Thông tin về gói và cách sử dụng studio.',
+        faq_q1: 'Các gói có tự động gia hạn không?', faq_a1: 'Không. Cả hai đều thanh toán một lần. Gói năm có hiệu lực 365 ngày; gói trọn đời không hết hạn.',
+        faq_q2: 'Mỗi gói có bao nhiêu phút chuyển văn bản?', faq_a2: 'Gói năm có 3.600 phút và gói trọn đời có 1.000.000 phút mỗi chu kỳ 30 ngày. Mỗi tác vụ tối đa 60 phút.',
+        faq_q3: 'Các gói trả phí bao gồm những gì?', faq_a3: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày và 10 phút mỗi lần. Cả hai gói trả phí đều mở tính năng chuyển âm thanh thành văn bản bằng faster-whisper.',
+        faq_q4: 'Tôi có thể mua gói trong bản local này không?', faq_a4: 'Chưa. Bản local chưa kết nối đăng nhập hoặc thanh toán. Mua gói trực tuyến sẽ khả dụng sau khi dịch vụ được cấu hình.'
+    },
+    en: {
+        nav_home: 'Home', nav_pricing: 'Pricing', nav_faq: 'FAQ',
+        pricing_title: 'Choose the plan that fits you', pricing_intro: 'Try voice generation for free, or choose a one-time plan for audio transcription.',
+        pricing_free_badge: 'Free · no payment method',
+        pricing_free_plan: 'Free Voice Trial',
+        pricing_free_price: 'Free',
+        pricing_free_daily: '✓ Up to 40 minutes of voice generation per day',
+        pricing_free_job: '✓ Up to 10 minutes of audio per generation',
+        pricing_free_edge: '✓ Create voices with Edge TTS',
+        pricing_free_stt: '✓ Audio transcription included with a paid plan',
+        pricing_free_signup: 'Create a free account',
+        pricing_free_no_payment: 'No credit card or payment method required.',
+        pricing_annual_plan: 'Voice Studio Annual', pricing_lifetime_plan: 'Voice Studio Lifetime',
+        pricing_once: 'one-time payment',
+        pricing_annual_access: '✓ 365 days of access · no automatic renewal',
+        pricing_annual_quota: '✓ 3,600 transcription minutes per 30 days',
+        pricing_lifetime_access: '✓ Access never expires',
+        pricing_lifetime_quota: '✓ 1,000,000 transcription minutes per 30 days',
+        pricing_job: '✓ Up to 60 minutes per transcription',
+        pricing_buy_annual: 'Buy annual plan', pricing_buy_lifetime: 'Buy lifetime',
+        pricing_coming: 'Coming soon',
+        pricing_local_note: 'This local version is a preview. Online checkout is not connected.',
+        faq_title: 'Frequently asked questions', faq_intro: 'Plan details and how the studio works.',
+        faq_q1: 'Do plans renew automatically?', faq_a1: 'No. Both are one-time payments. The annual plan lasts 365 days; lifetime access does not expire.',
+        faq_q2: 'How much transcription is included?', faq_a2: 'The annual plan includes 3,600 minutes and lifetime includes 1,000,000 minutes per 30 days. Each task is limited to 60 minutes.',
+        faq_q3: 'What do the paid plans include?', faq_a3: 'Free voice generation is limited to 40 minutes per day and 10 minutes per file. Both paid plans unlock audio transcription with faster-whisper.',
+        faq_q4: 'Can I buy the plan in this local preview?', faq_a4: 'No. This local preview does not connect to sign-in or checkout. Online purchases become available after the service is configured.'
+    },
+    zh: {
+        nav_home: '首页', nav_pricing: '价格', nav_faq: '常见问题',
+        pricing_title: '选择适合您的套餐', pricing_intro: '免费试用语音生成，或选择一次性付款的音频转写套餐。',
+        pricing_free_badge: '免费 · 无需付款方式',
+        pricing_free_plan: '免费语音试用',
+        pricing_free_price: '免费',
+        pricing_free_daily: '✓ 每天最多生成语音 40 分钟',
+        pricing_free_job: '✓ 每次生成的音频最多 10 分钟',
+        pricing_free_edge: '✓ 使用 Edge TTS 生成语音',
+        pricing_free_stt: '✓ 音频转写需使用付费套餐',
+        pricing_free_signup: '注册免费账户',
+        pricing_free_no_payment: '无需信用卡或付款方式。',
+        pricing_annual_plan: 'Voice Studio 年度套餐', pricing_lifetime_plan: 'Voice Studio 终身套餐',
+        pricing_once: '一次性付款',
+        pricing_annual_access: '✓ 使用 365 天 · 不会自动续费',
+        pricing_annual_quota: '✓ 每 30 天可转写 3,600 分钟',
+        pricing_lifetime_access: '✓ 永久有效',
+        pricing_lifetime_quota: '✓ 每 30 天可转写 1,000,000 分钟',
+        pricing_job: '✓ 每项任务最多 60 分钟',
+        pricing_buy_annual: '购买年度套餐', pricing_buy_lifetime: '购买终身套餐',
+        pricing_coming: '即将推出',
+        pricing_local_note: '这是本地预览版本，尚未连接在线付款。',
+        faq_title: '常见问题', faq_intro: '套餐详情与工作室使用说明。',
+        faq_q1: '套餐会自动续费吗？', faq_a1: '不会。两种套餐均为一次性付款。年度套餐有效期为 365 天；终身套餐不会过期。',
+        faq_q2: '套餐包含多少转写时长？', faq_a2: '年度套餐每 30 天含 3,600 分钟，终身套餐每 30 天含 1,000,000 分钟。每项任务最多 60 分钟。',
+        faq_q3: '付费套餐包含什么？', faq_a3: '免费语音生成每天最多 40 分钟，每个文件最多 10 分钟。两种付费套餐均可使用 faster-whisper 音频转写。',
+        faq_q4: '可以在本地预览版购买套餐吗？', faq_a4: '暂时不可以。本地预览版尚未连接登录或付款，服务配置完成后才可在线购买。'
+    },
+    ja: {
+        nav_home: 'ホーム', nav_pricing: '料金', nav_faq: 'よくある質問',
+        pricing_title: 'ご希望に合ったプランを選択', pricing_intro: '音声生成を無料でお試しいただくか、一回払いの文字起こしプランをお選びください。',
+        pricing_free_badge: '無料 · 支払い方法不要',
+        pricing_free_plan: '無料音声トライアル',
+        pricing_free_price: '無料',
+        pricing_free_daily: '✓ 音声生成は1日最大40分',
+        pricing_free_job: '✓ 1回の生成につき音声は最大10分',
+        pricing_free_edge: '✓ Edge TTS で音声を生成',
+        pricing_free_stt: '✓ 文字起こしは有料プランで利用可能',
+        pricing_free_signup: '無料アカウントを登録',
+        pricing_free_no_payment: 'クレジットカードや支払い方法は不要です。',
+        pricing_annual_plan: 'Voice Studio 年間プラン', pricing_lifetime_plan: 'Voice Studio 永久プラン',
+        pricing_once: '一回払い',
+        pricing_annual_access: '✓ 365日利用可能 · 自動更新なし',
+        pricing_annual_quota: '✓ 30日ごとに文字起こし3,600分',
+        pricing_lifetime_access: '✓ 有効期限なし',
+        pricing_lifetime_quota: '✓ 30日ごとに文字起こし1,000,000分',
+        pricing_job: '✓ 1回の処理につき最大60分',
+        pricing_buy_annual: '年間プランを購入', pricing_buy_lifetime: '永久プランを購入',
+        pricing_coming: '近日公開',
+        pricing_local_note: 'これはローカルプレビューです。オンライン決済は未接続です。',
+        faq_title: 'よくある質問', faq_intro: 'プランの詳細とスタジオの使い方。',
+        faq_q1: 'プランは自動更新されますか？', faq_a1: 'いいえ。どちらも一回払いです。年間プランは365日間、永久プランに有効期限はありません。',
+        faq_q2: '文字起こしは何分利用できますか？', faq_a2: '年間プランは30日ごとに3,600分、永久プランは1,000,000分です。1回の処理は最大60分です。',
+        faq_q3: '有料プランには何が含まれますか？', faq_a3: '無料の音声生成は1日40分、1ファイル10分までです。有料プランでは faster-whisper の文字起こしを利用できます。',
+        faq_q4: 'このローカルプレビューで購入できますか？', faq_a4: 'いいえ。ローカル版ではログインと決済が未接続です。サービス設定後にオンライン購入が可能になります。'
+    },
+    ko: {
+        nav_home: '홈', nav_pricing: '요금제', nav_faq: '자주 묻는 질문',
+        pricing_title: '원하는 플랜을 선택하세요', pricing_intro: '음성 생성을 무료로 체험하거나 일회성 결제 텍스트 변환 플랜을 선택하세요.',
+        pricing_free_badge: '무료 · 결제 수단 불필요',
+        pricing_free_plan: '무료 음성 체험',
+        pricing_free_price: '무료',
+        pricing_free_daily: '✓ 하루 최대 40분 음성 생성',
+        pricing_free_job: '✓ 한 번 생성할 때 오디오 최대 10분',
+        pricing_free_edge: '✓ Edge TTS 음성 생성',
+        pricing_free_stt: '✓ 텍스트 변환은 유료 플랜에서 이용 가능',
+        pricing_free_signup: '무료 계정 만들기',
+        pricing_free_no_payment: '신용카드나 결제 수단이 필요하지 않습니다.',
+        pricing_annual_plan: 'Voice Studio 연간 플랜', pricing_lifetime_plan: 'Voice Studio 평생 플랜',
+        pricing_once: '일회성 결제',
+        pricing_annual_access: '✓ 365일 이용 · 자동 갱신 없음',
+        pricing_annual_quota: '✓ 30일마다 텍스트 변환 3,600분',
+        pricing_lifetime_access: '✓ 이용 기간 제한 없음',
+        pricing_lifetime_quota: '✓ 30일마다 텍스트 변환 1,000,000분',
+        pricing_job: '✓ 작업당 최대 60분',
+        pricing_buy_annual: '연간 플랜 구매', pricing_buy_lifetime: '평생 플랜 구매',
+        pricing_coming: '곧 제공',
+        pricing_local_note: '로컬 미리보기이며 온라인 결제가 연결되어 있지 않습니다.',
+        faq_title: '자주 묻는 질문', faq_intro: '플랜 상세 정보와 스튜디오 사용 방법입니다.',
+        faq_q1: '플랜이 자동으로 갱신되나요?', faq_a1: '아니요. 두 플랜 모두 일회성 결제입니다. 연간 플랜은 365일, 평생 플랜은 만료되지 않습니다.',
+        faq_q2: '텍스트 변환은 몇 분 제공되나요?', faq_a2: '연간 플랜은 30일마다 3,600분, 평생 플랜은 1,000,000분이며 작업당 최대 60분입니다.',
+        faq_q3: '유료 플랜에는 무엇이 포함되나요?', faq_a3: '무료 음성 생성은 하루 40분, 파일당 10분으로 제한됩니다. 두 유료 플랜은 faster-whisper 오디오 텍스트 변환을 제공합니다.',
+        faq_q4: '이 로컬 미리보기에서 구매할 수 있나요?', faq_a4: '아니요. 로컬 미리보기에는 로그인과 결제가 연결되지 않았습니다. 서비스 설정 후 온라인 구매가 가능합니다.'
+    }
+};
+
 const RUNTIME_I18N = {
     vi: {
         page_title: 'Voice Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản',
@@ -1944,6 +2410,9 @@ const RUNTIME_I18N = {
         tts_download: '⬇ Tải phần {index} xuống (MP3)',
         tts_error: 'Lỗi: ',
         tts_failed: 'Không thể tạo âm thanh!',
+        tts_job_limit: 'Mỗi lần tạo chỉ được tối đa 10 phút âm thanh.',
+        tts_daily_limit: 'Bạn đã dùng hết 40 phút tạo giọng miễn phí hôm nay.',
+        tts_daily_remaining: 'Còn {minutes} phút miễn phí hôm nay.',
         tts_timeout: 'Hết thời gian chờ ({minutes} phút). Vui lòng kiểm tra kết nối mạng hoặc thử lại!',
         error_occurred: 'Có lỗi xảy ra: ',
         stt_url_required: 'Vui lòng dán đường link video!',
@@ -1994,6 +2463,9 @@ const RUNTIME_I18N = {
         tts_download: '⬇ Download part {index} (MP3)',
         tts_error: 'Error: ',
         tts_failed: 'Could not generate audio.',
+        tts_job_limit: 'Each generation is limited to 10 minutes of audio.',
+        tts_daily_limit: 'You have used your 40 free voice-generation minutes for today.',
+        tts_daily_remaining: '{minutes} free minutes remaining today.',
         tts_timeout: 'Timed out ({minutes} minutes). Check your internet connection or try again.',
         error_occurred: 'An error occurred: ',
         stt_url_required: 'Please paste a video link.',
@@ -2044,6 +2516,9 @@ const RUNTIME_I18N = {
         tts_download: '⬇ 下载第 {index} 段 (MP3)',
         tts_error: '错误：',
         tts_failed: '无法生成音频。',
+        tts_job_limit: '每次生成的音频最多为 10 分钟。',
+        tts_daily_limit: '您今天的 40 分钟免费语音生成额度已用完。',
+        tts_daily_remaining: '今天还剩 {minutes} 分钟免费额度。',
         tts_timeout: '等待超时（{minutes} 分钟）。请检查网络连接或重试。',
         error_occurred: '发生错误：',
         stt_url_required: '请粘贴视频链接。',
@@ -2094,6 +2569,9 @@ const RUNTIME_I18N = {
         tts_download: '⬇ パート {index} をダウンロード (MP3)',
         tts_error: 'エラー：',
         tts_failed: '音声を生成できませんでした。',
+        tts_job_limit: '1回の生成につき音声は最大10分です。',
+        tts_daily_limit: '本日の無料音声生成40分を使い切りました。',
+        tts_daily_remaining: '本日の無料残り時間は{minutes}分です。',
         tts_timeout: 'タイムアウト（{minutes} 分）しました。ネットワークを確認して再試行してください。',
         error_occurred: 'エラーが発生しました：',
         stt_url_required: '動画リンクを貼り付けてください。',
@@ -2144,6 +2622,9 @@ const RUNTIME_I18N = {
         tts_download: '⬇ {index}번 구간 다운로드 (MP3)',
         tts_error: '오류: ',
         tts_failed: '오디오를 생성할 수 없습니다.',
+        tts_job_limit: '한 번 생성할 때 오디오는 최대 10분입니다.',
+        tts_daily_limit: '오늘 무료 음성 생성 40분을 모두 사용했습니다.',
+        tts_daily_remaining: '오늘 무료 사용 시간이 {minutes}분 남았습니다.',
         tts_timeout: '시간 초과({minutes}분)입니다. 네트워크를 확인하거나 다시 시도하세요.',
         error_occurred: '오류가 발생했습니다: ',
         stt_url_required: '동영상 링크를 붙여 넣으세요.',
@@ -2471,16 +2952,22 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'Tiếp tục không đăng nhập',
                 online_description: 'Đăng nhập để dùng chuyển âm thanh thành văn bản và quản lý gói của bạn.',
-                online_notice: 'Tạo giọng đọc Edge TTS có thể dùng thử miễn phí. Gói năm mở tính năng chuyển âm thanh thành văn bản.',
+                online_notice: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày, 10 phút mỗi file. Không cần phương thức thanh toán.',
                 google_online: 'G Tiếp tục với Google',
+                email_signup_label: 'Đăng ký hoặc đăng nhập bằng email',
                 email_signin: 'Gửi liên kết đăng nhập',
-                plan_title: 'Voice Studio - 1 năm',
-                plan_details: '$49.90 thanh toán một lần / 365 ngày · 300 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ',
-                buy_plan: 'Mua gói - $49.90',
+                annual_title: 'Voice Studio - Gói năm',
+                annual_details: '$49.90 một lần / 365 ngày · 3.600 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ',
+                buy_annual: 'Mua gói năm - $49.90',
+                lifetime_title: 'Voice Studio - Trọn đời',
+                lifetime_details: '$499 một lần · không hết hạn · 1.000.000 phút STT mỗi 30 ngày',
+                buy_lifetime: 'Mua gói trọn đời - $499',
                 signout: 'Đăng xuất',
                 active_plan: 'Gói đang hoạt động đến',
+                lifetime_active: 'Gói trọn đời đang hoạt động',
                 minutes_remaining: 'phút còn lại',
-                plan_required: 'Chưa có gói đang hoạt động. Mua gói năm để dùng chuyển văn bản.',
+                free_already_signed_in: 'Bạn đã đăng nhập. Gói miễn phí không yêu cầu thanh toán.',
+                plan_required: 'Chưa có gói đang hoạt động. Hãy chọn gói để dùng chuyển văn bản.',
                 email_required: 'Vui lòng nhập email hợp lệ.',
                 email_sent: 'Đã gửi liên kết đăng nhập vào email của bạn.',
                 auth_unavailable: 'Đăng nhập chưa được cấu hình. Vui lòng thử lại sau.',
@@ -2499,16 +2986,22 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'Continue without signing in',
                 online_description: 'Sign in to transcribe audio and manage your plan.',
-                online_notice: 'Try Edge TTS voice generation for free. The annual plan unlocks audio transcription.',
+                online_notice: 'Free voice generation: up to 40 minutes per day and 10 minutes per file. No payment method required.',
                 google_online: 'G Continue with Google',
+                email_signup_label: 'Create an account or sign in with email',
                 email_signin: 'Send sign-in link',
-                plan_title: 'Voice Studio - 1 year',
-                plan_details: '$49.90 one-time for 365 days · 300 STT minutes per 30 days · up to 60 minutes per task',
-                buy_plan: 'Buy plan - $49.90',
+                annual_title: 'Voice Studio - Annual',
+                annual_details: '$49.90 one-time / 365 days · 3,600 STT minutes per 30 days · up to 60 minutes per task',
+                buy_annual: 'Buy annual - $49.90',
+                lifetime_title: 'Voice Studio - Lifetime',
+                lifetime_details: '$499 one-time · never expires · 1,000,000 STT minutes per 30 days',
+                buy_lifetime: 'Buy lifetime - $499',
                 signout: 'Sign out',
                 active_plan: 'Plan active until',
+                lifetime_active: 'Lifetime plan active',
                 minutes_remaining: 'minutes remaining',
-                plan_required: 'No active plan. Buy the annual plan to use transcription.',
+                free_already_signed_in: 'You are already signed in. The free plan does not require payment.',
+                plan_required: 'No active plan. Choose a plan to use transcription.',
                 email_required: 'Enter a valid email address.',
                 email_sent: 'A sign-in link has been sent to your email.',
                 auth_unavailable: 'Sign-in is not configured. Please try again later.',
@@ -2527,16 +3020,22 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: '不登录，继续使用',
                 online_description: '登录以转录音频并管理您的套餐。',
-                online_notice: 'Edge TTS 语音生成可免费试用。年度套餐可解锁音频转录。',
+                online_notice: '免费语音生成每天最多 40 分钟，每个文件最多 10 分钟。无需付款方式。',
                 google_online: 'G 使用 Google 继续',
+                email_signup_label: '注册或使用电子邮件登录',
                 email_signin: '发送登录链接',
-                plan_title: 'Voice Studio - 1 年',
-                plan_details: '一次性支付 $49.90 / 365 天 · 每 30 天 300 分钟转录 · 每项任务最多 60 分钟',
-                buy_plan: '购买套餐 - $49.90',
+                annual_title: 'Voice Studio - 年度套餐',
+                annual_details: '一次性支付 $49.90 / 365 天 · 每 30 天 3,600 分钟转录 · 每项任务最多 60 分钟',
+                buy_annual: '购买年度套餐 - $49.90',
+                lifetime_title: 'Voice Studio - 终身套餐',
+                lifetime_details: '一次性支付 $499 · 永不过期 · 每 30 天 1,000,000 分钟转录',
+                buy_lifetime: '购买终身套餐 - $499',
                 signout: '退出登录',
                 active_plan: '套餐有效期至',
+                lifetime_active: '终身套餐有效',
                 minutes_remaining: '分钟剩余',
-                plan_required: '当前没有有效套餐。购买年度套餐以使用音频转录。',
+                free_already_signed_in: '您已登录。免费套餐无需付款。',
+                plan_required: '当前没有有效套餐。请选择套餐以使用音频转录。',
                 email_required: '请输入有效的电子邮件地址。',
                 email_sent: '登录链接已发送到您的电子邮件。',
                 auth_unavailable: '登录尚未配置，请稍后重试。',
@@ -2555,16 +3054,22 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'ログインせずに続ける',
                 online_description: 'ログインして音声を文字起こしし、プランを管理できます。',
-                online_notice: 'Edge TTS の音声生成は無料でお試しいただけます。年間プランで文字起こし機能を利用できます。',
+                online_notice: '無料の音声生成は1日最大40分、1ファイル最大10分です。支払い方法は不要です。',
                 google_online: 'G Google で続行',
+                email_signup_label: 'メールで登録またはログイン',
                 email_signin: 'ログインリンクを送信',
-                plan_title: 'Voice Studio - 1 年',
-                plan_details: '$49.90 の一括払い / 365 日 · 30 日ごとに文字起こし 300 分 · 1 回最大 60 分',
-                buy_plan: 'プランを購入 - $49.90',
+                annual_title: 'Voice Studio - 年間プラン',
+                annual_details: '$49.90 の一括払い / 365 日 · 30 日ごとに文字起こし 3,600 分 · 1 回最大 60 分',
+                buy_annual: '年間プランを購入 - $49.90',
+                lifetime_title: 'Voice Studio - 永久プラン',
+                lifetime_details: '$499 の一括払い · 有効期限なし · 30 日ごとに文字起こし 1,000,000 分',
+                buy_lifetime: '永久プランを購入 - $499',
                 signout: 'ログアウト',
                 active_plan: 'プランの有効期限',
+                lifetime_active: '永久プランが有効です',
                 minutes_remaining: '分残っています',
-                plan_required: '有効なプランがありません。年間プランを購入して文字起こしをご利用ください。',
+                free_already_signed_in: 'すでにログインしています。無料プランに支払いは不要です。',
+                plan_required: '有効なプランがありません。プランを選択して文字起こしをご利用ください。',
                 email_required: '有効なメールアドレスを入力してください。',
                 email_sent: 'ログインリンクをメールで送信しました。',
                 auth_unavailable: 'ログインが設定されていません。後でもう一度お試しください。',
@@ -2583,16 +3088,22 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: '로그인 없이 계속',
                 online_description: '로그인하여 오디오 텍스트 변환 및 플랜을 관리하세요.',
-                online_notice: 'Edge TTS 음성 생성을 무료로 체험할 수 있습니다. 연간 플랜에서 오디오 텍스트 변환을 이용할 수 있습니다.',
+                online_notice: '무료 음성 생성은 하루 최대 40분, 파일당 최대 10분입니다. 결제 수단이 필요하지 않습니다.',
                 google_online: 'G Google로 계속',
+                email_signup_label: '이메일로 가입하거나 로그인',
                 email_signin: '로그인 링크 보내기',
-                plan_title: 'Voice Studio - 1년',
-                plan_details: '$49.90 일회 결제 / 365일 · 30일마다 STT 300분 · 작업당 최대 60분',
-                buy_plan: '플랜 구매 - $49.90',
+                annual_title: 'Voice Studio - 연간 플랜',
+                annual_details: '$49.90 일회 결제 / 365일 · 30일마다 STT 3,600분 · 작업당 최대 60분',
+                buy_annual: '연간 플랜 구매 - $49.90',
+                lifetime_title: 'Voice Studio - 평생 플랜',
+                lifetime_details: '$499 일회 결제 · 만료 없음 · 30일마다 STT 1,000,000분',
+                buy_lifetime: '평생 플랜 구매 - $499',
                 signout: '로그아웃',
                 active_plan: '플랜 만료일',
+                lifetime_active: '평생 플랜 활성',
                 minutes_remaining: '분 남음',
-                plan_required: '활성 플랜이 없습니다. 연간 플랜을 구매하여 텍스트 변환을 이용하세요.',
+                free_already_signed_in: '이미 로그인되어 있습니다. 무료 플랜은 결제가 필요하지 않습니다.',
+                plan_required: '활성 플랜이 없습니다. 플랜을 선택하여 텍스트 변환을 이용하세요.',
                 email_required: '유효한 이메일 주소를 입력하세요.',
                 email_sent: '로그인 링크를 이메일로 보냈습니다.',
                 auth_unavailable: '로그인이 설정되지 않았습니다. 나중에 다시 시도하세요.',
@@ -2700,22 +3211,39 @@ const GENDER_TRANSLATIONS = {
             });
         }
 
-        function setUILanguage(lang) {
+        function setUILanguage(lang, userSelected = false) {
             if (!I18N[lang]) lang = 'vi';
             currentUILang = lang;
             localStorage.setItem('ui_lang', lang);
+            if (userSelected) localStorage.setItem('ui_lang_selected', 'true');
             document.documentElement.lang = { vi: 'vi', en: 'en', zh: 'zh-CN', ja: 'ja', ko: 'ko' }[lang];
             document.title = translate('page_title');
             const languageSelect = document.getElementById('uiLanguageSelect');
             languageSelect.value = lang;
+            const languageContext = document.createElement('canvas').getContext('2d');
+            languageContext.font = getComputedStyle(languageSelect).font;
+            const selectedLanguage = languageSelect.options[languageSelect.selectedIndex].text;
+            const languagePadding = getComputedStyle(languageSelect);
+            const horizontalPadding = parseFloat(languagePadding.paddingLeft) +
+                parseFloat(languagePadding.paddingRight);
+            languageSelect.style.width = `${Math.max(
+                74,
+                Math.ceil(languageContext.measureText(selectedLanguage).width + horizontalPadding + 2)
+            )}px`;
             languageSelect.setAttribute('aria-label', I18N[lang].ui_lang_label.replace('🌐', '').trim());
 
             // Cập nhật toàn bộ nhãn văn bản có data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (I18N[lang] && I18N[lang][key]) {
-                    el.innerHTML = I18N[lang][key];
+                const translatedText = I18N[lang]?.[key] || SITE_I18N[lang]?.[key];
+                if (translatedText) {
+                    el.innerHTML = translatedText;
                 }
+            });
+            document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+                const key = el.getAttribute('data-i18n-aria');
+                const translatedLabel = I18N[lang]?.[key] || SITE_I18N[lang]?.[key];
+                if (translatedLabel) el.setAttribute('aria-label', translatedLabel);
             });
 
             // Cập nhật placeholder
@@ -3010,7 +3538,9 @@ const GENDER_TRANSLATIONS = {
         updateStats();
 
         // KHỞI TẠO NGÔN NGỮ GIAO DIỆN MẶC ĐỊNH HOẶC THEO LƯU TRỮ
-        const savedUILang = localStorage.getItem('ui_lang') || 'vi';
+        const savedUILang = localStorage.getItem('ui_lang_selected') === 'true'
+            ? localStorage.getItem('ui_lang')
+            : 'en';
         setUILanguage(savedUILang);
 
         let localAccessGranted = false;
@@ -3041,8 +3571,12 @@ const GENDER_TRANSLATIONS = {
                         ? new Date(accountBillingStatus.expires_at).toLocaleDateString()
                         : '';
                     setBillingFeedback(
-                        `${translateLogin('active_plan')} ${expiry} · ` +
-                        `${accountBillingStatus.remaining_minutes} / 300 ${translateLogin('minutes_remaining')}`
+                        `${accountBillingStatus.plan_type === 'lifetime'
+                            ? translateLogin('lifetime_active')
+                            : `${translateLogin('active_plan')} ${expiry}`} · ` +
+                        `${Number(accountBillingStatus.remaining_minutes).toLocaleString()} / ` +
+                        `${Number(accountBillingStatus.monthly_limit_minutes).toLocaleString()} ` +
+                        `${translateLogin('minutes_remaining')}`
                     );
                 } else {
                     setBillingFeedback(translateLogin('plan_required'));
@@ -3126,7 +3660,7 @@ const GENDER_TRANSLATIONS = {
             }
         }
 
-        async function startPlanCheckout() {
+        async function startPlanCheckout(plan) {
             if (!authSession) {
                 setBillingFeedback(translateLogin('signin_first'));
                 return;
@@ -3136,7 +3670,11 @@ const GENDER_TRANSLATIONS = {
                 return;
             }
             try {
-                const result = await billingApi('/api/billing/checkout', { method: 'POST' });
+                const result = await billingApi('/api/billing/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan })
+                });
                 window.Paddle.Checkout.open({ transactionId: result.transaction_id });
             } catch (error) {
                 setBillingFeedback(error.message);
@@ -3158,7 +3696,7 @@ const GENDER_TRANSLATIONS = {
                     updateBillingAccount(data?.session || null);
                 });
             } else {
-                setBillingFeedback(translateLogin('auth_unavailable'));
+                setBillingFeedback('');
             }
 
             if (window.Paddle && BILLING_SETTINGS.configured && BILLING_SETTINGS.paddleClientToken) {
@@ -3188,6 +3726,24 @@ const GENDER_TRANSLATIONS = {
                 ? (authSession ? document.getElementById('buyPlanButton') : emailInput)
                 : document.querySelector('.login-continue');
             if (focusTarget) focusTarget.focus();
+        }
+
+        function openPlanPurchase(plan) {
+            openLoginPreview();
+            if (authSession) {
+                document.getElementById(
+                    plan === 'lifetime' ? 'buyLifetimeButton' : 'buyPlanButton'
+                ).focus();
+            }
+        }
+
+        function openFreeSignup() {
+            openLoginPreview();
+            if (BILLING_SETTINGS.enabled && !authSession) {
+                document.getElementById('loginEmail').focus();
+            } else if (authSession) {
+                setBillingFeedback(translateLogin('free_already_signed_in'));
+            }
         }
 
         function closeLoginPreview() {
@@ -3319,9 +3875,13 @@ const GENDER_TRANSLATIONS = {
             }, maxWaitMs);
 
             try {
+                const requestHeaders = { 'Content-Type': 'application/json' };
+                if (authSession?.access_token) {
+                    requestHeaders.Authorization = `Bearer ${authSession.access_token}`;
+                }
                 const response = await fetch('/api/generate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: requestHeaders,
                     signal: abortCtrl.signal,
                     body: JSON.stringify({
                         text: ttsJob.text,
@@ -3345,7 +3905,12 @@ const GENDER_TRANSLATIONS = {
                     percentVal.innerText = '100%';
                     countdownVal.innerText = '00:00';
                     progressStatus.innerHTML = translate('tts_complete');
-                    progressDetail.innerText = translate('tts_elapsed', { seconds: elapsedSec });
+                    progressDetail.innerText = [
+                        translate('tts_elapsed', { seconds: elapsedSec }),
+                        translate('tts_daily_remaining', {
+                            minutes: Number(data.daily_tts_minutes_remaining || 0).toFixed(1)
+                        })
+                    ].join(' · ');
 
                     const audioPart = data.audio_part;
                     ttsJob.audioParts.push(audioPart);
@@ -3397,7 +3962,13 @@ const GENDER_TRANSLATIONS = {
                         });
                     } else {
                         progressStatus.innerText = translate('tts_retry_prompt');
-                        progressDetail.innerText = data.error || translate('tts_failed');
+                        const quotaMessage = {
+                            job_limit_exceeded: 'tts_job_limit',
+                            daily_quota_exceeded: 'tts_daily_limit'
+                        }[data.code];
+                        progressDetail.innerText = quotaMessage
+                            ? translate(quotaMessage)
+                            : (data.error || translate('tts_failed'));
                     }
                     updateTTSButtonLabel();
                 }

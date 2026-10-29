@@ -8,8 +8,10 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 ANNUAL_PRICE_USD = 49.90
+LIFETIME_PRICE_USD = 499.00
 ACCESS_DAYS = 365
-STT_MINUTES_PER_WINDOW = 300
+ANNUAL_STT_MINUTES_PER_WINDOW = 3600
+LIFETIME_STT_MINUTES_PER_WINDOW = 1_000_000
 STT_WINDOW_DAYS = 30
 STT_MAX_JOB_SECONDS = 60 * 60
 
@@ -37,7 +39,11 @@ class BillingConfig:
         self.paddle_api_key = os.getenv("PADDLE_API_KEY", "")
         self.paddle_client_token = os.getenv("PADDLE_CLIENT_TOKEN", "")
         self.paddle_webhook_secret = os.getenv("PADDLE_WEBHOOK_SECRET", "")
-        self.paddle_price_id = os.getenv("PADDLE_PRICE_ID", "")
+        self.paddle_annual_price_id = (
+            os.getenv("PADDLE_ANNUAL_PRICE_ID")
+            or os.getenv("PADDLE_PRICE_ID", "")
+        )
+        self.paddle_lifetime_price_id = os.getenv("PADDLE_LIFETIME_PRICE_ID", "")
         self.paddle_environment = os.getenv("PADDLE_ENVIRONMENT", "sandbox").lower()
 
     @property
@@ -49,9 +55,14 @@ class BillingConfig:
             self.paddle_api_key,
             self.paddle_client_token,
             self.paddle_webhook_secret,
-            self.paddle_price_id,
+            self.paddle_annual_price_id,
+            self.paddle_lifetime_price_id,
         )
-        return all(required) and self.paddle_environment in ("sandbox", "production")
+        return (
+            all(required)
+            and self.paddle_annual_price_id != self.paddle_lifetime_price_id
+            and self.paddle_environment in ("sandbox", "production")
+        )
 
     @property
     def paddle_api_url(self):
@@ -67,10 +78,11 @@ class BillingConfig:
             "supabaseAnonKey": self.supabase_anon_key if self.enabled else "",
             "paddleClientToken": self.paddle_client_token if self.enabled else "",
             "paddleEnvironment": self.paddle_environment,
-            "priceId": self.paddle_price_id if self.enabled else "",
             "annualPriceUsd": ANNUAL_PRICE_USD,
+            "lifetimePriceUsd": LIFETIME_PRICE_USD,
             "accessDays": ACCESS_DAYS,
-            "sttMinutesPer30Days": STT_MINUTES_PER_WINDOW,
+            "annualSttMinutesPer30Days": ANNUAL_STT_MINUTES_PER_WINDOW,
+            "lifetimeSttMinutesPer30Days": LIFETIME_STT_MINUTES_PER_WINDOW,
             "sttMaxJobMinutes": STT_MAX_JOB_SECONDS // 60,
         }
 
@@ -140,14 +152,23 @@ def _supabase_rpc(config, function_name, payload):
     )
 
 
-def create_checkout_transaction(config, user_id):
+def create_checkout_transaction(config, user_id, plan):
     _require_config(config)
+    if not isinstance(plan, str):
+        raise BillingError("The selected billing plan is not available.")
+    price_ids = {
+        "annual": config.paddle_annual_price_id,
+        "lifetime": config.paddle_lifetime_price_id,
+    }
+    price_id = price_ids.get(plan)
+    if not price_id:
+        raise BillingError("The selected billing plan is not available.")
     result = _request_json(
         f"{config.paddle_api_url}/transactions",
         method="POST",
         headers={"Authorization": f"Bearer {config.paddle_api_key}"},
         body={
-            "items": [{"price_id": config.paddle_price_id, "quantity": 1}],
+            "items": [{"price_id": price_id, "quantity": 1}],
             "custom_data": {"supabase_user_id": user_id},
             "collection_mode": "automatic",
             "enable_checkout": True,
@@ -194,7 +215,8 @@ def apply_paddle_event(config, event):
             "p_event_id": event["event_id"],
             "p_event_type": event.get("event_type", ""),
             "p_payload": event,
-            "p_expected_price_id": config.paddle_price_id,
+            "p_expected_annual_price_id": config.paddle_annual_price_id,
+            "p_expected_lifetime_price_id": config.paddle_lifetime_price_id,
         },
     )
 
@@ -205,7 +227,6 @@ def get_billing_status(config, user_id):
         "get_voice_billing_status",
         {
             "p_user_id": user_id,
-            "p_monthly_minutes": STT_MINUTES_PER_WINDOW,
             "p_window_days": STT_WINDOW_DAYS,
         },
     )
@@ -219,7 +240,6 @@ def reserve_stt_minutes(config, user_id, duration_seconds, request_id):
             "p_user_id": user_id,
             "p_duration_seconds": duration_seconds,
             "p_request_id": request_id,
-            "p_monthly_minutes": STT_MINUTES_PER_WINDOW,
             "p_window_days": STT_WINDOW_DAYS,
             "p_max_job_seconds": STT_MAX_JOB_SECONDS,
         },

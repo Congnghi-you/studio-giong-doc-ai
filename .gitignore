@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+instance/
 
 # Thư mục tạm
 temp_chunks/
@@ -17,6 +18,7 @@ temp_chunks/
 test_*.mp3
 test_*.py
 !tests/test_saas_billing.py
+!tests/test_free_tts_quota.py
 call_api_test.py
 mau_giong_nam.mp3
 
