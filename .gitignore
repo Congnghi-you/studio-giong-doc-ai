@@ -6,6 +6,9 @@ __pycache__/
 # Môi trường Python riêng của ứng dụng
 .venv/
 .tmp/
+.env
+.env.*
+!.env.example
 
 # Thư mục tạm
 temp_chunks/
@@ -13,6 +16,7 @@ temp_chunks/
 # File test
 test_*.mp3
 test_*.py
+!tests/test_saas_billing.py
 call_api_test.py
 mau_giong_nam.mp3
 

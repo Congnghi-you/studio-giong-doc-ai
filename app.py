@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import uuid
 import hashlib
+import json
 
 if sys.platform == "win32":
     try:
@@ -19,6 +20,7 @@ if sys.platform == "win32":
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import edge_tts
+import saas_billing
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config['MAX_CONTENT_LENGTH'] = 2048 * 1024 * 1024  # Cho phép upload file lên đến 2GB
@@ -28,6 +30,7 @@ AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
 FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe")
+BILLING_CONFIG = saas_billing.BillingConfig()
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -923,11 +926,109 @@ def add_no_cache_headers(response):
 
 @app.route("/")
 def index():
-    return render_template("index.html", presets=VOICE_PRESETS)
+    return render_template(
+        "index.html",
+        presets=VOICE_PRESETS,
+        billing_settings=BILLING_CONFIG.public_settings()
+    )
 
 @app.route("/login")
 def login_preview():
-    return render_template("index.html", presets=VOICE_PRESETS, show_login=True)
+    return render_template(
+        "index.html",
+        presets=VOICE_PRESETS,
+        show_login=True,
+        billing_settings=BILLING_CONFIG.public_settings()
+    )
+
+
+def get_media_duration_seconds(file_path):
+    import av
+
+    try:
+        with av.open(file_path) as media:
+            if media.duration is not None:
+                return max(0.0, media.duration / av.time_base)
+            audio_stream = next((stream for stream in media.streams if stream.type == "audio"), None)
+            if audio_stream and audio_stream.duration is not None and audio_stream.time_base:
+                return max(0.0, float(audio_stream.duration * audio_stream.time_base))
+    except (OSError, av.error.FFmpegError) as error:
+        raise ValueError("Không đọc được thời lượng âm thanh.") from error
+    raise ValueError("Không xác định được thời lượng âm thanh.")
+
+
+def _billing_user_from_request():
+    authorization = request.headers.get("Authorization", "")
+    scheme, separator, token = authorization.partition(" ")
+    if not separator or scheme.lower() != "bearer":
+        raise saas_billing.AuthenticationRequired("Please sign in to continue.")
+    return saas_billing.authenticate_access_token(BILLING_CONFIG, token.strip())
+
+
+@app.route("/api/billing/config")
+def billing_config():
+    return jsonify(BILLING_CONFIG.public_settings())
+
+
+@app.route("/api/billing/status")
+def billing_status():
+    if not BILLING_CONFIG.enabled:
+        return jsonify({"enabled": False})
+    try:
+        user = _billing_user_from_request()
+        status = saas_billing.get_billing_status(BILLING_CONFIG, user["id"])
+        return jsonify({"enabled": True, **status})
+    except saas_billing.AuthenticationRequired as error:
+        return jsonify({"success": False, "error": str(error)}), 401
+    except saas_billing.BillingError as error:
+        app.logger.error("Could not retrieve billing status: %s", error)
+        return jsonify({"success": False, "error": str(error)}), 503
+
+
+@app.route("/api/billing/checkout", methods=["POST"])
+def billing_checkout():
+    try:
+        user = _billing_user_from_request()
+        transaction_id = saas_billing.create_checkout_transaction(
+            BILLING_CONFIG, user["id"]
+        )
+        return jsonify({"success": True, "transaction_id": transaction_id})
+    except saas_billing.AuthenticationRequired as error:
+        return jsonify({"success": False, "error": str(error)}), 401
+    except saas_billing.BillingError as error:
+        app.logger.error("Could not create Paddle checkout: %s", error)
+        return jsonify({"success": False, "error": str(error)}), 503
+
+
+@app.route("/api/billing/webhook", methods=["POST"])
+def billing_webhook():
+    if not BILLING_CONFIG.enabled or not BILLING_CONFIG.configured:
+        return jsonify({"success": False, "error": "Billing webhook is not configured."}), 503
+    max_webhook_bytes = 1024 * 1024
+    if request.content_length is not None and request.content_length > max_webhook_bytes:
+        return jsonify({"success": False, "error": "Webhook payload is too large."}), 413
+    raw_body = request.stream.read(max_webhook_bytes + 1)
+    if len(raw_body) > max_webhook_bytes:
+        return jsonify({"success": False, "error": "Webhook payload is too large."}), 413
+    if not saas_billing.verify_paddle_signature(
+        raw_body,
+        request.headers.get("Paddle-Signature", ""),
+        BILLING_CONFIG.paddle_webhook_secret,
+    ):
+        return jsonify({"success": False, "error": "Invalid webhook signature."}), 401
+    try:
+        event = json.loads(raw_body)
+        result = saas_billing.apply_paddle_event(BILLING_CONFIG, event)
+        if isinstance(result, dict) and result.get("ignored"):
+            app.logger.warning(
+                "Ignored Paddle event %s (%s). Check the configured one-time price.",
+                event.get("event_id"),
+                event.get("event_type")
+            )
+        return jsonify({"success": True, **(result if isinstance(result, dict) else {})})
+    except (saas_billing.BillingError, ValueError) as error:
+        app.logger.error("Paddle webhook processing failed: %s", error)
+        return jsonify({"success": False, "error": "Unable to process billing event."}), 503
 
 # API 1: TẠO GIỌNG ĐỌC AI TỪ VĂN BẢN
 @app.route("/api/generate", methods=["POST"])
@@ -1025,7 +1126,35 @@ def generate():
 @app.route("/api/transcribe", methods=["POST"])
 def transcribe_audio():
     cleanup_paths = []
+    billing_user = None
+    usage_request_id = None
+    media_duration_seconds = None
+    usage_finalized = False
     try:
+        if BILLING_CONFIG.enabled:
+            try:
+                billing_user = _billing_user_from_request()
+                account_status = saas_billing.get_billing_status(
+                    BILLING_CONFIG, billing_user["id"]
+                )
+            except saas_billing.AuthenticationRequired as error:
+                return jsonify({"success": False, "error": str(error)}), 401
+            except saas_billing.BillingError as error:
+                app.logger.error("Could not verify STT account: %s", error)
+                return jsonify({"success": False, "error": "Không thể kiểm tra tài khoản lúc này."}), 503
+            if not account_status.get("active"):
+                return jsonify({
+                    "success": False,
+                    "code": "plan_required",
+                    "error": "Cần gói Voice Studio đang còn hiệu lực để chuyển âm thanh thành văn bản."
+                }), 402
+            if account_status.get("remaining_minutes", 0) <= 0:
+                return jsonify({
+                    "success": False,
+                    "code": "quota_exceeded",
+                    "error": "Bạn đã dùng hết 300 phút trong cửa sổ 30 ngày hiện tại."
+                }), 429
+
         source_type = (request.form.get("source_type") or "file").strip().lower()
         if source_type in ("youtube", "link", "url"):
             source_type = "url"
@@ -1054,13 +1183,14 @@ def transcribe_audio():
             cookie_file = None
             cookies_upload = request.files.get("cookies_file")
             if cookies_upload and cookies_upload.filename:
-                cookie_file = os.path.join(UPLOAD_DIR, f"cookies_{int(time.time())}.txt")
+                cookie_file = os.path.join(UPLOAD_DIR, f"cookies_{uuid.uuid4().hex}.txt")
                 cookies_upload.save(cookie_file)
                 cleanup_paths.append(cookie_file)
 
+            download_id = uuid.uuid4().hex
             ydl_opts = {
                 "format": "bestaudio/best",
-                "outtmpl": os.path.join(UPLOAD_DIR, "dl_%(id)s.%(ext)s"),
+                "outtmpl": os.path.join(UPLOAD_DIR, f"dl_{download_id}_%(id)s.%(ext)s"),
                 "quiet": True,
                 "no_warnings": True,
                 "noplaylist": True,
@@ -1068,6 +1198,19 @@ def transcribe_audio():
                 "fragment_retries": 3,
                 "socket_timeout": 30,
             }
+            if BILLING_CONFIG.enabled:
+                ydl_opts["max_filesize"] = 2 * 1024 * 1024 * 1024
+                available_seconds = account_status.get("remaining_minutes", 0) * 60
+
+                def paid_stt_filter(video, *args):
+                    duration = video.get("duration") or 0
+                    if duration > saas_billing.STT_MAX_JOB_SECONDS:
+                        return "Paid STT jobs are limited to 60 minutes."
+                    if duration > available_seconds:
+                        return "Paid STT monthly quota is insufficient."
+                    return None
+
+                ydl_opts["match_filter"] = paid_stt_filter
 
             if cookie_file:
                 ydl_opts["cookiefile"] = cookie_file
@@ -1089,6 +1232,18 @@ def transcribe_audio():
                     if requested and requested[0].get("filepath"):
                         downloaded_file = requested[0]["filepath"]
             except Exception as download_error:
+                if BILLING_CONFIG.enabled and "limited to 60 minutes" in str(download_error):
+                    return jsonify({
+                        "success": False,
+                        "code": "duration_limit",
+                        "error": "Mỗi tác vụ chỉ hỗ trợ tối đa 60 phút âm thanh."
+                    }), 413
+                if BILLING_CONFIG.enabled and "monthly quota is insufficient" in str(download_error):
+                    return jsonify({
+                        "success": False,
+                        "code": "quota_exceeded",
+                        "error": "Thời lượng tệp vượt quá số phút STT còn lại trong cửa sổ 30 ngày."
+                    }), 429
                 print("Lỗi tải link:", download_error)
                 return jsonify({"success": False, "error": friendly_download_error(download_error)}), 502
 
@@ -1110,16 +1265,35 @@ def transcribe_audio():
                 return jsonify({"success": False, "error": "Vui lòng chọn 1 file âm thanh hoặc video!"}), 400
 
             filename = secure_filename(file.filename) or f"upload_{int(time.time())}"
-            unique_name = f"{int(time.time())}_{filename}"
+            unique_name = f"{uuid.uuid4().hex}_{filename}"
             saved_path = os.path.join(UPLOAD_DIR, unique_name)
             file.save(saved_path)
             cleanup_paths.append(saved_path)
             audio_target = saved_path
             meta = {"title": file.filename, "source": "Tệp tải lên"}
 
-        wav_converted = os.path.join(UPLOAD_DIR, f"conv_{int(time.time())}.wav")
+        if BILLING_CONFIG.enabled:
+            try:
+                source_duration = get_media_duration_seconds(audio_target)
+            except (OSError, ValueError, ImportError) as error:
+                app.logger.warning("Unable to read paid STT source duration: %s", error)
+                return jsonify({
+                    "success": False,
+                    "error": "Không đọc được thời lượng tệp. Hãy thử tệp âm thanh/video khác."
+                }), 400
+            if source_duration <= 0:
+                return jsonify({"success": False, "error": "Tệp không có thời lượng âm thanh hợp lệ."}), 400
+            if source_duration > saas_billing.STT_MAX_JOB_SECONDS:
+                return jsonify({
+                    "success": False,
+                    "code": "duration_limit",
+                    "error": "Mỗi tác vụ chỉ hỗ trợ tối đa 60 phút âm thanh."
+                }), 413
+
+        wav_converted = os.path.join(UPLOAD_DIR, f"conv_{uuid.uuid4().hex}.wav")
 
         if os.path.exists(FFMPEG_PATH):
+            cleanup_paths.append(wav_converted)
             cmd = [FFMPEG_PATH, "-y", "-i", audio_target, "-vn", "-ar", "16000", "-ac", "1",
                    "-c:a", "pcm_s16le", wav_converted]
             result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -1128,10 +1302,57 @@ def transcribe_audio():
                     "success": False,
                     "error": "File/video này không có âm thanh để nhận diện (hoặc định dạng chưa được hỗ trợ)."
                 }), 400
-            cleanup_paths.append(wav_converted)
             transcribe_input = wav_converted
         else:
             transcribe_input = audio_target
+
+        if BILLING_CONFIG.enabled:
+            try:
+                media_duration_seconds = get_media_duration_seconds(transcribe_input)
+            except (OSError, ValueError, ImportError) as error:
+                app.logger.warning("Unable to read media duration for paid STT: %s", error)
+                return jsonify({
+                    "success": False,
+                    "error": "Không đọc được thời lượng tệp. Hãy thử tệp âm thanh/video khác."
+                }), 400
+            if media_duration_seconds <= 0:
+                return jsonify({"success": False, "error": "Tệp không có thời lượng âm thanh hợp lệ."}), 400
+            request_id = str(uuid.uuid4())
+            try:
+                reservation = saas_billing.reserve_stt_minutes(
+                    BILLING_CONFIG,
+                    billing_user["id"],
+                    media_duration_seconds,
+                    request_id
+                )
+            except saas_billing.BillingError as error:
+                app.logger.error("Could not reserve STT quota: %s", error)
+                return jsonify({"success": False, "error": "Không thể kiểm tra hạn mức lúc này."}), 503
+            if not reservation.get("reserved"):
+                reason = reservation.get("reason")
+                if reason == "duration_limit":
+                    return jsonify({
+                        "success": False,
+                        "code": "duration_limit",
+                        "error": "Mỗi tác vụ chỉ hỗ trợ tối đa 60 phút âm thanh."
+                    }), 413
+                if reason == "quota_exceeded":
+                    return jsonify({
+                        "success": False,
+                        "code": "quota_exceeded",
+                        "error": "Bạn đã dùng hết 300 phút trong chu kỳ 30 ngày hiện tại."
+                    }), 429
+                if reason == "plan_required":
+                    return jsonify({
+                        "success": False,
+                        "code": "plan_required",
+                        "error": "Gói Voice Studio của bạn không còn hiệu lực."
+                    }), 402
+                return jsonify({
+                    "success": False,
+                    "error": "Không thể giữ hạn mức cho tác vụ này. Hãy thử lại."
+                }), 409
+            usage_request_id = request_id
 
         model = get_whisper_model(model_size)
         print(f"[*] Nhận diện: model={model_size}, ngôn ngữ={language or 'tự động'}, "
@@ -1174,6 +1395,23 @@ def transcribe_audio():
                 "error": "Không nhận diện được lời nói nào — video có thể chỉ có nhạc hoặc không có tiếng."
             }), 400
 
+        if usage_request_id:
+            try:
+                usage_finalized = saas_billing.finish_stt_usage(
+                    BILLING_CONFIG,
+                    usage_request_id,
+                    media_duration_seconds,
+                    True
+                )
+                if not usage_finalized:
+                    raise saas_billing.BillingError("STT usage reservation was not updated.")
+            except saas_billing.BillingError as error:
+                app.logger.error("Could not finalize STT usage reservation: %s", error)
+                return jsonify({
+                    "success": False,
+                    "error": "Không thể lưu mức sử dụng. Kết quả chưa được xác nhận; vui lòng thử lại sau."
+                }), 503
+
         return jsonify({
             "success": True,
             "text": full_text,
@@ -1190,6 +1428,18 @@ def transcribe_audio():
         print("Lỗi nhận diện:", e)
         return jsonify({"success": False, "error": str(e)}), 500
     finally:
+        if usage_request_id and not usage_finalized:
+            try:
+                released = saas_billing.finish_stt_usage(
+                    BILLING_CONFIG,
+                    usage_request_id,
+                    media_duration_seconds or 0,
+                    False
+                )
+                if not released:
+                    app.logger.warning("STT usage reservation was not found while releasing it.")
+            except saas_billing.BillingError as error:
+                app.logger.error("Could not release STT usage reservation: %s", error)
         safe_remove(*cleanup_paths)
 
 

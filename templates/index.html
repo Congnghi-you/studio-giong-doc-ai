@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Studio - Tạo Giọng Đọc & Chuyển Âm Thanh Thành Văn Bản</title>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% if billing_settings.enabled %}
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    {% endif %}
     <style>
         :root {
             --bg-primary: #f7f5f0;
@@ -1093,6 +1097,8 @@
         .login-modal.is-open { display: flex; animation: fadeIn .2s ease; }
         .login-card {
             width: min(100%, 440px);
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
             padding: 34px;
             border: 1px solid rgba(255, 255, 255, .75);
             border-radius: 24px;
@@ -1152,8 +1158,31 @@
             border: 1px solid #dfe3dc;
             border-radius: 11px;
             background: #f6f7f3;
-            color: #8a9698;
+            color: var(--text-main);
             font: inherit;
+        }
+        .billing-panel { display: none; margin-top: 16px; text-align: left; }
+        .billing-panel.is-visible { display: block; }
+        .billing-plan {
+            margin-top: 18px;
+            padding: 16px;
+            border: 1px solid #cfe5dc;
+            border-radius: 14px;
+            background: #f1f8f4;
+        }
+        .billing-plan strong { display: block; color: var(--text-main); font-size: 15px; }
+        .billing-plan p { margin: 6px 0 12px; font-size: 13px; }
+        .billing-feedback { min-height: 20px; margin-top: 10px; color: var(--text-muted); font-size: 12px; }
+        .billing-signout {
+            margin-top: 10px;
+            padding: 6px 0;
+            border: 0;
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
         }
         .login-close {
             position: absolute;
@@ -1199,7 +1228,7 @@
                 <option value="ja">🇯🇵 日本語</option>
                 <option value="ko">🇰🇷 한국어</option>
             </select>
-            <button type="button" class="account-btn" data-login-i18n="account" onclick="openLoginPreview()">Đăng nhập</button>
+            <button type="button" class="account-btn" id="accountButton" data-login-i18n="account" onclick="openLoginPreview()">Đăng nhập</button>
         </div>
 
         <header>
@@ -1483,7 +1512,25 @@
         <section class="login-card">
             <div class="login-icon" aria-hidden="true">✦</div>
             <h2 id="loginTitle" data-login-i18n="title">Chào mừng bạn</h2>
-            <p data-login-i18n="description">Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.</p>
+            <p data-login-i18n="{% if billing_settings.enabled %}online_description{% else %}description{% endif %}">Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.</p>
+            {% if billing_settings.enabled %}
+            <div class="login-notice" data-login-i18n="online_notice">
+                Tạo giọng đọc Edge TTS hiện có thể dùng thử miễn phí. Gói năm mở tính năng chuyển âm thanh thành văn bản.
+            </div>
+            <button type="button" class="login-google" data-login-i18n="google_online" onclick="signInWithGoogle()">G Tiếp tục với Google</button>
+            <label class="login-email-label" for="loginEmail" data-login-i18n="email_label">Hoặc đăng nhập bằng email</label>
+            <input class="login-email" id="loginEmail" type="email" data-login-i18n-ph="email_placeholder" placeholder="name@example.com" autocomplete="email">
+            <button type="button" class="login-continue" data-login-i18n="email_signin" style="margin-top:12px" onclick="signInWithEmail()">Gửi liên kết đăng nhập</button>
+            <div class="billing-plan">
+                <strong data-login-i18n="plan_title">Voice Studio - 1 năm</strong>
+                <p data-login-i18n="plan_details">$49.90 thanh toán một lần / 365 ngày · 300 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ</p>
+                <button type="button" class="login-continue" id="buyPlanButton" data-login-i18n="buy_plan" onclick="startPlanCheckout()">Mua gói - $49.90</button>
+            </div>
+            <div class="billing-panel" id="billingPanel">
+                <button type="button" class="billing-signout" data-login-i18n="signout" onclick="signOutAccount()">Đăng xuất</button>
+            </div>
+            <div class="billing-feedback" id="billingFeedback" role="status" aria-live="polite"></div>
+            {% else %}
             <div class="login-notice" data-login-i18n="notice">
                 Bản local hiện chưa kết nối đăng nhập. Bạn có thể tiếp tục sử dụng studio ngay mà không cần tài khoản.
             </div>
@@ -1491,11 +1538,13 @@
             <label class="login-email-label" for="loginEmail" data-login-i18n="email_label">Hoặc đăng nhập bằng email</label>
             <input class="login-email" id="loginEmail" type="email" data-login-i18n-ph="email_placeholder" placeholder="name@example.com" disabled>
             <button type="button" class="login-continue" data-login-i18n="continue" style="margin-top:16px" onclick="continueLocally()">Tiếp tục không đăng nhập</button>
+            {% endif %}
         </section>
     </div>
 
     <script>
         // ================= I18N MULTILINGUAL DICTIONARY =================
+        const BILLING_SETTINGS = {{ billing_settings|tojson }};
         const I18N = {
         "vi": {
                 "ui_lang_label": "🌐 Ngôn ngữ giao diện:",
@@ -2406,57 +2455,150 @@ const GENDER_TRANSLATIONS = {
         let selectedFileDetails = null;
         let currentTranscriptionData = null;
         let ttsJob = null;
+        let supabaseClient = null;
+        let authSession = null;
+        let accountBillingStatus = null;
 
         const LOGIN_I18N = {
             vi: {
                 account: 'Đăng nhập',
+                manage_account: 'Tài khoản',
                 title: 'Chào mừng bạn',
                 description: 'Đăng nhập để lưu giọng đọc và lịch sử xử lý của bạn.',
                 notice: 'Bản local hiện chưa kết nối đăng nhập. Bạn có thể tiếp tục sử dụng studio ngay mà không cần tài khoản.',
                 google: 'G Tiếp tục với Google · sắp ra mắt',
                 email_label: 'Hoặc đăng nhập bằng email',
                 email_placeholder: 'name@example.com',
-                continue: 'Tiếp tục không đăng nhập'
+                continue: 'Tiếp tục không đăng nhập',
+                online_description: 'Đăng nhập để dùng chuyển âm thanh thành văn bản và quản lý gói của bạn.',
+                online_notice: 'Tạo giọng đọc Edge TTS có thể dùng thử miễn phí. Gói năm mở tính năng chuyển âm thanh thành văn bản.',
+                google_online: 'G Tiếp tục với Google',
+                email_signin: 'Gửi liên kết đăng nhập',
+                plan_title: 'Voice Studio - 1 năm',
+                plan_details: '$49.90 thanh toán một lần / 365 ngày · 300 phút STT mỗi 30 ngày · tối đa 60 phút/tác vụ',
+                buy_plan: 'Mua gói - $49.90',
+                signout: 'Đăng xuất',
+                active_plan: 'Gói đang hoạt động đến',
+                minutes_remaining: 'phút còn lại',
+                plan_required: 'Chưa có gói đang hoạt động. Mua gói năm để dùng chuyển văn bản.',
+                email_required: 'Vui lòng nhập email hợp lệ.',
+                email_sent: 'Đã gửi liên kết đăng nhập vào email của bạn.',
+                auth_unavailable: 'Đăng nhập chưa được cấu hình. Vui lòng thử lại sau.',
+                signin_first: 'Vui lòng đăng nhập trước khi mua gói.',
+                billing_unavailable: 'Thanh toán chưa được cấu hình. Vui lòng thử lại sau.',
+                payment_received: 'Đã nhận thanh toán. Đang cập nhật quyền sử dụng.'
             },
             en: {
                 account: 'Sign in',
+                manage_account: 'Account',
                 title: 'Welcome',
                 description: 'Sign in to save your voices and processing history.',
                 notice: 'Sign-in is not connected in this local version. You can continue using the studio without an account.',
                 google: 'G Continue with Google · coming soon',
                 email_label: 'Or sign in with email',
                 email_placeholder: 'name@example.com',
-                continue: 'Continue without signing in'
+                continue: 'Continue without signing in',
+                online_description: 'Sign in to transcribe audio and manage your plan.',
+                online_notice: 'Try Edge TTS voice generation for free. The annual plan unlocks audio transcription.',
+                google_online: 'G Continue with Google',
+                email_signin: 'Send sign-in link',
+                plan_title: 'Voice Studio - 1 year',
+                plan_details: '$49.90 one-time for 365 days · 300 STT minutes per 30 days · up to 60 minutes per task',
+                buy_plan: 'Buy plan - $49.90',
+                signout: 'Sign out',
+                active_plan: 'Plan active until',
+                minutes_remaining: 'minutes remaining',
+                plan_required: 'No active plan. Buy the annual plan to use transcription.',
+                email_required: 'Enter a valid email address.',
+                email_sent: 'A sign-in link has been sent to your email.',
+                auth_unavailable: 'Sign-in is not configured. Please try again later.',
+                signin_first: 'Please sign in before purchasing a plan.',
+                billing_unavailable: 'Payments are not configured. Please try again later.',
+                payment_received: 'Payment received. Updating your access.'
             },
             zh: {
                 account: '登录',
+                manage_account: '账户',
                 title: '欢迎',
                 description: '登录以保存您的语音和处理记录。',
                 notice: '本地版本尚未连接登录功能。您可以无需账号继续使用工作室。',
                 google: 'G 使用 Google 继续 · 即将推出',
                 email_label: '或使用电子邮件登录',
                 email_placeholder: 'name@example.com',
-                continue: '不登录，继续使用'
+                continue: '不登录，继续使用',
+                online_description: '登录以转录音频并管理您的套餐。',
+                online_notice: 'Edge TTS 语音生成可免费试用。年度套餐可解锁音频转录。',
+                google_online: 'G 使用 Google 继续',
+                email_signin: '发送登录链接',
+                plan_title: 'Voice Studio - 1 年',
+                plan_details: '一次性支付 $49.90 / 365 天 · 每 30 天 300 分钟转录 · 每项任务最多 60 分钟',
+                buy_plan: '购买套餐 - $49.90',
+                signout: '退出登录',
+                active_plan: '套餐有效期至',
+                minutes_remaining: '分钟剩余',
+                plan_required: '当前没有有效套餐。购买年度套餐以使用音频转录。',
+                email_required: '请输入有效的电子邮件地址。',
+                email_sent: '登录链接已发送到您的电子邮件。',
+                auth_unavailable: '登录尚未配置，请稍后重试。',
+                signin_first: '请先登录再购买套餐。',
+                billing_unavailable: '付款尚未配置，请稍后重试。',
+                payment_received: '已收到付款，正在更新您的使用权限。'
             },
             ja: {
                 account: 'ログイン',
+                manage_account: 'アカウント',
                 title: 'ようこそ',
                 description: 'ログインすると音声と処理履歴を保存できます。',
                 notice: 'ローカル版ではログイン機能は未接続です。アカウントなしで引き続き利用できます。',
                 google: 'G Google で続行 · 準備中',
                 email_label: 'またはメールでログイン',
                 email_placeholder: 'name@example.com',
-                continue: 'ログインせずに続ける'
+                continue: 'ログインせずに続ける',
+                online_description: 'ログインして音声を文字起こしし、プランを管理できます。',
+                online_notice: 'Edge TTS の音声生成は無料でお試しいただけます。年間プランで文字起こし機能を利用できます。',
+                google_online: 'G Google で続行',
+                email_signin: 'ログインリンクを送信',
+                plan_title: 'Voice Studio - 1 年',
+                plan_details: '$49.90 の一括払い / 365 日 · 30 日ごとに文字起こし 300 分 · 1 回最大 60 分',
+                buy_plan: 'プランを購入 - $49.90',
+                signout: 'ログアウト',
+                active_plan: 'プランの有効期限',
+                minutes_remaining: '分残っています',
+                plan_required: '有効なプランがありません。年間プランを購入して文字起こしをご利用ください。',
+                email_required: '有効なメールアドレスを入力してください。',
+                email_sent: 'ログインリンクをメールで送信しました。',
+                auth_unavailable: 'ログインが設定されていません。後でもう一度お試しください。',
+                signin_first: 'プランを購入する前にログインしてください。',
+                billing_unavailable: '決済が設定されていません。後でもう一度お試しください。',
+                payment_received: '支払いを受け取りました。アクセスを更新しています。'
             },
             ko: {
                 account: '로그인',
+                manage_account: '계정',
                 title: '환영합니다',
                 description: '로그인하면 음성과 처리 기록을 저장할 수 있습니다.',
                 notice: '로컬 버전에서는 로그인이 연결되지 않았습니다. 계정 없이 계속 사용할 수 있습니다.',
                 google: 'G Google로 계속 · 준비 중',
                 email_label: '또는 이메일로 로그인',
                 email_placeholder: 'name@example.com',
-                continue: '로그인 없이 계속'
+                continue: '로그인 없이 계속',
+                online_description: '로그인하여 오디오 텍스트 변환 및 플랜을 관리하세요.',
+                online_notice: 'Edge TTS 음성 생성을 무료로 체험할 수 있습니다. 연간 플랜에서 오디오 텍스트 변환을 이용할 수 있습니다.',
+                google_online: 'G Google로 계속',
+                email_signin: '로그인 링크 보내기',
+                plan_title: 'Voice Studio - 1년',
+                plan_details: '$49.90 일회 결제 / 365일 · 30일마다 STT 300분 · 작업당 최대 60분',
+                buy_plan: '플랜 구매 - $49.90',
+                signout: '로그아웃',
+                active_plan: '플랜 만료일',
+                minutes_remaining: '분 남음',
+                plan_required: '활성 플랜이 없습니다. 연간 플랜을 구매하여 텍스트 변환을 이용하세요.',
+                email_required: '유효한 이메일 주소를 입력하세요.',
+                email_sent: '로그인 링크를 이메일로 보냈습니다.',
+                auth_unavailable: '로그인이 설정되지 않았습니다. 나중에 다시 시도하세요.',
+                signin_first: '플랜을 구매하기 전에 로그인하세요.',
+                billing_unavailable: '결제가 설정되지 않았습니다. 나중에 다시 시도하세요.',
+                payment_received: '결제를 받았습니다. 이용 권한을 업데이트합니다.'
             }
         };
 
@@ -2591,6 +2733,9 @@ const GENDER_TRANSLATIONS = {
                 const key = el.getAttribute('data-login-i18n-ph');
                 el.setAttribute('placeholder', LOGIN_I18N[lang][key]);
             });
+            if (BILLING_SETTINGS.enabled && authSession) {
+                document.getElementById('accountButton').textContent = LOGIN_I18N[lang].manage_account;
+            }
 
             // Cập nhật mô tả giọng đọc
             document.querySelectorAll('.voice-desc[data-voice-key]').forEach(el => {
@@ -2871,13 +3016,178 @@ const GENDER_TRANSLATIONS = {
         let localAccessGranted = false;
         let pendingLocalAction = null;
 
+        function setBillingFeedback(message) {
+            const feedback = document.getElementById('billingFeedback');
+            if (feedback) feedback.textContent = message || '';
+        }
+
+        async function billingApi(path, options = {}) {
+            const headers = { ...(options.headers || {}) };
+            if (authSession?.access_token) {
+                headers.Authorization = `Bearer ${authSession.access_token}`;
+            }
+            const response = await fetch(path, { ...options, headers });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+            return data;
+        }
+
+        async function refreshBillingStatus() {
+            if (!BILLING_SETTINGS.enabled || !authSession) return;
+            try {
+                accountBillingStatus = await billingApi('/api/billing/status');
+                if (accountBillingStatus.active) {
+                    const expiry = accountBillingStatus.expires_at
+                        ? new Date(accountBillingStatus.expires_at).toLocaleDateString()
+                        : '';
+                    setBillingFeedback(
+                        `${translateLogin('active_plan')} ${expiry} · ` +
+                        `${accountBillingStatus.remaining_minutes} / 300 ${translateLogin('minutes_remaining')}`
+                    );
+                } else {
+                    setBillingFeedback(translateLogin('plan_required'));
+                }
+            } catch (error) {
+                accountBillingStatus = null;
+                setBillingFeedback(error.message);
+            }
+        }
+
+        function translateLogin(key) {
+            return LOGIN_I18N[currentUILang]?.[key] || LOGIN_I18N.en[key] || key;
+        }
+
+        function updateBillingAccount(session) {
+            authSession = session;
+            document.getElementById('accountButton').textContent = session
+                ? translateLogin('manage_account')
+                : translateLogin('account');
+            const panel = document.getElementById('billingPanel');
+            if (!panel) return;
+            panel.classList.toggle('is-visible', Boolean(session));
+            const signInControls = document.querySelectorAll(
+                '.login-card > .login-google, .login-card > .login-email-label, ' +
+                '.login-card > #loginEmail, .login-card > #loginEmail + .login-continue'
+            );
+            signInControls.forEach(control => {
+                control.style.display = session ? 'none' : '';
+            });
+            if (session) refreshBillingStatus();
+            else {
+                accountBillingStatus = null;
+                setBillingFeedback('');
+            }
+        }
+
+        async function signInWithEmail() {
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) {
+                setBillingFeedback(translateLogin('email_required'));
+                return;
+            }
+            if (!supabaseClient) {
+                setBillingFeedback(translateLogin('auth_unavailable'));
+                return;
+            }
+            try {
+                const { error } = await supabaseClient.auth.signInWithOtp({
+                    email,
+                    options: { emailRedirectTo: window.location.href }
+                });
+                setBillingFeedback(error ? error.message : translateLogin('email_sent'));
+            } catch (error) {
+                setBillingFeedback(error.message || translateLogin('auth_unavailable'));
+            }
+        }
+
+        async function signInWithGoogle() {
+            if (!supabaseClient) {
+                setBillingFeedback(translateLogin('auth_unavailable'));
+                return;
+            }
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: window.location.href }
+                });
+                if (error) setBillingFeedback(error.message);
+            } catch (error) {
+                setBillingFeedback(error.message || translateLogin('auth_unavailable'));
+            }
+        }
+
+        async function signOutAccount() {
+            if (!supabaseClient) return;
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) setBillingFeedback(error.message);
+            } catch (error) {
+                setBillingFeedback(error.message || translateLogin('auth_unavailable'));
+            }
+        }
+
+        async function startPlanCheckout() {
+            if (!authSession) {
+                setBillingFeedback(translateLogin('signin_first'));
+                return;
+            }
+            if (!BILLING_SETTINGS.configured || !window.Paddle) {
+                setBillingFeedback(translateLogin('billing_unavailable'));
+                return;
+            }
+            try {
+                const result = await billingApi('/api/billing/checkout', { method: 'POST' });
+                window.Paddle.Checkout.open({ transactionId: result.transaction_id });
+            } catch (error) {
+                setBillingFeedback(error.message);
+            }
+        }
+
+        function initializeBilling() {
+            if (!BILLING_SETTINGS.enabled) return;
+            if (window.supabase && BILLING_SETTINGS.supabaseUrl && BILLING_SETTINGS.supabaseAnonKey) {
+                supabaseClient = window.supabase.createClient(
+                    BILLING_SETTINGS.supabaseUrl,
+                    BILLING_SETTINGS.supabaseAnonKey
+                );
+                supabaseClient.auth.onAuthStateChange((_event, session) => {
+                    updateBillingAccount(session);
+                });
+                supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (error) setBillingFeedback(error.message);
+                    updateBillingAccount(data?.session || null);
+                });
+            } else {
+                setBillingFeedback(translateLogin('auth_unavailable'));
+            }
+
+            if (window.Paddle && BILLING_SETTINGS.configured && BILLING_SETTINGS.paddleClientToken) {
+                if (BILLING_SETTINGS.paddleEnvironment === 'sandbox') {
+                    window.Paddle.Environment.set('sandbox');
+                }
+                window.Paddle.Initialize({
+                    token: BILLING_SETTINGS.paddleClientToken,
+                    eventCallback: event => {
+                        if (event.name === 'checkout.completed') {
+                            setBillingFeedback(translateLogin('payment_received'));
+                            window.setTimeout(refreshBillingStatus, 1500);
+                        }
+                    }
+                });
+            }
+        }
+
         function openLoginPreview(action) {
             pendingLocalAction = action || null;
             const modal = document.getElementById('loginModal');
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
-            document.querySelector('.login-continue').focus();
+            const emailInput = document.getElementById('loginEmail');
+            const focusTarget = BILLING_SETTINGS.enabled
+                ? (authSession ? document.getElementById('buyPlanButton') : emailInput)
+                : document.querySelector('.login-continue');
+            if (focusTarget) focusTarget.focus();
         }
 
         function closeLoginPreview() {
@@ -2889,6 +3199,7 @@ const GENDER_TRANSLATIONS = {
         }
 
         function continueLocally() {
+            if (BILLING_SETTINGS.enabled) return;
             const action = pendingLocalAction;
             localAccessGranted = true;
             closeLoginPreview();
@@ -2901,6 +3212,7 @@ const GENDER_TRANSLATIONS = {
                 closeLoginPreview();
             }
         });
+        initializeBilling();
 
         async function generateSpeech() {
             const inputText = document.getElementById('textContent').value.trim();
@@ -2908,7 +3220,7 @@ const GENDER_TRANSLATIONS = {
                 alert(translate('tts_empty'));
                 return;
             }
-            if (!localAccessGranted) {
+            if (!BILLING_SETTINGS.enabled && !localAccessGranted) {
                 openLoginPreview('tts');
                 return;
             }
@@ -3227,7 +3539,11 @@ const GENDER_TRANSLATIONS = {
                 formData.append('file', fileInput.files[0]);
             }
 
-            if (!localAccessGranted) {
+            if (BILLING_SETTINGS.enabled && !authSession) {
+                openLoginPreview('stt');
+                return;
+            }
+            if (!BILLING_SETTINGS.enabled && !localAccessGranted) {
                 openLoginPreview('stt');
                 return;
             }
@@ -3244,7 +3560,10 @@ const GENDER_TRANSLATIONS = {
             try {
                 const response = await fetch('/api/transcribe', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    headers: authSession?.access_token
+                        ? { Authorization: `Bearer ${authSession.access_token}` }
+                        : {}
                 });
                 const data = await response.json();
 
@@ -3254,6 +3573,10 @@ const GENDER_TRANSLATIONS = {
                     updateTranscriptionStats(data);
                     resultBox.style.display = 'block';
                     resultBox.scrollIntoView({ behavior: 'smooth' });
+                    if (BILLING_SETTINGS.enabled) refreshBillingStatus();
+                } else if (BILLING_SETTINGS.enabled && [402, 429].includes(response.status)) {
+                    openLoginPreview('stt');
+                    setBillingFeedback(data.error || translate('stt_failed'));
                 } else {
                     alert(translate('tts_error') + (data.error || translate('stt_failed')));
                 }

@@ -43,7 +43,37 @@ python app.py
 
 Mở trình duyệt tại: http://localhost:5000
 
-Giao diện có nền sáng trắng ngà, tiêu đề **Voice & Transcribe Studio** và dùng Be Vietnam Pro để hiển thị tiếng Việt. Trình tạo giọng mở sẵn vùng nhập văn bản; chọn giọng và tinh chỉnh nằm trong mục thu gọn, gồm phong cách đọc nhanh, nhịp nghỉ, tốc độ, cao độ và âm lượng. Tab chuyển âm thanh cho phép tải tệp hoặc dán liên kết, với tùy chọn nâng cao được thu gọn riêng. Khi bắt đầu xử lý, bản local sẽ hiện màn hình xem trước đăng nhập; chọn **Tiếp tục không đăng nhập** để tiếp tục. Đăng nhập email/Google hiện chưa được tích hợp.
+Giao diện có nền sáng trắng ngà, tiêu đề **Voice & Transcribe Studio** và dùng Be Vietnam Pro để hiển thị tiếng Việt. Trình tạo giọng mở sẵn vùng nhập văn bản; chọn giọng và tinh chỉnh nằm trong mục thu gọn, gồm phong cách đọc nhanh, nhịp nghỉ, tốc độ, cao độ và âm lượng. Tab chuyển âm thanh cho phép tải tệp hoặc dán liên kết, với tùy chọn nâng cao được thu gọn riêng. Ở chế độ local, bản xem trước đăng nhập cho phép chọn **Tiếp tục không đăng nhập**; xác thực thật chỉ bật khi cấu hình chế độ web ở phần dưới.
+
+## Bản web có tài khoản và thanh toán (Paddle Sandbox)
+
+Mặc định `BILLING_ENABLED` tắt để giữ nguyên chế độ local. Khi bật, Edge TTS vẫn là tính năng dùng thử; chuyển âm thanh thành văn bản yêu cầu người dùng đăng nhập và có quyền sử dụng còn hạn. Gói hiện được cấu hình là **$49.90 thanh toán một lần cho 365 ngày**, có thể mua lại để gia hạn, gồm **300 phút STT trong cửa sổ 30 ngày lăn** và tối đa **60 phút cho mỗi tác vụ**. Tác vụ đang chạy giữ trước quota để tránh hai yêu cầu đồng thời dùng vượt hạn mức; khi thất bại quota được trả lại, còn reservation bị treo do tiến trình dừng sẽ tự hết hiệu lực sau 24 giờ.
+
+**Chưa mở công khai ngay sau khi bật billing:** Edge TTS dùng thử hiện chưa có quota hoặc rate limit theo tài khoản/IP. Trước khi đưa lên Internet, cần đặt giới hạn dùng thử và bổ sung bảo vệ/rate limit ở ứng dụng hoặc reverse proxy để tránh lạm dụng và giảm nguy cơ Edge TTS chặn máy chủ.
+
+Tích hợp này cần tài khoản Supabase và Paddle:
+
+1. Tạo project Supabase; bật đăng nhập bằng email (magic link/OTP), và cấu hình Google OAuth nếu muốn nút Google hoạt động. Đặt URL trang web trong danh sách redirect được phép.
+2. Chạy [database/saas_billing.sql](<database/saas_billing.sql>) trong Supabase SQL Editor để tạo bảng quyền sử dụng, sự kiện webhook và quota cùng các hàm RPC.
+3. Trong Paddle **Sandbox**, tạo sản phẩm/giá thanh toán một lần USD **49.90**. Lấy API key, client-side token, price ID và secret của notification destination.
+4. Cấu hình notification destination tới `https://<domain>/api/billing/webhook`, tối thiểu bật `transaction.completed`, `adjustment.created` và `adjustment.updated` để cấp quyền sau thanh toán và thu hồi quyền khi hoàn tiền.
+5. Đặt các biến môi trường sau trên máy chủ. Không commit service-role key, Paddle API key hay webhook secret:
+
+   ```text
+   BILLING_ENABLED=true
+   SUPABASE_URL=https://<project-ref>.supabase.co
+   SUPABASE_ANON_KEY=<public-anon-key>
+   SUPABASE_SERVICE_ROLE_KEY=<server-only-service-role-key>
+   PADDLE_API_KEY=<sandbox-api-key>
+   PADDLE_CLIENT_TOKEN=<sandbox-client-side-token>
+   PADDLE_WEBHOOK_SECRET=<notification-destination-secret>
+   PADDLE_PRICE_ID=<one-time-price-id>
+   PADDLE_ENVIRONMENT=sandbox
+   ```
+
+Chỉ đặt `PADDLE_ENVIRONMENT=production` và dùng credentials Live sau khi tài khoản Paddle, sản phẩm, domain và webhook đã được duyệt/cấu hình. Backend kiểm tra Supabase access token; trình duyệt chỉ nhận public anon key và Paddle client token. `SUPABASE_SERVICE_ROLE_KEY`, Paddle API key và webhook secret chỉ được dùng phía máy chủ.
+
+Chế độ này chưa tự động nạp file `.env`; đặt biến trong cấu hình secrets của dịch vụ hosting hoặc môi trường tiến trình. Sau khi hoàn tất Sandbox, cần kiểm tra đăng nhập/email redirect, mua gói thử, webhook, hoàn tiền, hết hạn và giới hạn quota trước khi chuyển Live. STT hiện vẫn chạy đồng bộ trong tiến trình web; trước khi mở bán rộng cần thêm hàng đợi công việc, giới hạn tải/đồng thời, HTTPS, giám sát và kiểm thử tải. Edge TTS vẫn là dịch vụ dùng thử, không có SLA thương mại của ứng dụng.
 
 ## Mẹo dùng tab chuyển video thành văn bản
 
