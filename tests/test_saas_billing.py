@@ -168,7 +168,7 @@ class BillingTests(unittest.TestCase):
         page = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("40 minutes of voice generation per day", page)
-        self.assertIn("Up to 10 minutes of audio per generation", page)
+        self.assertIn("Up to 20 minutes of audio per generation", page)
         self.assertIn("No credit card or payment method required.", page)
         self.assertNotIn("Voice generation with Edge TTS remains free to try", page)
         self.assertIn('onclick="openFreeSignup()"', page)

@@ -18,7 +18,7 @@ pinned: false
 - ✅ **7 phong cách giọng đọc**: 3 Nam (Kể chuyện, Thời sự, Năng động) + 3 Nữ (Dịu dàng, Thuyết minh, Trẻ trung) + 1 giọng mô phỏng
 - ✅ **Hỗ trợ văn bản dài 20+ phút**: Tự động chia đoạn, ghép nối mượt mà
 - ✅ **Nghe thử trực tiếp trên web**, tuỳ chỉnh tốc độ / cao độ, chèn khoảng nghỉ
-- ✅ **Văn bản dài tự chia tối đa 2.000 từ/phần**: Tạo lần lượt từng phần, tải ngay phần hoàn tất rồi bấm tiếp tục
+- ✅ **Văn bản dài tự chia tối đa 2.000 từ/phần**: Tự tạo tuần tự; mỗi phần hoàn tất được nghe/tải ngay, lỗi phần sau không làm mất phần trước và có thể thử lại
 - ✅ Các đoạn gửi tới TTS được xử lý tuần tự; nếu lỗi, có thể thử lại mà không tạo lại những đoạn nhỏ đã thành công
 - ✅ **Giao diện 5 ngôn ngữ**: Tiếng Việt, Anh, Trung, Nhật và Hàn
 
@@ -59,7 +59,7 @@ Giao diện có nền sáng trắng ngà, tiêu đề **Voice & Transcribe Studi
 
 Mặc định `BILLING_ENABLED` tắt để giữ nguyên chế độ local. Khi bật, chuyển âm thanh thành văn bản yêu cầu người dùng đăng nhập và có quyền sử dụng còn hạn. Có hai gói thanh toán một lần: **Annual $49.90**, hiệu lực 365 ngày và gồm **3.600 phút STT mỗi chu kỳ 30 ngày**; **Lifetime $499**, không hết hạn và gồm **1.000.000 phút STT mỗi chu kỳ 30 ngày**. Không gói nào tự động gia hạn; cả hai giới hạn mỗi tác vụ ở 60 phút. Tác vụ STT đang chạy giữ trước quota theo gói đã mua để tránh hai yêu cầu đồng thời dùng vượt hạn mức; khi thất bại quota được trả lại, còn reservation bị treo do tiến trình dừng sẽ tự hết hiệu lực sau 24 giờ.
 
-Tạo giọng miễn phí được giới hạn thật ở **40 phút âm thanh đầu ra mỗi ngày** và **10 phút cho mỗi file**. Máy chủ đo thời lượng MP3 sau khi tạo; file vượt giới hạn sẽ bị từ chối và không được tính vào quota. Quota được lưu trong SQLite tại `instance/free_tts_usage.sqlite3` (có thể đổi bằng `FREE_TTS_USAGE_DB`), dùng tài khoản Supabase khi billing đã cấu hình và có access token, nếu không thì gom theo địa chỉ IP. Ngày quota đổi theo múi giờ local của máy chủ. SQLite phù hợp cho một máy chủ có ổ đĩa lưu bền; khi chạy nhiều replica cần thay bằng kho dùng chung để tránh mỗi replica có quota riêng. Cần bổ sung rate limit ở ứng dụng hoặc reverse proxy trước khi đưa dịch vụ công khai để giảm lạm dụng và nguy cơ Edge TTS chặn máy chủ.
+Tạo giọng miễn phí được giới hạn thật ở **40 phút âm thanh đầu ra mỗi ngày** và **20 phút cho mỗi file**. Máy chủ đo thời lượng MP3 sau khi tạo; file vượt giới hạn sẽ bị từ chối và không được tính vào quota. Quota được lưu trong SQLite tại `instance/free_tts_usage.sqlite3` (có thể đổi bằng `FREE_TTS_USAGE_DB`), dùng tài khoản Supabase khi billing đã cấu hình và có access token, nếu không thì gom theo địa chỉ IP. Ngày quota đổi theo múi giờ local của máy chủ. SQLite phù hợp cho một máy chủ có ổ đĩa lưu bền; khi chạy nhiều replica cần thay bằng kho dùng chung để tránh mỗi replica có quota riêng. Cần bổ sung rate limit ở ứng dụng hoặc reverse proxy trước khi đưa dịch vụ công khai để giảm lạm dụng và nguy cơ Edge TTS chặn máy chủ.
 
 Tích hợp này cần tài khoản Supabase và Paddle:
 

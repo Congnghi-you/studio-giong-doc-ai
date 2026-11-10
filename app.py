@@ -3,6 +3,7 @@ import re
 import sys
 import time
 import asyncio
+import socket
 import tempfile
 import shutil
 import subprocess
@@ -21,6 +22,7 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+import aiohttp
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import edge_tts
@@ -36,7 +38,7 @@ TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
 FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BASE_DIR, "ffmpeg.exe")) else (shutil.which("ffmpeg") or "ffmpeg")
 BILLING_CONFIG = saas_billing.BillingConfig()
 FREE_TTS_DAILY_LIMIT_SECONDS = 40 * 60
-FREE_TTS_MAX_JOB_SECONDS = 10 * 60
+FREE_TTS_MAX_JOB_SECONDS = 20 * 60
 FREE_TTS_USAGE_DB = os.path.abspath(os.getenv(
     "FREE_TTS_USAGE_DB",
     os.path.join(BASE_DIR, "instance", "free_tts_usage.sqlite3")
@@ -742,11 +744,10 @@ def preprocess_text(text, pause_style="standard"):
 
     return text.strip()
 
-def split_text_into_chunks(text, max_chars=350):
+def split_text_into_chunks(text, max_chars=600):
     """
-    Chia nhỏ văn bản thành các đoạn 250 - 350 ký tự tại ranh giới câu.
-    Giúp Edge-TTS tải siêu nhanh (2-3 giây/đoạn), không bao giờ bị nghẽn WebSocket
-    và có thể tải song song cực mạnh.
+    Chia nhỏ văn bản thành các đoạn 400 - 600 ký tự tại ranh giới câu.
+    Giúp Edge-TTS tải nhanh, tối ưu số lượng kết nối và không bị nghẽn mạng.
     """
     paragraphs = text.split("\n")
     chunks = []
@@ -812,7 +813,7 @@ def split_text_into_chunks(text, max_chars=350):
 
 
 def split_text_by_word_limit(text, max_words=2000):
-    """Split into full word-limit parts while preserving paragraph breaks where possible."""
+    """Chia văn bản thành các đoạn tối đa 2000 từ, giữ trọn vẹn câu văn và đoạn văn."""
     parts = []
     current_sentences = []
     current_word_count = 0
@@ -820,7 +821,7 @@ def split_text_by_word_limit(text, max_words=2000):
     def flush():
         nonlocal current_sentences, current_word_count
         if current_sentences:
-            text = []
+            text_buf = []
             previous_paragraph = None
             for paragraph_index, sentence in current_sentences:
                 separator = (
@@ -828,9 +829,9 @@ def split_text_by_word_limit(text, max_words=2000):
                     if previous_paragraph is not None and paragraph_index != previous_paragraph
                     else " "
                 )
-                text.extend((separator, sentence))
+                text_buf.extend((separator, sentence))
                 previous_paragraph = paragraph_index
-            parts.append("".join(text).strip())
+            parts.append("".join(text_buf).strip())
             current_sentences = []
             current_word_count = 0
 
@@ -840,21 +841,29 @@ def split_text_by_word_limit(text, max_words=2000):
         sentences = re.split(r"(?<=[.!?…])\s+", paragraph.strip())
         for sentence in sentences:
             words = sentence.split()
+            if not words:
+                continue
+
+            # Nếu thêm câu này làm vượt quá max_words và đoạn hiện tại đã có nội dung,
+            # ngắt đoạn ngay để giữ nguyên vẹn câu văn tự nhiên
+            if current_word_count > 0 and (current_word_count + len(words) > max_words):
+                flush()
+
             start = 0
             while start < len(words):
                 take = min(max_words - current_word_count, len(words) - start)
                 current_sentences.append((paragraph_index, " ".join(words[start:start + take])))
                 current_word_count += take
                 start += take
-                if current_word_count == max_words:
+                if current_word_count >= max_words:
                     flush()
 
     flush()
-    return parts
+    return parts if parts else [text.strip()]
 
 
 async def generate_speech_async(text, voice, rate, pitch, volume, output_path, work_dir):
-    chunks = split_text_into_chunks(text, max_chars=320)
+    chunks = split_text_into_chunks(text, max_chars=600)
     os.makedirs(work_dir, exist_ok=True)
     chunk_paths = [os.path.join(work_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
 
@@ -862,6 +871,11 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
         if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
             print(f"[✓] Bỏ qua đoạn {idx + 1}/{len(chunks)} đã tạo trước đó.", flush=True)
             continue
+        elif os.path.exists(chunk_file):
+            try:
+                os.remove(chunk_file)
+            except OSError:
+                pass
 
         clean_chunk = chunk_text.replace("\n", " ").strip()
         if not clean_chunk:
@@ -872,9 +886,20 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
         for retry in range(4):
             try:
                 if os.path.exists(chunk_file):
-                    os.remove(chunk_file)
-                comm = edge_tts.Communicate(clean_chunk, voice=voice, rate=rate, pitch=pitch, volume=volume)
-                timeout_sec = 25.0 + retry * 10.0
+                    try:
+                        os.remove(chunk_file)
+                    except OSError:
+                        pass
+                connector = aiohttp.TCPConnector(family=socket.AF_INET)
+                comm = edge_tts.Communicate(
+                    clean_chunk,
+                    voice=voice,
+                    rate=rate,
+                    pitch=pitch,
+                    volume=volume,
+                    connector=connector
+                )
+                timeout_sec = 35.0 + retry * 15.0
                 await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
                 if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
                     generated = True
@@ -884,7 +909,10 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
                 last_error = f"{type(e).__name__}: {e}".strip()
                 print(f"[*] Đoạn {idx + 1}/{len(chunks)} thử lần {retry + 1}/4: {last_error}", flush=True)
                 if os.path.exists(chunk_file):
-                    os.remove(chunk_file)
+                    try:
+                        os.remove(chunk_file)
+                    except OSError:
+                        pass
                 await asyncio.sleep(1.0 + retry * 1.5)
 
         if not generated:
@@ -892,9 +920,18 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
             for fallback_try in range(2):
                 try:
                     if os.path.exists(chunk_file):
-                        os.remove(chunk_file)
-                    comm = edge_tts.Communicate(clean_chunk, voice=voice, volume=volume)
-                    await asyncio.wait_for(comm.save(chunk_file), timeout=35.0)
+                        try:
+                            os.remove(chunk_file)
+                        except OSError:
+                            pass
+                    connector = aiohttp.TCPConnector(family=socket.AF_INET)
+                    comm = edge_tts.Communicate(
+                        clean_chunk,
+                        voice=voice,
+                        volume=volume,
+                        connector=connector
+                    )
+                    await asyncio.wait_for(comm.save(chunk_file), timeout=45.0)
                     if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
                         generated = True
                         break
@@ -903,7 +940,10 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
                     last_error = f"{type(e).__name__}: {e}".strip()
                     print(f"[!] Dự phòng đoạn {idx + 1} lần {fallback_try + 1}: {last_error}", flush=True)
                     if os.path.exists(chunk_file):
-                        os.remove(chunk_file)
+                        try:
+                            os.remove(chunk_file)
+                        except OSError:
+                            pass
                     await asyncio.sleep(2.0)
 
         if not generated:
@@ -913,10 +953,13 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
 
         print(f"[✓] Hoàn tất đoạn nhỏ {idx + 1}/{len(chunks)}.", flush=True)
         if idx < len(chunks) - 1:
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.3)
 
     if os.path.exists(output_path):
-        os.remove(output_path)
+        try:
+            os.remove(output_path)
+        except OSError:
+            pass
     with open(output_path, "wb") as outfile:
         for chunk_file in chunk_paths:
             if not os.path.exists(chunk_file) or os.path.getsize(chunk_file) <= 100:
@@ -1005,6 +1048,19 @@ def _connect_free_tts_usage_db():
     return connection
 
 
+def _clear_startup_stale_reservations():
+    try:
+        connection = _connect_free_tts_usage_db()
+        connection.execute("DELETE FROM free_tts_usage WHERE status = 'reserved'")
+        connection.commit()
+        connection.close()
+    except Exception:
+        pass
+
+
+_clear_startup_stale_reservations()
+
+
 def _free_tts_client_key():
     authorization = request.headers.get("Authorization", "")
     if authorization and BILLING_CONFIG.enabled and BILLING_CONFIG.configured:
@@ -1031,6 +1087,15 @@ def reserve_free_tts_usage(client_key, request_key, fingerprint, usage_day=None)
         connection.execute(
             "DELETE FROM free_tts_usage WHERE usage_day < date(?, '-45 days')",
             (usage_day,),
+        )
+        # Tự động giải phóng các yêu cầu treo quá 15 phút (tránh nghẽn hạn mức khi rớt mạng hoặc tắt trình duyệt)
+        connection.execute(
+            """
+            DELETE FROM free_tts_usage
+            WHERE status = 'reserved'
+              AND created_at < datetime(?, '-15 minutes')
+            """,
+            (datetime.now().astimezone().isoformat(),),
         )
         existing = connection.execute(
             """
@@ -1065,11 +1130,13 @@ def reserve_free_tts_usage(client_key, request_key, fingerprint, usage_day=None)
             """,
             (usage_day, client_key),
         ).fetchone()[0]
-        if used_seconds + FREE_TTS_MAX_JOB_SECONDS > FREE_TTS_DAILY_LIMIT_SECONDS:
+        available_seconds = FREE_TTS_DAILY_LIMIT_SECONDS - used_seconds
+        if available_seconds <= 0:
             raise FreeTTSQuotaError(
                 "daily_quota_exceeded",
                 "Bạn đã dùng hết 40 phút tạo giọng miễn phí hôm nay.",
             )
+        reserved_seconds = min(FREE_TTS_MAX_JOB_SECONDS, available_seconds)
 
         connection.execute(
             """
@@ -1083,7 +1150,7 @@ def reserve_free_tts_usage(client_key, request_key, fingerprint, usage_day=None)
                 client_key,
                 request_key,
                 fingerprint,
-                FREE_TTS_MAX_JOB_SECONDS,
+                reserved_seconds,
                 datetime.now().astimezone().isoformat(),
             ),
         )
@@ -1101,6 +1168,23 @@ def finish_free_tts_usage(client_key, request_key, duration_seconds, usage_day=N
     connection = _connect_free_tts_usage_db()
     try:
         connection.execute("BEGIN IMMEDIATE")
+        reservation = connection.execute(
+            """
+            SELECT reserved_seconds, status
+            FROM free_tts_usage
+            WHERE usage_day = ? AND client_key = ? AND request_key = ?
+            """,
+            (usage_day, client_key, request_key),
+        ).fetchone()
+        if (
+            reservation
+            and reservation[1] == "reserved"
+            and duration_seconds > (reservation[0] + 60.0)
+        ):
+            raise FreeTTSQuotaError(
+                "daily_quota_exceeded",
+                "Thời lượng âm thanh vượt hạn mức miễn phí còn lại hôm nay.",
+            )
         updated = connection.execute(
             """
             UPDATE free_tts_usage
@@ -1237,6 +1321,39 @@ def billing_webhook():
         app.logger.error("Paddle webhook processing failed: %s", error)
         return jsonify({"success": False, "error": "Unable to process billing event."}), 503
 
+@app.route("/api/split-preview", methods=["POST"])
+def split_preview():
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        raw_text = data.get("text", "")
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            return jsonify({"success": True, "total_parts": 0, "parts": []})
+        raw_text = raw_text.strip()
+        text_parts = split_text_by_word_limit(raw_text, max_words=2000)
+        parts_info = []
+        for idx, part in enumerate(text_parts):
+            w_count = len(part.split())
+            est_sec = max(8, w_count // 32 + 6)
+            preview_snippet = part[:100].strip()
+            if len(part) > 100:
+                preview_snippet += "..."
+            parts_info.append({
+                "index": idx,
+                "part_number": idx + 1,
+                "word_count": w_count,
+                "est_seconds": est_sec,
+                "est_minutes": round(w_count / 145, 1),
+                "preview": preview_snippet
+            })
+        return jsonify({
+            "success": True,
+            "total_parts": len(text_parts),
+            "total_words": sum(p["word_count"] for p in parts_info),
+            "parts": parts_info
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # API 1: TẠO GIỌNG ĐỌC AI TỪ VĂN BẢN
 @app.route("/api/generate", methods=["POST"])
 def generate():
@@ -1286,6 +1403,13 @@ def generate():
         ).hexdigest()
         filename = f"audio_{job_id}_{part_index + 1:03d}_{preset_key}.mp3"
         output_path = os.path.join(AUDIO_DIR, filename)
+        if data.get("force_retry"):
+            shutil.rmtree(work_dir, ignore_errors=True)
+            if os.path.exists(output_path):
+                try:
+                    os.remove(output_path)
+                except OSError:
+                    pass
         request_key = f"{job_id}:{part_index}"
         usage_day = datetime.now().astimezone().date().isoformat()
         try:
@@ -1395,7 +1519,7 @@ def generate():
             return jsonify({
                 "success": False,
                 "code": "job_limit_exceeded",
-                "error": "Mỗi lần tạo chỉ được tối đa 10 phút âm thanh.",
+                "error": f"Mỗi lần tạo chỉ được tối đa {FREE_TTS_MAX_JOB_SECONDS // 60} phút âm thanh.",
                 "max_job_minutes": FREE_TTS_MAX_JOB_SECONDS // 60,
             }), 413
 
@@ -1403,6 +1527,27 @@ def generate():
             daily_remaining_seconds = finish_free_tts_usage(
                 client_key, request_key, audio_duration_seconds, usage_day
             )
+        except FreeTTSQuotaError as error:
+            app.logger.warning("Generated TTS exceeds the remaining daily quota: %s", error)
+            if reservation_created:
+                release_free_tts_usage(client_key, request_key, usage_day)
+            try:
+                os.remove(output_path)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                app.logger.exception("Could not remove TTS output exceeding the remaining quota")
+                return jsonify({
+                    "success": False,
+                    "error": "Không thể loại bỏ âm thanh vượt hạn mức.",
+                }), 503
+            return jsonify({
+                "success": False,
+                "code": error.code,
+                "error": str(error),
+                "daily_limit_minutes": FREE_TTS_DAILY_LIMIT_SECONDS // 60,
+                "max_job_minutes": FREE_TTS_MAX_JOB_SECONDS // 60,
+            }), 429
         except Exception as error:
             app.logger.exception("Could not record free TTS usage")
             if reservation_created:
@@ -1795,6 +1940,10 @@ def link_info():
         })
     except Exception as e:
         return jsonify({"success": False, "error": friendly_download_error(e)}), 502
+
+@app.route("/api/download/<path:filename>")
+def api_download_file(filename):
+    return send_from_directory(AUDIO_DIR, filename, as_attachment=True, download_name=os.path.basename(filename))
 
 @app.route("/static/audio/<path:filename>")
 def download_file(filename):

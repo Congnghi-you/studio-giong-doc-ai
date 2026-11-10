@@ -39,7 +39,7 @@ class FreeTTSQuotaTests(unittest.TestCase):
     def test_reservations_cannot_exceed_daily_limit(self):
         client_key = "test-client"
         usage_day = "2025-01-15"
-        for index in range(4):
+        for index in range(2):
             app_module.reserve_free_tts_usage(
                 client_key, f"job-{index}:0", f"fingerprint-{index}", usage_day
             )
@@ -51,6 +51,35 @@ class FreeTTSQuotaTests(unittest.TestCase):
 
         self.assertEqual(error.exception.code, "daily_quota_exceeded")
 
+    def test_last_reservation_uses_remaining_daily_quota(self):
+        client_key = "test-client"
+        usage_day = "2025-01-15"
+        app_module.reserve_free_tts_usage(client_key, "job-1:0", "first", usage_day)
+        app_module.finish_free_tts_usage(client_key, "job-1:0", 1200, usage_day)
+        app_module.reserve_free_tts_usage(client_key, "job-2:0", "second", usage_day)
+        app_module.finish_free_tts_usage(client_key, "job-2:0", 480, usage_day)
+
+        self.assertTrue(app_module.reserve_free_tts_usage(
+            client_key, "job-3:0", "third", usage_day
+        ))
+        connection = app_module._connect_free_tts_usage_db()
+        try:
+            reserved_seconds = connection.execute(
+                """
+                SELECT reserved_seconds FROM free_tts_usage
+                WHERE usage_day = ? AND client_key = ? AND request_key = ?
+                """,
+                (usage_day, client_key, "job-3:0"),
+            ).fetchone()[0]
+        finally:
+            connection.close()
+
+        self.assertEqual(reserved_seconds, 720)
+        self.assertEqual(
+            app_module.finish_free_tts_usage(client_key, "job-3:0", 360, usage_day),
+            6 * 60,
+        )
+
     def test_fingerprint_mismatch_is_rejected(self):
         app_module.reserve_free_tts_usage("test-client", "job:0", "first", "2025-01-15")
 
@@ -59,7 +88,7 @@ class FreeTTSQuotaTests(unittest.TestCase):
 
         self.assertEqual(error.exception.code, "duplicate_request")
 
-    def test_generate_rejects_audio_over_ten_minutes_and_releases_quota(self):
+    def test_generate_rejects_audio_over_twenty_minutes_and_releases_quota(self):
         audio_dir = os.path.join(self.temp_dir.name, "audio")
         work_dir = os.path.join(self.temp_dir.name, "work")
         os.makedirs(audio_dir)
@@ -73,7 +102,7 @@ class FreeTTSQuotaTests(unittest.TestCase):
             patch.object(app_module, "AUDIO_DIR", audio_dir),
             patch.object(app_module, "TTS_WORK_DIR", work_dir),
             patch.object(app_module, "generate_speech_async", create_audio),
-            patch.object(app_module, "get_media_duration_seconds", return_value=600.01),
+            patch.object(app_module, "get_media_duration_seconds", return_value=1200.01),
         ):
             response = app_module.app.test_client().post(
                 "/api/generate",
@@ -107,7 +136,7 @@ class FreeTTSQuotaTests(unittest.TestCase):
             patch.object(app_module, "AUDIO_DIR", audio_dir),
             patch.object(app_module, "TTS_WORK_DIR", work_dir),
             patch.object(app_module, "generate_speech_async", create_audio),
-            patch.object(app_module, "get_media_duration_seconds", return_value=75.5),
+            patch.object(app_module, "get_media_duration_seconds", return_value=840),
         ):
             response = app_module.app.test_client().post(
                 "/api/generate",
@@ -115,8 +144,8 @@ class FreeTTSQuotaTests(unittest.TestCase):
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["audio_duration_seconds"], 75.5)
-        self.assertEqual(response.get_json()["daily_tts_minutes_remaining"], 38.74)
+        self.assertEqual(response.get_json()["audio_duration_seconds"], 840)
+        self.assertEqual(response.get_json()["daily_tts_minutes_remaining"], 26)
 
 
 if __name__ == "__main__":

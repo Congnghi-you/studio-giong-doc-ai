@@ -824,11 +824,219 @@
             gap: 14px;
         }
 
-        .audio-part {
-            padding: 14px;
-            background: rgba(15, 23, 42, 0.55);
+        .audio-part, .audio-part-card {
+            background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            margin-bottom: 12px;
+        }
+
+        .audio-part-card.is-running {
+            border-color: var(--accent);
+            box-shadow: 0 4px 18px rgba(15, 118, 110, 0.16);
+        }
+
+        .audio-part-card.is-done {
+            border-color: #86efac;
+            background: #fbfdfc;
+        }
+
+        .audio-part-card.is-error {
+            border-color: #fca5a5;
+            background: #fffafa;
+        }
+
+        .part-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .part-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .part-badge {
+            background: #eaf5f1;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .part-words-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .part-status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .part-status-badge.status-waiting {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .part-status-badge.status-running {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .part-status-badge.status-done {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .part-status-badge.status-error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .part-progress-box {
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+
+        .part-progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .part-progress-bar-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .part-progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .part-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn-download-part {
+            background: var(--accent-gradient);
+            color: #ffffff !important;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(15, 118, 110, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn-download-part:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3);
+        }
+
+        .btn-reload-part {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reload-part:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-retry-part {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-retry-part:hover {
+            background: #fecaca;
+        }
+
+        .part-error-box {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fff5f5;
+            border: 1px dashed #fca5a5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .part-error-text {
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .audio-part audio {
+            width: 100%;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .audio-part .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .audio-part-title {
@@ -1602,31 +1810,31 @@
                     <span id="btnTextTTS" data-i18n="btn_submit_tts">🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3</span>
                 </button>
 
-                <!-- KHU VỰC TIẾN TRÌNH & ĐẾM NGƯỢC THỜI GIAN -->
-                <div class="progress-box" id="progressBoxTTS" style="display:none; margin-top:16px; background:rgba(15, 23, 42, 0.7); border:1px solid var(--border); border-radius:12px; padding:16px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13.5px; flex-wrap:wrap; gap:8px;">
-                        <span id="progressStatusTTS" style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:8px;">
-                            <span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span>
-                            <span id="progressStatusTextTTS" data-i18n="prog_tts_status">Đang xử lý tổng hợp giọng đọc AI...</span>
+                <!-- KHU VỰC CÁC ĐOẠN ÂM THANH & THANH CHẠY TIẾN TRÌNH RIÊNG BIỆT -->
+                <div id="ttsPartsSection" style="display:none; margin-top:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <span style="font-weight:700; font-size:15px; color:var(--text-main);" id="ttsPartsSectionTitle">
+                            📋 Danh sách các đoạn âm thanh
                         </span>
-                        <span id="countdownLabelTTS" style="color:var(--text-muted);"><span data-i18n="prog_countdown">Ước tính còn:</span> <strong id="countdownValTTS" style="color:#fbbf24; font-size:16px; font-family:monospace;">00:00</strong></span>
+                        <span id="audioOverallStats" style="font-size:13px; color:var(--text-muted); font-weight:500;"></span>
                     </div>
-                    <div style="width:100%; height:9px; background:#e7ece8; border-radius:10px; overflow:hidden;">
-                        <div id="progressBarTTS" style="width:0%; height:100%; background:var(--accent-gradient); transition:width 0.4s ease; border-radius:10px;"></div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
-                        <span id="progressDetailTTS" data-i18n="prog_tts_detail">Đang chia đoạn văn bản và gửi xử lý song song...</span>
-                        <span><span data-i18n="prog_elapsed">Đã chạy:</span> <strong id="elapsedValTTS" style="color:var(--text-main); font-family:monospace;">00:00</strong> (<span id="percentValTTS">0%</span>)</span>
-                    </div>
+
+                    <div class="audio-parts-list" id="audioPartsList"></div>
                 </div>
 
-                <div class="result-box" id="resultBoxTTS">
-                    <div class="result-header">
-                        <span class="result-title" id="ttsResultTitle">✓ Đã tạo thành công file âm thanh!</span>
-                        <span id="audioStats" style="font-size: 13px; color: var(--text-muted);"></span>
-                    </div>
-                    <div class="audio-parts-list" id="audioPartsList"></div>
-                    <button type="button" class="btn-action" id="btnContinueTTS" onclick="generateSpeech()" style="display:none; margin-top:14px;"></button>
+                <!-- CÁC ELEMENT TƯƠNG THÍCH CŨ ĐỂ KHÔNG BỊ LỖI THAM CHIẾU -->
+                <div class="progress-box" id="progressBoxTTS" style="display:none;">
+                    <div id="progressStatusTTS"></div>
+                    <div id="progressBarTTS"></div>
+                    <div id="progressDetailTTS"></div>
+                    <div id="countdownValTTS"></div>
+                    <div id="elapsedValTTS"></div>
+                    <div id="percentValTTS"></div>
+                </div>
+                <div class="result-box" id="resultBoxTTS" style="display:none;">
+                    <span id="ttsResultTitle"></span>
+                    <span id="audioStats"></span>
+                    <button type="button" id="btnContinueTTS" style="display:none;"></button>
                 </div>
             </div>
         </div>
@@ -1743,7 +1951,7 @@
                     <div class="pricing-price" data-i18n="pricing_free_price">Free</div>
                     <div class="pricing-benefits">
                         <span data-i18n="pricing_free_daily">✓ 40 minutes of voice generation per day</span>
-                        <span data-i18n="pricing_free_job">✓ Up to 10 minutes per audio file</span>
+                        <span data-i18n="pricing_free_job">✓ Up to 20 minutes per audio file</span>
                         <span data-i18n="pricing_free_edge">✓ Create voices with Edge TTS</span>
                         <span data-i18n="pricing_free_stt">✓ Audio transcription available with a paid plan</span>
                     </div>
@@ -2244,7 +2452,7 @@ const SITE_I18N = {
         pricing_free_plan: 'Gói dùng thử miễn phí',
         pricing_free_price: 'Miễn phí',
         pricing_free_daily: '✓ Tạo giọng đọc tối đa 40 phút mỗi ngày',
-        pricing_free_job: '✓ Tối đa 10 phút âm thanh mỗi lần tạo',
+        pricing_free_job: '✓ Tối đa 20 phút âm thanh mỗi lần tạo',
         pricing_free_edge: '✓ Tạo giọng đọc với Edge TTS',
         pricing_free_stt: '✓ Chuyển âm thanh thành văn bản với gói trả phí',
         pricing_free_signup: 'Đăng ký tài khoản miễn phí',
@@ -2262,7 +2470,7 @@ const SITE_I18N = {
         faq_title: 'Câu hỏi thường gặp', faq_intro: 'Thông tin về gói và cách sử dụng studio.',
         faq_q1: 'Các gói có tự động gia hạn không?', faq_a1: 'Không. Cả hai đều thanh toán một lần. Gói năm có hiệu lực 365 ngày; gói trọn đời không hết hạn.',
         faq_q2: 'Mỗi gói có bao nhiêu phút chuyển văn bản?', faq_a2: 'Gói năm có 3.600 phút và gói trọn đời có 1.000.000 phút mỗi chu kỳ 30 ngày. Mỗi tác vụ tối đa 60 phút.',
-        faq_q3: 'Các gói trả phí bao gồm những gì?', faq_a3: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày và 10 phút mỗi lần. Cả hai gói trả phí đều mở tính năng chuyển âm thanh thành văn bản bằng faster-whisper.',
+        faq_q3: 'Các gói trả phí bao gồm những gì?', faq_a3: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày và 20 phút mỗi file. Cả hai gói trả phí đều mở tính năng chuyển âm thanh thành văn bản bằng faster-whisper.',
         faq_q4: 'Tôi có thể mua gói trong bản local này không?', faq_a4: 'Chưa. Bản local chưa kết nối đăng nhập hoặc thanh toán. Mua gói trực tuyến sẽ khả dụng sau khi dịch vụ được cấu hình.'
     },
     en: {
@@ -2272,7 +2480,7 @@ const SITE_I18N = {
         pricing_free_plan: 'Free Voice Trial',
         pricing_free_price: 'Free',
         pricing_free_daily: '✓ Up to 40 minutes of voice generation per day',
-        pricing_free_job: '✓ Up to 10 minutes of audio per generation',
+        pricing_free_job: '✓ Up to 20 minutes of audio per generation',
         pricing_free_edge: '✓ Create voices with Edge TTS',
         pricing_free_stt: '✓ Audio transcription included with a paid plan',
         pricing_free_signup: 'Create a free account',
@@ -2290,7 +2498,7 @@ const SITE_I18N = {
         faq_title: 'Frequently asked questions', faq_intro: 'Plan details and how the studio works.',
         faq_q1: 'Do plans renew automatically?', faq_a1: 'No. Both are one-time payments. The annual plan lasts 365 days; lifetime access does not expire.',
         faq_q2: 'How much transcription is included?', faq_a2: 'The annual plan includes 3,600 minutes and lifetime includes 1,000,000 minutes per 30 days. Each task is limited to 60 minutes.',
-        faq_q3: 'What do the paid plans include?', faq_a3: 'Free voice generation is limited to 40 minutes per day and 10 minutes per file. Both paid plans unlock audio transcription with faster-whisper.',
+        faq_q3: 'What do the paid plans include?', faq_a3: 'Free voice generation is limited to 40 minutes per day and 20 minutes per file. Both paid plans unlock audio transcription with faster-whisper.',
         faq_q4: 'Can I buy the plan in this local preview?', faq_a4: 'No. This local preview does not connect to sign-in or checkout. Online purchases become available after the service is configured.'
     },
     zh: {
@@ -2300,7 +2508,7 @@ const SITE_I18N = {
         pricing_free_plan: '免费语音试用',
         pricing_free_price: '免费',
         pricing_free_daily: '✓ 每天最多生成语音 40 分钟',
-        pricing_free_job: '✓ 每次生成的音频最多 10 分钟',
+        pricing_free_job: '✓ 每次生成的音频最多 20 分钟',
         pricing_free_edge: '✓ 使用 Edge TTS 生成语音',
         pricing_free_stt: '✓ 音频转写需使用付费套餐',
         pricing_free_signup: '注册免费账户',
@@ -2318,7 +2526,7 @@ const SITE_I18N = {
         faq_title: '常见问题', faq_intro: '套餐详情与工作室使用说明。',
         faq_q1: '套餐会自动续费吗？', faq_a1: '不会。两种套餐均为一次性付款。年度套餐有效期为 365 天；终身套餐不会过期。',
         faq_q2: '套餐包含多少转写时长？', faq_a2: '年度套餐每 30 天含 3,600 分钟，终身套餐每 30 天含 1,000,000 分钟。每项任务最多 60 分钟。',
-        faq_q3: '付费套餐包含什么？', faq_a3: '免费语音生成每天最多 40 分钟，每个文件最多 10 分钟。两种付费套餐均可使用 faster-whisper 音频转写。',
+        faq_q3: '付费套餐包含什么？', faq_a3: '免费语音生成每天最多 40 分钟，每个文件最多 20 分钟。两种付费套餐均可使用 faster-whisper 音频转写。',
         faq_q4: '可以在本地预览版购买套餐吗？', faq_a4: '暂时不可以。本地预览版尚未连接登录或付款，服务配置完成后才可在线购买。'
     },
     ja: {
@@ -2328,7 +2536,7 @@ const SITE_I18N = {
         pricing_free_plan: '無料音声トライアル',
         pricing_free_price: '無料',
         pricing_free_daily: '✓ 音声生成は1日最大40分',
-        pricing_free_job: '✓ 1回の生成につき音声は最大10分',
+        pricing_free_job: '✓ 1回の生成につき音声は最大20分',
         pricing_free_edge: '✓ Edge TTS で音声を生成',
         pricing_free_stt: '✓ 文字起こしは有料プランで利用可能',
         pricing_free_signup: '無料アカウントを登録',
@@ -2346,7 +2554,7 @@ const SITE_I18N = {
         faq_title: 'よくある質問', faq_intro: 'プランの詳細とスタジオの使い方。',
         faq_q1: 'プランは自動更新されますか？', faq_a1: 'いいえ。どちらも一回払いです。年間プランは365日間、永久プランに有効期限はありません。',
         faq_q2: '文字起こしは何分利用できますか？', faq_a2: '年間プランは30日ごとに3,600分、永久プランは1,000,000分です。1回の処理は最大60分です。',
-        faq_q3: '有料プランには何が含まれますか？', faq_a3: '無料の音声生成は1日40分、1ファイル10分までです。有料プランでは faster-whisper の文字起こしを利用できます。',
+        faq_q3: '有料プランには何が含まれますか？', faq_a3: '無料の音声生成は1日40分、1ファイル20分までです。有料プランでは faster-whisper の文字起こしを利用できます。',
         faq_q4: 'このローカルプレビューで購入できますか？', faq_a4: 'いいえ。ローカル版ではログインと決済が未接続です。サービス設定後にオンライン購入が可能になります。'
     },
     ko: {
@@ -2356,7 +2564,7 @@ const SITE_I18N = {
         pricing_free_plan: '무료 음성 체험',
         pricing_free_price: '무료',
         pricing_free_daily: '✓ 하루 최대 40분 음성 생성',
-        pricing_free_job: '✓ 한 번 생성할 때 오디오 최대 10분',
+        pricing_free_job: '✓ 한 번 생성할 때 오디오 최대 20분',
         pricing_free_edge: '✓ Edge TTS 음성 생성',
         pricing_free_stt: '✓ 텍스트 변환은 유료 플랜에서 이용 가능',
         pricing_free_signup: '무료 계정 만들기',
@@ -2374,7 +2582,7 @@ const SITE_I18N = {
         faq_title: '자주 묻는 질문', faq_intro: '플랜 상세 정보와 스튜디오 사용 방법입니다.',
         faq_q1: '플랜이 자동으로 갱신되나요?', faq_a1: '아니요. 두 플랜 모두 일회성 결제입니다. 연간 플랜은 365일, 평생 플랜은 만료되지 않습니다.',
         faq_q2: '텍스트 변환은 몇 분 제공되나요?', faq_a2: '연간 플랜은 30일마다 3,600분, 평생 플랜은 1,000,000분이며 작업당 최대 60분입니다.',
-        faq_q3: '유료 플랜에는 무엇이 포함되나요?', faq_a3: '무료 음성 생성은 하루 40분, 파일당 10분으로 제한됩니다. 두 유료 플랜은 faster-whisper 오디오 텍스트 변환을 제공합니다.',
+        faq_q3: '유료 플랜에는 무엇이 포함되나요?', faq_a3: '무료 음성 생성은 하루 40분, 파일당 20분으로 제한됩니다. 두 유료 플랜은 faster-whisper 오디오 텍스트 변환을 제공합니다.',
         faq_q4: '이 로컬 미리보기에서 구매할 수 있나요?', faq_a4: '아니요. 로컬 미리보기에는 로그인과 결제가 연결되지 않았습니다. 서비스 설정 후 온라인 구매가 가능합니다.'
     }
 };
@@ -2385,6 +2593,18 @@ const RUNTIME_I18N = {
         voice_custom: '⭐ Giọng Mô Phỏng Của Bạn',
         voice_count: '{count} giọng hiển thị',
         voice_results: '{count} kết quả',
+        tts_parts_heading: '📋 Danh sách các đoạn âm thanh ({count} đoạn)',
+        tts_part_status_waiting: 'Chờ tạo',
+        tts_part_status_running: 'Đang tạo âm thanh...',
+        tts_part_status_done: '✓ Đã tạo xong',
+        tts_part_status_error: '⚠ Lỗi tạo đoạn',
+        tts_download_part: '⬇ Tải phần {index} xuống (MP3)',
+        tts_reload_part: '🔄 Tải lại đoạn {index}',
+        tts_retry_part: '🔄 Thử lại đoạn {index}',
+        tts_btn_generate_all: '🎧 BẮT ĐẦU TẠO TẤT CẢ {count} ĐOẠN',
+        tts_btn_generate_single: '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3',
+        tts_btn_continue: '🎧 Tiếp tục tạo các đoạn còn lại',
+        tts_btn_all_completed: '✓ ĐÃ HOÀN TẤT TẤT CẢ {count} ĐOẠN (BẤM ĐỂ TẠO LẠI)',
         tts_part_summary: 'Tự chia {count} phần, tối đa 2.000 từ/phần.',
         tts_parts_ready: 'Đã tạo {done}/{total} phần',
         tts_next_action: 'Tạo phần {index}/{total}',
@@ -2410,7 +2630,7 @@ const RUNTIME_I18N = {
         tts_download: '⬇ Tải phần {index} xuống (MP3)',
         tts_error: 'Lỗi: ',
         tts_failed: 'Không thể tạo âm thanh!',
-        tts_job_limit: 'Mỗi lần tạo chỉ được tối đa 10 phút âm thanh.',
+        tts_job_limit: 'Mỗi lần tạo chỉ được tối đa 20 phút âm thanh.',
         tts_daily_limit: 'Bạn đã dùng hết 40 phút tạo giọng miễn phí hôm nay.',
         tts_daily_remaining: 'Còn {minutes} phút miễn phí hôm nay.',
         tts_timeout: 'Hết thời gian chờ ({minutes} phút). Vui lòng kiểm tra kết nối mạng hoặc thử lại!',
@@ -2438,6 +2658,18 @@ const RUNTIME_I18N = {
         voice_custom: '⭐ Your Custom Voice',
         voice_count: '{count} voices shown',
         voice_results: '{count} results',
+        tts_parts_heading: '📋 Audio Parts List ({count} parts)',
+        tts_part_status_waiting: 'Waiting',
+        tts_part_status_running: 'Generating audio...',
+        tts_part_status_done: '✓ Ready',
+        tts_part_status_error: '⚠ Generation Error',
+        tts_download_part: '⬇ Download part {index} (MP3)',
+        tts_reload_part: '🔄 Reload part {index}',
+        tts_retry_part: '🔄 Retry part {index}',
+        tts_btn_generate_all: '🎧 GENERATE ALL {count} PARTS',
+        tts_btn_generate_single: '🎧 GENERATE MP3 AUDIO FILE',
+        tts_btn_continue: '🎧 Continue Remaining Parts',
+        tts_btn_all_completed: '✓ ALL {count} PARTS COMPLETED (CLICK TO RE-CREATE)',
         tts_part_summary: 'Total audio parts: {count} (up to 2,000 words each).',
         tts_parts_ready: 'Audio parts ready: {done}/{total}',
         tts_next_action: 'Create part {index}/{total}',
@@ -2463,7 +2695,7 @@ const RUNTIME_I18N = {
         tts_download: '⬇ Download part {index} (MP3)',
         tts_error: 'Error: ',
         tts_failed: 'Could not generate audio.',
-        tts_job_limit: 'Each generation is limited to 10 minutes of audio.',
+        tts_job_limit: 'Each generation is limited to 20 minutes of audio.',
         tts_daily_limit: 'You have used your 40 free voice-generation minutes for today.',
         tts_daily_remaining: '{minutes} free minutes remaining today.',
         tts_timeout: 'Timed out ({minutes} minutes). Check your internet connection or try again.',
@@ -2516,7 +2748,7 @@ const RUNTIME_I18N = {
         tts_download: '⬇ 下载第 {index} 段 (MP3)',
         tts_error: '错误：',
         tts_failed: '无法生成音频。',
-        tts_job_limit: '每次生成的音频最多为 10 分钟。',
+        tts_job_limit: '每次生成的音频最多为 20 分钟。',
         tts_daily_limit: '您今天的 40 分钟免费语音生成额度已用完。',
         tts_daily_remaining: '今天还剩 {minutes} 分钟免费额度。',
         tts_timeout: '等待超时（{minutes} 分钟）。请检查网络连接或重试。',
@@ -2544,6 +2776,18 @@ const RUNTIME_I18N = {
         voice_custom: '⭐ カスタム音声',
         voice_count: '{count} 件の音声を表示',
         voice_results: '{count} 件の結果',
+        tts_parts_heading: '📋 音声パート一覧（全 {count} パート）',
+        tts_part_status_waiting: '待機中',
+        tts_part_status_running: '音声生成中...',
+        tts_part_status_done: '✓ 生成完了',
+        tts_part_status_error: '⚠ エラー',
+        tts_download_part: '⬇ パート {index} をダウンロード (MP3)',
+        tts_reload_part: '🔄 パート {index} を再生成',
+        tts_retry_part: '🔄 パート {index} を再試行',
+        tts_btn_generate_all: '🎧 全 {count} パートの生成を開始',
+        tts_btn_generate_single: '🎧 MP3音声ファイルを生成',
+        tts_btn_continue: '🎧 残りのパートを続行',
+        tts_btn_all_completed: '✓ 全 {count} パート生成完了（クリックで再生成）',
         tts_part_summary: '最大2,000語ずつ、{count}パートに自動分割します。',
         tts_parts_ready: '{done}/{total} パート作成済み',
         tts_next_action: 'パート {index}/{total} を作成',
@@ -2569,7 +2813,7 @@ const RUNTIME_I18N = {
         tts_download: '⬇ パート {index} をダウンロード (MP3)',
         tts_error: 'エラー：',
         tts_failed: '音声を生成できませんでした。',
-        tts_job_limit: '1回の生成につき音声は最大10分です。',
+        tts_job_limit: '1回の生成につき音声は最大20分です。',
         tts_daily_limit: '本日の無料音声生成40分を使い切りました。',
         tts_daily_remaining: '本日の無料残り時間は{minutes}分です。',
         tts_timeout: 'タイムアウト（{minutes} 分）しました。ネットワークを確認して再試行してください。',
@@ -2597,6 +2841,18 @@ const RUNTIME_I18N = {
         voice_custom: '⭐ 나만의 음성',
         voice_count: '{count}개 음성 표시',
         voice_results: '{count}개 결과',
+        tts_parts_heading: '📋 오디오 구간 목록 ({count}개 구간)',
+        tts_part_status_waiting: '대기 중',
+        tts_part_status_running: '오디오 생성 중...',
+        tts_part_status_done: '✓ 생성 완료',
+        tts_part_status_error: '⚠ 오류 발생',
+        tts_download_part: '⬇ {index}번 구간 다운로드 (MP3)',
+        tts_reload_part: '🔄 {index}번 구간 재생성',
+        tts_retry_part: '🔄 {index}번 구간 재시도',
+        tts_btn_generate_all: '🎧 전체 {count}개 구간 생성 시작',
+        tts_btn_generate_single: '🎧 MP3 오디오 파일 생성',
+        tts_btn_continue: '🎧 남은 구간 계속 생성',
+        tts_btn_all_completed: '✓ 전체 {count}개 구간 완료 (클릭 시 다시 생성)',
         tts_part_summary: '최대 2,000개 단어씩 {count}개 구간으로 자동 분할합니다.',
         tts_parts_ready: '{done}/{total}개 구간 생성됨',
         tts_next_action: '{index}/{total} 구간 생성',
@@ -2622,7 +2878,7 @@ const RUNTIME_I18N = {
         tts_download: '⬇ {index}번 구간 다운로드 (MP3)',
         tts_error: '오류: ',
         tts_failed: '오디오를 생성할 수 없습니다.',
-        tts_job_limit: '한 번 생성할 때 오디오는 최대 10분입니다.',
+        tts_job_limit: '한 번 생성할 때 오디오는 최대 20분입니다.',
         tts_daily_limit: '오늘 무료 음성 생성 40분을 모두 사용했습니다.',
         tts_daily_remaining: '오늘 무료 사용 시간이 {minutes}분 남았습니다.',
         tts_timeout: '시간 초과({minutes}분)입니다. 네트워크를 확인하거나 다시 시도하세요.',
@@ -2952,7 +3208,7 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'Tiếp tục không đăng nhập',
                 online_description: 'Đăng nhập để dùng chuyển âm thanh thành văn bản và quản lý gói của bạn.',
-                online_notice: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày, 10 phút mỗi file. Không cần phương thức thanh toán.',
+                online_notice: 'Tạo giọng đọc miễn phí tối đa 40 phút mỗi ngày, 20 phút mỗi file. Không cần phương thức thanh toán.',
                 google_online: 'G Tiếp tục với Google',
                 email_signup_label: 'Đăng ký hoặc đăng nhập bằng email',
                 email_signin: 'Gửi liên kết đăng nhập',
@@ -2986,7 +3242,7 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'Continue without signing in',
                 online_description: 'Sign in to transcribe audio and manage your plan.',
-                online_notice: 'Free voice generation: up to 40 minutes per day and 10 minutes per file. No payment method required.',
+                online_notice: 'Free voice generation: up to 40 minutes per day and 20 minutes per file. No payment method required.',
                 google_online: 'G Continue with Google',
                 email_signup_label: 'Create an account or sign in with email',
                 email_signin: 'Send sign-in link',
@@ -3020,7 +3276,7 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: '不登录，继续使用',
                 online_description: '登录以转录音频并管理您的套餐。',
-                online_notice: '免费语音生成每天最多 40 分钟，每个文件最多 10 分钟。无需付款方式。',
+                online_notice: '免费语音生成每天最多 40 分钟，每个文件最多 20 分钟。无需付款方式。',
                 google_online: 'G 使用 Google 继续',
                 email_signup_label: '注册或使用电子邮件登录',
                 email_signin: '发送登录链接',
@@ -3054,7 +3310,7 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: 'ログインせずに続ける',
                 online_description: 'ログインして音声を文字起こしし、プランを管理できます。',
-                online_notice: '無料の音声生成は1日最大40分、1ファイル最大10分です。支払い方法は不要です。',
+                online_notice: '無料の音声生成は1日最大40分、1ファイル最大20分です。支払い方法は不要です。',
                 google_online: 'G Google で続行',
                 email_signup_label: 'メールで登録またはログイン',
                 email_signin: 'ログインリンクを送信',
@@ -3088,7 +3344,7 @@ const GENDER_TRANSLATIONS = {
                 email_placeholder: 'name@example.com',
                 continue: '로그인 없이 계속',
                 online_description: '로그인하여 오디오 텍스트 변환 및 플랜을 관리하세요.',
-                online_notice: '무료 음성 생성은 하루 최대 40분, 파일당 최대 10분입니다. 결제 수단이 필요하지 않습니다.',
+                online_notice: '무료 음성 생성은 하루 최대 40분, 파일당 최대 20분입니다. 결제 수단이 필요하지 않습니다.',
                 google_online: 'G Google로 계속',
                 email_signup_label: '이메일로 가입하거나 로그인',
                 email_signin: '로그인 링크 보내기',
@@ -3123,13 +3379,18 @@ const GENDER_TRANSLATIONS = {
 
         function updateAudioResultLabels(data) {
             document.querySelectorAll('.audio-part').forEach(partBox => {
-                partBox.querySelector('.audio-part-title').innerText = translate('tts_part', {
-                    index: partBox.dataset.partIndex,
-                    total: partBox.dataset.totalParts,
-                    words: Number(partBox.dataset.wordCount).toLocaleString()
-                });
+                const pIdx = Number(partBox.dataset.partIndex || 1);
+                const tParts = Number(partBox.dataset.totalParts || 1);
+                const wCount = Number(partBox.dataset.wordCount || 0).toLocaleString();
+                partBox.querySelector('.audio-part-title').innerText = tParts > 1
+                    ? translate('tts_part', { index: pIdx, total: tParts, words: wCount })
+                    : `Âm thanh (${wCount} từ)`;
                 const downloadLink = partBox.querySelector('a[download]');
-                downloadLink.innerText = translate('tts_download', { index: partBox.dataset.partIndex });
+                if (downloadLink) {
+                    downloadLink.innerText = tParts > 1
+                        ? translate('tts_download', { index: pIdx })
+                        : `⬇ Tải xuống file MP3 (${wCount} từ)`;
+                }
             });
 
             const selectedVoice = data.preset_key
@@ -3523,15 +3784,200 @@ const GENDER_TRANSLATIONS = {
             document.getElementById('volumeVal').innerText = (val >= 0 ? '+' : '') + val + '%';
         }
 
+        function splitTextIntoPartsJS(text, maxWords = 2000) {
+            if (!text || !text.trim()) return [];
+            const paragraphs = text.trim().split(/\n+/);
+            const parts = [];
+            let currentPartWords = [];
+
+            paragraphs.forEach(para => {
+                para = para.trim();
+                if (!para) return;
+                const sentences = para.match(/[^.!?…]+[.!?…]*|\s+/g) || [para];
+                sentences.forEach(sentence => {
+                    const words = sentence.trim().split(/\s+/).filter(Boolean);
+                    if (!words.length) return;
+                    if (currentPartWords.length > 0 && (currentPartWords.length + words.length > maxWords)) {
+                        parts.push(currentPartWords.join(' '));
+                        currentPartWords = [];
+                    }
+                    if (words.length > maxWords) {
+                        for (let i = 0; i < words.length; i += maxWords) {
+                            const slice = words.slice(i, i + maxWords);
+                            if (currentPartWords.length + slice.length > maxWords) {
+                                parts.push(currentPartWords.join(' '));
+                                currentPartWords = [];
+                            }
+                            currentPartWords.push(...slice);
+                        }
+                    } else {
+                        currentPartWords.push(...words);
+                    }
+                });
+            });
+            if (currentPartWords.length > 0) {
+                parts.push(currentPartWords.join(' '));
+            }
+            return parts.length ? parts : [text.trim()];
+        }
+
+        let partsPreviewTimeout = null;
+        function schedulePartsPreview() {
+            if (partsPreviewTimeout) clearTimeout(partsPreviewTimeout);
+            partsPreviewTimeout = setTimeout(() => {
+                renderPartsPreview();
+            }, 80);
+        }
+
+        function getStatusBadgeLabel(status) {
+            switch(status) {
+                case 'running':
+                    return `<span class="spinner" style="display:inline-block; width:10px; height:10px; border-width:2px; border-top-color:#0369a1;"></span> ${translate('tts_part_status_running')}`;
+                case 'done':
+                    return translate('tts_part_status_done');
+                case 'error':
+                    return translate('tts_part_status_error');
+                default:
+                    return translate('tts_part_status_waiting');
+            }
+        }
+
+        function renderAllPartCards() {
+            const partsList = document.getElementById('audioPartsList');
+            const partsSection = document.getElementById('ttsPartsSection');
+            if (!partsList || !ttsJob || !ttsJob.parts || !ttsJob.parts.length) {
+                if (partsSection) partsSection.style.display = 'none';
+                return;
+            }
+
+            partsList.replaceChildren();
+            const total = ttsJob.parts.length;
+            const headingEl = document.getElementById('ttsPartsSectionTitle');
+            if (headingEl) {
+                headingEl.innerText = translate('tts_parts_heading', { count: total });
+            }
+
+            const totalWords = ttsJob.parts.reduce((sum, p) => sum + p.wordCount, 0);
+            const estMins = (totalWords / 145).toFixed(1);
+            const overallStatsEl = document.getElementById('audioOverallStats');
+            if (overallStatsEl) {
+                overallStatsEl.innerText = `${totalWords.toLocaleString()} ${translate('tts_words', { count: '' }).trim()} • ~${estMins} ${translate('stt_minutes')}`;
+            }
+
+            ttsJob.parts.forEach((part, idx) => {
+                const card = document.createElement('div');
+                card.className = `audio-part-card status-${part.status}`;
+                card.id = `partCard_${idx}`;
+
+                const displayNum = idx + 1;
+                const partMinutes = (part.wordCount / 145).toFixed(1);
+
+                card.innerHTML = `
+                    <div class="part-header-row">
+                        <div class="part-title-group">
+                            <span class="part-badge">${translate('tts_part', { index: displayNum, total: total, words: part.wordCount.toLocaleString() })}</span>
+                            <span class="part-words-meta">~${partMinutes} ${translate('stt_minutes')}</span>
+                        </div>
+                        <div class="part-status-badge status-${part.status}" id="partBadge_${idx}">
+                            ${getStatusBadgeLabel(part.status)}
+                        </div>
+                    </div>
+
+                    <div class="part-progress-box" id="partProgBox_${idx}" style="${part.status === 'running' ? 'display:block;' : 'display:none;'}">
+                        <div class="part-progress-bar-bg">
+                            <div class="part-progress-bar-fill" id="partBar_${idx}" style="width:${part.status === 'done' ? '100%' : '0%'};"></div>
+                        </div>
+                        <div class="part-progress-meta">
+                            <span id="partProgStatus_${idx}">
+                                <span class="spinner" style="display:inline-block; width:12px; height:12px; border-width:2px; border-top-color:var(--accent);"></span>
+                                ${translate('tts_part_status_running')}
+                            </span>
+                            <span id="partProgTime_${idx}">00:00 (0%)</span>
+                        </div>
+                    </div>
+
+                    <div class="part-result-box" id="partResult_${idx}" style="${part.status === 'done' ? 'display:block;' : 'display:none;'}">
+                        <audio controls id="partAudio_${idx}" src="${part.audioUrl || ''}" style="width:100%; margin-bottom:10px;"></audio>
+                        <div class="part-actions-row">
+                            <a class="btn-download-part" id="partDownload_${idx}" href="${part.audioUrl ? ('/api/download/' + encodeURIComponent(part.filename)) : '#'}" download="${part.filename || ''}">
+                                ${translate('tts_download_part', { index: displayNum })}
+                            </a>
+                            <button type="button" class="btn-reload-part" onclick="retrySinglePart(${idx})">
+                                ${translate('tts_reload_part', { index: displayNum })}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="part-error-box" id="partError_${idx}" style="${part.status === 'error' ? 'display:flex;' : 'display:none;'}">
+                        <span class="part-error-text" id="partErrorText_${idx}">
+                            ${part.error || translate('tts_failed')}
+                        </span>
+                        <button type="button" class="btn-retry-part" onclick="retrySinglePart(${idx})">
+                            ${translate('tts_retry_part', { index: displayNum })}
+                        </button>
+                    </div>
+                `;
+
+                partsList.appendChild(card);
+            });
+
+            if (partsSection) partsSection.style.display = 'block';
+        }
+
+        function renderPartsPreview() {
+            const text = document.getElementById('textContent').value.trim();
+            const partsSection = document.getElementById('ttsPartsSection');
+            const btnText = document.getElementById('btnTextTTS');
+
+            if (!text) {
+                if (partsSection) partsSection.style.display = 'none';
+                ttsJob = null;
+                if (btnText) btnText.innerText = I18N[currentUILang]?.btn_submit_tts || '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+                return;
+            }
+
+            if (ttsJob && ttsJob.isRunning) {
+                return;
+            }
+
+            const textParts = splitTextIntoPartsJS(text, 2000);
+            const totalParts = textParts.length;
+
+            const isSameText = ttsJob && ttsJob.text === text && ttsJob.parts && ttsJob.parts.length === totalParts;
+            if (isSameText) {
+                return;
+            }
+
+            ttsJob = {
+                id: crypto.randomUUID().replace(/-/g, ''),
+                text: text,
+                parts: textParts.map((t, idx) => ({
+                    index: idx,
+                    text: t,
+                    wordCount: t.split(/\s+/).filter(Boolean).length,
+                    status: 'waiting',
+                    audioUrl: null,
+                    filename: null,
+                    error: null,
+                    timer: null
+                })),
+                isRunning: false
+            };
+
+            renderAllPartCards();
+            updateTTSButtonState();
+        }
+
         function updateStats() {
             const text = document.getElementById('textContent').value.trim();
-            const words = text ? text.split(/\s+/).length : 0;
+            const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
             const minutes = (words / 145).toFixed(1);
             document.getElementById('wordCount').innerText = words.toLocaleString();
             document.getElementById('timeEst').innerText = minutes;
             document.getElementById('ttsPartSummary').innerText = words
                 ? translate('tts_part_summary', { count: Math.ceil(words / 2000) })
                 : '';
+            schedulePartsPreview();
         }
 
         document.getElementById('textContent').addEventListener('input', updateStats);
@@ -3770,6 +4216,231 @@ const GENDER_TRANSLATIONS = {
         });
         initializeBilling();
 
+        function updateTTSButtonState() {
+            const btn = document.getElementById('btnSubmitTTS');
+            const spinner = document.getElementById('spinnerTTS');
+            const btnText = document.getElementById('btnTextTTS');
+            if (!btn || !btnText) return;
+
+            if (ttsJob && ttsJob.isRunning) {
+                btn.disabled = true;
+                if (spinner) spinner.style.display = 'inline-block';
+                btnText.innerText = translate('tts_working_button');
+            } else {
+                btn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (!ttsJob || !ttsJob.parts || !ttsJob.parts.length) {
+                    btnText.innerText = I18N[currentUILang]?.btn_submit_tts || '🎧 BẮT ĐẦU TẠO FILE ÂM THANH MP3';
+                } else {
+                    const doneCount = ttsJob.parts.filter(p => p.status === 'done').length;
+                    const total = ttsJob.parts.length;
+                    if (doneCount === total) {
+                        btnText.innerText = translate('tts_btn_all_completed', { count: total });
+                    } else if (doneCount > 0) {
+                        btnText.innerText = translate('tts_btn_continue');
+                    } else if (total > 1) {
+                        btnText.innerText = translate('tts_btn_generate_all', { count: total });
+                    } else {
+                        btnText.innerText = translate('tts_btn_generate_single');
+                    }
+                }
+            }
+        }
+
+        function updateTTSButtonLabel() {
+            updateTTSButtonState();
+        }
+
+        function retrySinglePart(partIndex) {
+            if (!ttsJob || !ttsJob.parts || !ttsJob.parts[partIndex]) return;
+            if (!sampleAudio.paused) {
+                sampleAudio.pause();
+                if (currentSampleBtn) {
+                    currentSampleBtn.classList.remove('playing');
+                    currentSampleBtn.innerHTML = I18N[currentUILang]?.sample_btn || '▶ Nghe thử giọng này';
+                }
+            }
+            generateSinglePart(partIndex, true, true);
+        }
+
+        async function generateSinglePart(partIndex, autoNext = true, isRetry = false) {
+            if (!ttsJob || !ttsJob.parts || !ttsJob.parts[partIndex]) return;
+
+            const part = ttsJob.parts[partIndex];
+            const displayNum = partIndex + 1;
+            const total = ttsJob.parts.length;
+
+            ttsJob.isRunning = true;
+            setTTSInputsLocked(true);
+            updateTTSButtonState();
+
+            part.status = 'running';
+            part.error = null;
+
+            const card = document.getElementById(`partCard_${partIndex}`);
+            if (card) {
+                card.className = 'audio-part-card is-running';
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            const badge = document.getElementById(`partBadge_${partIndex}`);
+            if (badge) {
+                badge.className = 'part-status-badge status-running';
+                badge.innerHTML = `<span class="spinner" style="display:inline-block; width:10px; height:10px; border-width:2px; border-top-color:#0369a1;"></span> ${translate('tts_part_status_running')}`;
+            }
+            const progBox = document.getElementById(`partProgBox_${partIndex}`);
+            if (progBox) progBox.style.display = 'block';
+            const resBox = document.getElementById(`partResult_${partIndex}`);
+            if (resBox) resBox.style.display = 'none';
+            const errBox = document.getElementById(`partError_${partIndex}`);
+            if (errBox) errBox.style.display = 'none';
+
+            const bar = document.getElementById(`partBar_${partIndex}`);
+            const progTime = document.getElementById(`partProgTime_${partIndex}`);
+            const progStatus = document.getElementById(`partProgStatus_${partIndex}`);
+
+            let estSec = Math.max(8, Math.ceil(part.wordCount / 32) + 6);
+            let elapsedSec = 0;
+
+            if (part.timer) clearInterval(part.timer);
+            part.timer = setInterval(() => {
+                elapsedSec++;
+                const percent = Math.min(95, Math.round(5 + (elapsedSec / (estSec + 2)) * 90));
+                if (bar) bar.style.width = percent + '%';
+                if (progTime) progTime.innerText = `${formatClock(elapsedSec)} (${percent}%)`;
+                if (progStatus) {
+                    if (elapsedSec > 4 && elapsedSec <= 15) {
+                        progStatus.innerText = translate('tts_connecting');
+                    } else if (elapsedSec > 15) {
+                        progStatus.innerText = translate('tts_merging');
+                    }
+                }
+            }, 1000);
+
+            const abortCtrl = new AbortController();
+            const clientTimeout = setTimeout(() => abortCtrl.abort(), 20 * 60 * 1000);
+
+            try {
+                const requestHeaders = { 'Content-Type': 'application/json' };
+                if (authSession?.access_token) {
+                    requestHeaders.Authorization = `Bearer ${authSession.access_token}`;
+                }
+
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: requestHeaders,
+                    signal: abortCtrl.signal,
+                    body: JSON.stringify({
+                        text: ttsJob.text,
+                        job_id: ttsJob.id,
+                        part_index: partIndex,
+                        preset: selectedPreset,
+                        rate: (document.getElementById('rateSlider').value >= 0 ? '+' : '') + document.getElementById('rateSlider').value + '%',
+                        pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') + document.getElementById('pitchSlider').value + 'Hz',
+                        volume: (document.getElementById('volumeSlider').value >= 0 ? '+' : '') + document.getElementById('volumeSlider').value + '%',
+                        pause_style: document.getElementById('pauseStyle').value,
+                        force_retry: isRetry
+                    })
+                });
+
+                const data = await response.json();
+                clearInterval(part.timer);
+                part.timer = null;
+                clearTimeout(clientTimeout);
+
+                if (data.success) {
+                    part.status = 'done';
+                    part.audioUrl = data.audio_url;
+                    part.filename = data.filename;
+                    part.duration = data.duration;
+
+                    if (card) {
+                        card.className = 'audio-part-card is-done';
+                    }
+                    if (badge) {
+                        badge.className = 'part-status-badge status-done';
+                        badge.innerText = translate('tts_part_status_done');
+                    }
+                    if (bar) bar.style.width = '100%';
+                    if (progBox) progBox.style.display = 'none';
+
+                    if (resBox) {
+                        resBox.style.display = 'block';
+                        const audioEl = document.getElementById(`partAudio_${partIndex}`);
+                        if (audioEl) audioEl.src = data.audio_url;
+                        const dlBtn = document.getElementById(`partDownload_${partIndex}`);
+                        if (dlBtn) {
+                            dlBtn.href = `/api/download/${encodeURIComponent(data.filename)}`;
+                            dlBtn.download = data.filename;
+                            dlBtn.innerText = translate('tts_download_part', { index: displayNum });
+                        }
+                    }
+
+                    if (autoNext) {
+                        const nextPendingIndex = ttsJob.parts.findIndex(p => p.status !== 'done');
+                        if (nextPendingIndex !== -1) {
+                            window.setTimeout(() => {
+                                generateSinglePart(nextPendingIndex, true, false);
+                            }, 350);
+                            return;
+                        }
+                    }
+
+                    const allDone = ttsJob.parts.every(p => p.status === 'done');
+                    if (allDone) {
+                        ttsJob.isRunning = false;
+                        setTTSInputsLocked(false);
+                        updateTTSButtonState();
+                    }
+                } else {
+                    part.status = 'error';
+                    part.error = data.error || translate('tts_failed');
+
+                    if (card) {
+                        card.className = 'audio-part-card is-error';
+                    }
+                    if (badge) {
+                        badge.className = 'part-status-badge status-error';
+                        badge.innerText = translate('tts_part_status_error');
+                    }
+                    if (progBox) progBox.style.display = 'none';
+                    if (errBox) {
+                        errBox.style.display = 'flex';
+                        const errText = document.getElementById(`partErrorText_${partIndex}`);
+                        if (errText) errText.innerText = part.error;
+                    }
+
+                    ttsJob.isRunning = false;
+                    setTTSInputsLocked(false);
+                    updateTTSButtonState();
+                }
+            } catch (err) {
+                clearInterval(part.timer);
+                part.timer = null;
+                clearTimeout(clientTimeout);
+
+                part.status = 'error';
+                part.error = err.name === 'AbortError'
+                    ? translate('tts_timeout', { minutes: 20 })
+                    : (translate('error_occurred') + err.message);
+
+                if (card) card.className = 'audio-part-card is-error';
+                if (badge) {
+                    badge.className = 'part-status-badge status-error';
+                    badge.innerText = translate('tts_part_status_error');
+                }
+                if (progBox) progBox.style.display = 'none';
+                if (errBox) {
+                    errBox.style.display = 'flex';
+                    const errText = document.getElementById(`partErrorText_${partIndex}`);
+                    if (errText) errText.innerText = part.error;
+                }
+
+                ttsJob.isRunning = false;
+                setTTSInputsLocked(false);
+                updateTTSButtonState();
+            }
+        }
+
         async function generateSpeech() {
             const inputText = document.getElementById('textContent').value.trim();
             if (!inputText) {
@@ -3788,210 +4459,20 @@ const GENDER_TRANSLATIONS = {
                 }
             }
 
-            if (!ttsJob || ttsJob.nextPartIndex >= ttsJob.totalParts) {
-                const totalWords = inputText.split(/\s+/).length;
-                ttsJob = {
-                    id: crypto.randomUUID().replace(/-/g, ''),
-                    text: inputText,
-                    preset: selectedPreset,
-                    rate: (document.getElementById('rateSlider').value >= 0 ? '+' : '') +
-                        document.getElementById('rateSlider').value + '%',
-                    pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') +
-                        document.getElementById('pitchSlider').value + 'Hz',
-                    volume: (document.getElementById('volumeSlider').value >= 0 ? '+' : '') +
-                        document.getElementById('volumeSlider').value + '%',
-                    pauseStyle: document.getElementById('pauseStyle').value,
-                    totalWords: totalWords,
-                    totalParts: Math.ceil(totalWords / 2000),
-                    nextPartIndex: 0,
-                    failed: false,
-                    audioParts: []
-                };
-                setTTSInputsLocked(true);
+            if (!ttsJob || !ttsJob.parts || ttsJob.text !== inputText) {
+                renderPartsPreview();
             }
 
-            const btn = document.getElementById('btnSubmitTTS');
-            const spinner = document.getElementById('spinnerTTS');
-            const btnText = document.getElementById('btnTextTTS');
-            const resultBox = document.getElementById('resultBoxTTS');
+            if (!ttsJob || !ttsJob.parts || !ttsJob.parts.length) return;
 
-            const progressBox = document.getElementById('progressBoxTTS');
-            const progressBar = document.getElementById('progressBarTTS');
-            const progressStatus = document.getElementById('progressStatusTTS');
-            const progressDetail = document.getElementById('progressDetailTTS');
-            const countdownVal = document.getElementById('countdownValTTS');
-            const elapsedVal = document.getElementById('elapsedValTTS');
-            const percentVal = document.getElementById('percentValTTS');
-            const partWordCount = Math.min(
-                ttsJob.totalWords - ttsJob.nextPartIndex * 2000,
-                2000
-            );
-
-            btn.disabled = true;
-            ttsJob.failed = false;
-            spinner.style.display = 'inline-block';
-            btnText.innerText = translate('tts_working_button');
-            updateTTSButtonLabel();
-
-            let estimatedSec = Math.max(8, Math.ceil(partWordCount / 32) + 6);
-            let elapsedSec = 0;
-            let remainingSec = estimatedSec;
-
-            progressBox.style.display = 'block';
-            progressBar.style.width = '4%';
-            percentVal.innerText = '4%';
-            countdownVal.innerText = formatClock(remainingSec);
-            elapsedVal.innerText = formatClock(elapsedSec);
-            progressStatus.innerHTML = `<span class="spinner" style="display:inline-block; width:14px; height:14px; border-width:2px; border-top-color:var(--accent);"></span> ${translate('tts_working')}`;
-            progressDetail.innerText = translate('tts_part_start', {
-                index: ttsJob.nextPartIndex + 1,
-                total: ttsJob.totalParts,
-                words: partWordCount.toLocaleString()
-            });
-
-            if (ttsTimerInterval) clearInterval(ttsTimerInterval);
-
-            ttsTimerInterval = setInterval(() => {
-                elapsedSec++;
-                remainingSec = Math.max(0, estimatedSec - elapsedSec);
-                elapsedVal.innerText = formatClock(elapsedSec);
-                countdownVal.innerText = formatClock(remainingSec);
-
-                let percent = Math.min(95, Math.round(4 + (elapsedSec / (estimatedSec + 2)) * 91));
-                progressBar.style.width = percent + '%';
-                percentVal.innerText = percent + '%';
-
-                if (elapsedSec > 4 && elapsedSec <= 15) {
-                    progressDetail.innerText = translate('tts_connecting');
-                } else if (elapsedSec > 15) {
-                    progressDetail.innerText = translate('tts_merging');
-                }
-            }, 1000);
-
-            const maxWaitMs = 20 * 60 * 1000;
-            const abortCtrl = new AbortController();
-            const clientTimeout = setTimeout(() => {
-                abortCtrl.abort();
-            }, maxWaitMs);
-
-            try {
-                const requestHeaders = { 'Content-Type': 'application/json' };
-                if (authSession?.access_token) {
-                    requestHeaders.Authorization = `Bearer ${authSession.access_token}`;
-                }
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: requestHeaders,
-                    signal: abortCtrl.signal,
-                    body: JSON.stringify({
-                        text: ttsJob.text,
-                        job_id: ttsJob.id,
-                        part_index: ttsJob.nextPartIndex,
-                        preset: ttsJob.preset,
-                        rate: ttsJob.rate,
-                        pitch: ttsJob.pitch,
-                        volume: ttsJob.volume,
-                        pause_style: ttsJob.pauseStyle
-                    })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    if (ttsTimerInterval) {
-                        clearInterval(ttsTimerInterval);
-                        ttsTimerInterval = null;
-                    }
-                    progressBar.style.width = '100%';
-                    percentVal.innerText = '100%';
-                    countdownVal.innerText = '00:00';
-                    progressStatus.innerHTML = translate('tts_complete');
-                    progressDetail.innerText = [
-                        translate('tts_elapsed', { seconds: elapsedSec }),
-                        translate('tts_daily_remaining', {
-                            minutes: Number(data.daily_tts_minutes_remaining || 0).toFixed(1)
-                        })
-                    ].join(' · ');
-
-                    const audioPart = data.audio_part;
-                    ttsJob.audioParts.push(audioPart);
-                    ttsJob.nextPartIndex++;
-                    ttsJob.failed = false;
-                    currentAudioResult = {
-                        ...data,
-                        audio_parts: ttsJob.audioParts,
-                        preset_key: ttsJob.preset
-                    };
-                    const partsList = document.getElementById('audioPartsList');
-                    const partBox = document.createElement('div');
-                    partBox.className = 'audio-part';
-                    partBox.dataset.partIndex = String(ttsJob.nextPartIndex);
-                    partBox.dataset.totalParts = String(ttsJob.totalParts);
-                    partBox.dataset.wordCount = String(audioPart.word_count);
-
-                    const partTitle = document.createElement('span');
-                    partTitle.className = 'audio-part-title';
-
-                    const player = document.createElement('audio');
-                    player.controls = true;
-                    player.src = audioPart.audio_url;
-
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = audioPart.audio_url;
-                    downloadLink.className = 'btn-action';
-                    downloadLink.download = audioPart.filename;
-
-                    partBox.append(partTitle, player, downloadLink);
-                    partsList.appendChild(partBox);
-
-                    updateAudioResultLabels(currentAudioResult);
-
-                    resultBox.style.display = 'block';
-                    resultBox.scrollIntoView({ behavior: 'smooth' });
-                    updateTTSButtonLabel();
-                    if (ttsJob.nextPartIndex >= ttsJob.totalParts) {
-                        setTTSInputsLocked(false);
-                    }
-                } else {
-                    ttsJob.failed = true;
-                    resultBox.style.display = 'block';
-                    if (data.failed_chunk) {
-                        progressStatus.innerText = translate('tts_retry_prompt');
-                        progressDetail.innerText = translate('tts_chunk_error', {
-                            index: data.failed_chunk,
-                            total: data.total_chunks
-                        });
-                    } else {
-                        progressStatus.innerText = translate('tts_retry_prompt');
-                        const quotaMessage = {
-                            job_limit_exceeded: 'tts_job_limit',
-                            daily_quota_exceeded: 'tts_daily_limit'
-                        }[data.code];
-                        progressDetail.innerText = quotaMessage
-                            ? translate(quotaMessage)
-                            : (data.error || translate('tts_failed'));
-                    }
-                    updateTTSButtonLabel();
-                }
-            } catch (err) {
-                ttsJob.failed = true;
-                resultBox.style.display = 'block';
-                progressStatus.innerText = translate('tts_retry_prompt');
-                if (err.name === 'AbortError') {
-                    progressDetail.innerText = translate('tts_timeout', { minutes: Math.ceil(maxWaitMs / 60000) });
-                } else {
-                    progressDetail.innerText = translate('error_occurred') + err;
-                }
-                updateTTSButtonLabel();
-            } finally {
-                clearTimeout(clientTimeout);
-                if (ttsTimerInterval) {
-                    clearInterval(ttsTimerInterval);
-                    ttsTimerInterval = null;
-                }
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                updateTTSButtonLabel();
+            let targetIndex = ttsJob.parts.findIndex(p => p.status !== 'done');
+            if (targetIndex === -1) {
+                ttsJob.parts.forEach(p => { p.status = 'waiting'; });
+                renderAllPartCards();
+                targetIndex = 0;
             }
+
+            generateSinglePart(targetIndex, true, false);
         }
 
         // ================= STT SCRIPT =================
