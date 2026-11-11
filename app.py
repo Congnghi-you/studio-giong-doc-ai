@@ -1568,6 +1568,8 @@ def generate():
 
         return jsonify({
             "success": True,
+            "filename": filename,
+            "audio_url": f"/static/audio/{filename}",
             "audio_part": {
                 "audio_url": f"/static/audio/{filename}",
                 "filename": filename,

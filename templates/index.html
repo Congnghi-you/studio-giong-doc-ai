@@ -3899,7 +3899,7 @@ const GENDER_TRANSLATIONS = {
                     <div class="part-result-box" id="partResult_${idx}" style="${part.status === 'done' ? 'display:block;' : 'display:none;'}">
                         <audio controls id="partAudio_${idx}" src="${part.audioUrl || ''}" style="width:100%; margin-bottom:10px;"></audio>
                         <div class="part-actions-row">
-                            <a class="btn-download-part" id="partDownload_${idx}" href="${part.audioUrl ? ('/api/download/' + encodeURIComponent(part.filename)) : '#'}" download="${part.filename || ''}">
+                            <a class="btn-download-part" id="partDownload_${idx}" href="${part.filename ? ('/api/download/' + encodeURIComponent(part.filename)) : (part.audioUrl || '#')}" download="${part.filename || ('audio_part_' + displayNum + '.mp3')}">
                                 ${translate('tts_download_part', { index: displayNum })}
                             </a>
                             <button type="button" class="btn-reload-part" onclick="retrySinglePart(${idx})">
@@ -4348,10 +4348,14 @@ const GENDER_TRANSLATIONS = {
                 clearTimeout(clientTimeout);
 
                 if (data.success) {
+                    const audioPart = data.audio_part || {};
+                    const resolvedFilename = data.filename || audioPart.filename || '';
+                    const resolvedAudioUrl = data.audio_url || audioPart.audio_url || (resolvedFilename ? `/static/audio/${resolvedFilename}` : '');
+
                     part.status = 'done';
-                    part.audioUrl = data.audio_url;
-                    part.filename = data.filename;
-                    part.duration = data.duration;
+                    part.audioUrl = resolvedAudioUrl;
+                    part.filename = resolvedFilename;
+                    part.duration = data.audio_duration_seconds || audioPart.duration || 0;
 
                     if (card) {
                         card.className = 'audio-part-card is-done';
@@ -4366,11 +4370,11 @@ const GENDER_TRANSLATIONS = {
                     if (resBox) {
                         resBox.style.display = 'block';
                         const audioEl = document.getElementById(`partAudio_${partIndex}`);
-                        if (audioEl) audioEl.src = data.audio_url;
+                        if (audioEl && resolvedAudioUrl) audioEl.src = resolvedAudioUrl;
                         const dlBtn = document.getElementById(`partDownload_${partIndex}`);
-                        if (dlBtn) {
-                            dlBtn.href = `/api/download/${encodeURIComponent(data.filename)}`;
-                            dlBtn.download = data.filename;
+                        if (dlBtn && resolvedFilename) {
+                            dlBtn.href = `/api/download/${encodeURIComponent(resolvedFilename)}`;
+                            dlBtn.download = resolvedFilename;
                             dlBtn.innerText = translate('tts_download_part', { index: displayNum });
                         }
                     }

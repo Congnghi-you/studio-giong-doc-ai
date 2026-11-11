@@ -45,5 +45,21 @@ class TestTTSStagedParts(unittest.TestCase):
         self.assertIn("function generateSinglePart", html)
         self.assertIn("function retrySinglePart", html)
 
+    def test_download_endpoint_with_sample_file(self):
+        import os
+        test_filename = "test_download_file.mp3"
+        test_path = os.path.join(app.AUDIO_DIR, test_filename)
+        with open(test_path, "wb") as f:
+            f.write(b"ID3\x03\x00\x00\x00\x00\x00\x00")
+        try:
+            res = self.client.get(f"/api/download/{test_filename}")
+            self.assertEqual(res.status_code, 200)
+            self.assertIn("attachment", res.headers.get("Content-Disposition", ""))
+            self.assertIn(test_filename, res.headers.get("Content-Disposition", ""))
+            res.close()
+        finally:
+            if os.path.exists(test_path):
+                os.remove(test_path)
+
 if __name__ == "__main__":
     unittest.main()
