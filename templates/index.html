@@ -3899,7 +3899,7 @@ const GENDER_TRANSLATIONS = {
                     <div class="part-result-box" id="partResult_${idx}" style="${part.status === 'done' ? 'display:block;' : 'display:none;'}">
                         <audio controls id="partAudio_${idx}" src="${part.audioUrl || ''}" style="width:100%; margin-bottom:10px;"></audio>
                         <div class="part-actions-row">
-                            <a class="btn-download-part" id="partDownload_${idx}" href="${part.filename ? ('/api/download/' + encodeURIComponent(part.filename)) : (part.audioUrl || '')}" download="${part.filename || ('audio_part_' + displayNum + '.mp3')}" ${!part.filename && !part.audioUrl ? 'style="pointer-events:none;opacity:0.5;"' : ''}>
+                            <a class="btn-download-part" id="partDownload_${idx}" href="${part.filename ? ('/api/download/' + encodeURIComponent(part.filename)) : (part.audioUrl ? part.audioUrl : '#')}" download="${part.filename || ('audio_part_' + displayNum + '.mp3')}">
                                 ${translate('tts_download_part', { index: displayNum })}
                             </a>
                             <button type="button" class="btn-reload-part" onclick="retrySinglePart(${idx})">
@@ -4372,9 +4372,17 @@ const GENDER_TRANSLATIONS = {
                         const audioEl = document.getElementById(`partAudio_${partIndex}`);
                         if (audioEl && resolvedAudioUrl) audioEl.src = resolvedAudioUrl;
                         const dlBtn = document.getElementById(`partDownload_${partIndex}`);
-                        if (dlBtn && resolvedFilename) {
-                            dlBtn.href = `/api/download/${encodeURIComponent(resolvedFilename)}`;
-                            dlBtn.download = resolvedFilename;
+                        if (dlBtn) {
+                            // Luôn bật lại nút (xóa style disabled nếu có)
+                            dlBtn.style.pointerEvents = '';
+                            dlBtn.style.opacity = '';
+                            if (resolvedFilename) {
+                                dlBtn.href = `/api/download/${encodeURIComponent(resolvedFilename)}`;
+                                dlBtn.download = resolvedFilename;
+                            } else if (resolvedAudioUrl) {
+                                dlBtn.href = resolvedAudioUrl;
+                                dlBtn.download = `audio_part_${displayNum}.mp3`;
+                            }
                             dlBtn.innerText = translate('tts_download_part', { index: displayNum });
                         }
                     }
