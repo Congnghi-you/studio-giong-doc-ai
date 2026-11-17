@@ -37,8 +37,9 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
 FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BASE_DIR, "ffmpeg.exe")) else (shutil.which("ffmpeg") or "ffmpeg")
 BILLING_CONFIG = saas_billing.BillingConfig()
-FREE_TTS_DAILY_LIMIT_SECONDS = 40 * 60
-FREE_TTS_MAX_JOB_SECONDS = 20 * 60
+# Khi chạy local (không có billing), không giới hạn thời gian tạo giọng
+FREE_TTS_DAILY_LIMIT_SECONDS = 40 * 60 if BILLING_CONFIG.enabled else 999_999_999
+FREE_TTS_MAX_JOB_SECONDS = 20 * 60 if BILLING_CONFIG.enabled else 999_999_999
 FREE_TTS_USAGE_DB = os.path.abspath(os.getenv(
     "FREE_TTS_USAGE_DB",
     os.path.join(BASE_DIR, "instance", "free_tts_usage.sqlite3")
@@ -867,6 +868,11 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
     os.makedirs(work_dir, exist_ok=True)
     chunk_paths = [os.path.join(work_dir, f"chunk_{idx:04d}.mp3") for idx in range(len(chunks))]
 
+    # Danh sách địa chỉ endpoint để thử khi bị lỗi mạng liên tục
+    TTS_MAX_RETRY = 8          # tổng số lần thử cho mỗi chunk
+    TTS_BASE_TIMEOUT = 60.0    # timeout cơ bản (giây)
+    TTS_LONG_PAUSE = 5.0       # nghỉ dài sau 4 lần thất bại liên tiếp
+
     for idx, (chunk_text, chunk_file) in enumerate(zip(chunks, chunk_paths)):
         if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
             print(f"[✓] Bỏ qua đoạn {idx + 1}/{len(chunks)} đã tạo trước đó.", flush=True)
@@ -883,77 +889,74 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
 
         generated = False
         last_error = "Không nhận được dữ liệu âm thanh."
-        for retry in range(4):
+
+        for retry in range(TTS_MAX_RETRY):
             try:
                 if os.path.exists(chunk_file):
                     try:
                         os.remove(chunk_file)
                     except OSError:
                         pass
-                connector = aiohttp.TCPConnector(family=socket.AF_INET)
-                comm = edge_tts.Communicate(
-                    clean_chunk,
-                    voice=voice,
-                    rate=rate,
-                    pitch=pitch,
-                    volume=volume,
-                    connector=connector
-                )
-                timeout_sec = 35.0 + retry * 15.0
-                await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
+
+                # Sau 4 lần thất bại: thử không dùng rate/pitch (giọng mặc định)
+                use_default_params = retry >= 4
+                # Tăng timeout dần theo số lần thử
+                timeout_sec = TTS_BASE_TIMEOUT + retry * 20.0
+
+                connector = aiohttp.TCPConnector(family=socket.AF_INET, limit=1)
+                try:
+                    if use_default_params:
+                        comm = edge_tts.Communicate(
+                            clean_chunk,
+                            voice=voice,
+                            volume=volume,
+                            connector=connector,
+                        )
+                    else:
+                        comm = edge_tts.Communicate(
+                            clean_chunk,
+                            voice=voice,
+                            rate=rate,
+                            pitch=pitch,
+                            volume=volume,
+                            connector=connector,
+                        )
+                    await asyncio.wait_for(comm.save(chunk_file), timeout=timeout_sec)
+                finally:
+                    await connector.close()
+
                 if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
                     generated = True
                     break
                 last_error = "Microsoft TTS không trả về dữ liệu âm thanh."
+            except asyncio.TimeoutError:
+                last_error = f"Timeout sau {timeout_sec:.0f}s"
+                print(f"[*] Đoạn {idx + 1}/{len(chunks)} lần {retry + 1}/{TTS_MAX_RETRY}: {last_error}", flush=True)
             except Exception as e:
                 last_error = f"{type(e).__name__}: {e}".strip()
-                print(f"[*] Đoạn {idx + 1}/{len(chunks)} thử lần {retry + 1}/4: {last_error}", flush=True)
-                if os.path.exists(chunk_file):
-                    try:
-                        os.remove(chunk_file)
-                    except OSError:
-                        pass
-                await asyncio.sleep(1.0 + retry * 1.5)
+                print(f"[*] Đoạn {idx + 1}/{len(chunks)} lần {retry + 1}/{TTS_MAX_RETRY}: {last_error}", flush=True)
 
-        if not generated:
-            print(f"[!] Đoạn {idx + 1}/{len(chunks)} thử lại bằng giọng chuẩn.", flush=True)
-            for fallback_try in range(2):
+            if os.path.exists(chunk_file):
                 try:
-                    if os.path.exists(chunk_file):
-                        try:
-                            os.remove(chunk_file)
-                        except OSError:
-                            pass
-                    connector = aiohttp.TCPConnector(family=socket.AF_INET)
-                    comm = edge_tts.Communicate(
-                        clean_chunk,
-                        voice=voice,
-                        volume=volume,
-                        connector=connector
-                    )
-                    await asyncio.wait_for(comm.save(chunk_file), timeout=45.0)
-                    if os.path.exists(chunk_file) and os.path.getsize(chunk_file) > 100:
-                        generated = True
-                        break
-                    last_error = "Microsoft TTS không trả về dữ liệu âm thanh."
-                except Exception as e:
-                    last_error = f"{type(e).__name__}: {e}".strip()
-                    print(f"[!] Dự phòng đoạn {idx + 1} lần {fallback_try + 1}: {last_error}", flush=True)
-                    if os.path.exists(chunk_file):
-                        try:
-                            os.remove(chunk_file)
-                        except OSError:
-                            pass
-                    await asyncio.sleep(2.0)
+                    os.remove(chunk_file)
+                except OSError:
+                    pass
+
+            # Nghỉ lâu hơn sau mỗi thất bại (tránh bị chặn IP tạm thời)
+            if retry < TTS_MAX_RETRY - 1:
+                pause = TTS_LONG_PAUSE if retry >= 3 else (1.5 + retry * 2.0)
+                print(f"[~] Chờ {pause:.1f}s trước khi thử lại...", flush=True)
+                await asyncio.sleep(pause)
 
         if not generated:
             raise RuntimeError(
-                f"Không thể tạo đoạn nhỏ {idx + 1}/{len(chunks)}. Lỗi cuối: {last_error}"
+                f"Không thể tạo đoạn {idx + 1}/{len(chunks)} sau {TTS_MAX_RETRY} lần thử. Lỗi: {last_error}"
             )
 
-        print(f"[✓] Hoàn tất đoạn nhỏ {idx + 1}/{len(chunks)}.", flush=True)
+        print(f"[✓] Hoàn tất đoạn {idx + 1}/{len(chunks)}.", flush=True)
+        # Nghỉ nhỏ giữa các chunk để không làm quá tải server
         if idx < len(chunks) - 1:
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.5)
 
     if os.path.exists(output_path):
         try:

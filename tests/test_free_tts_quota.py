@@ -12,7 +12,14 @@ class FreeTTSQuotaTests(unittest.TestCase):
         self.db_path = os.path.join(self.temp_dir.name, "quota.sqlite3")
         self.usage_db_patch = patch.object(app_module, "FREE_TTS_USAGE_DB", self.db_path)
         self.usage_db_patch.start()
+        # Patch limits to fixed values for tests (simulating billing-enabled mode)
+        self.daily_limit_patch = patch.object(app_module, "FREE_TTS_DAILY_LIMIT_SECONDS", 40 * 60)
+        self.job_limit_patch = patch.object(app_module, "FREE_TTS_MAX_JOB_SECONDS", 20 * 60)
+        self.daily_limit_patch.start()
+        self.job_limit_patch.start()
         self.addCleanup(self.usage_db_patch.stop)
+        self.addCleanup(self.daily_limit_patch.stop)
+        self.addCleanup(self.job_limit_patch.stop)
         self.addCleanup(self.temp_dir.cleanup)
 
     def test_completed_audio_uses_actual_duration_and_duplicate_is_idempotent(self):
