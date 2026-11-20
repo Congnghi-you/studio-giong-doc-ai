@@ -1802,6 +1802,23 @@
                             <label><span data-i18n="lbl_volume">Âm lượng:</span> <span id="volumeVal" style="color:var(--accent);">0%</span></label>
                             <input type="range" id="volumeSlider" min="-50" max="50" value="0" step="5" oninput="updateVolumeLabel(this.value)">
                         </div>
+                        <!-- NHẠC NỀN -->
+                        <div class="control-item" style="grid-column: 1 / -1;">
+                            <label style="font-weight:600; color:var(--accent);">🎵 Nhạc nền (tùy chọn)</label>
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+                                <select id="musicSelect" style="flex:1; min-width:160px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-size:14px;" onchange="onMusicSelectChange()">
+                                    <option value="">— Không có nhạc nền —</option>
+                                </select>
+                                <audio id="musicPreviewPlayer" controls style="display:none; height:34px; flex:1; min-width:200px;" preload="none"></audio>
+                                <button type="button" onclick="openMusicFolder()" title="Mở folder nhạc nền" style="padding:7px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:13px; white-space:nowrap;">📂 Mở folder</button>
+                                <button type="button" onclick="refreshMusicList()" title="Tải lại danh sách" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:18px;" id="btnRefreshMusic">🔄</button>
+                            </div>
+                        </div>
+                        <div class="control-item" id="musicVolBox" style="display:none;">
+                            <label>🔉 <span>Âm lượng nhạc nền:</span> <span id="musicVolVal" style="color:var(--accent); font-weight:700;">20%</span></label>
+                            <input type="range" id="musicVolSlider" min="0" max="80" value="20" step="5" oninput="document.getElementById('musicVolVal').innerText = this.value + '%'">
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">💡 Giọng đọc luôn ở 100% — nhạc nền ở mức bạn chọn</div>
+                        </div>
                     </div>
                 </details>
 
@@ -3784,6 +3801,64 @@ const GENDER_TRANSLATIONS = {
             document.getElementById('volumeVal').innerText = (val >= 0 ? '+' : '') + val + '%';
         }
 
+        // ===== NHẠC NỀN =====
+        async function loadMusicList() {
+            try {
+                const res = await fetch('/api/music-list');
+                const data = await res.json();
+                const sel = document.getElementById('musicSelect');
+                // Giữ option đầu "Không có nhạc nền"
+                while (sel.options.length > 1) sel.remove(1);
+                if (data.files && data.files.length > 0) {
+                    data.files.forEach(f => {
+                        const opt = document.createElement('option');
+                        opt.value = f.name;
+                        opt.textContent = `🎵 ${f.label}`;
+                        sel.appendChild(opt);
+                    });
+                } else {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.disabled = true;
+                    opt.textContent = '(Chưa có file — thả MP3 vào folder static/music)';
+                    sel.appendChild(opt);
+                }
+            } catch (e) {
+                console.warn('Không tải được danh sách nhạc nền:', e);
+            }
+        }
+
+        async function refreshMusicList() {
+            const btn = document.getElementById('btnRefreshMusic');
+            if (btn) { btn.style.transform = 'rotate(360deg)'; btn.style.transition = 'transform 0.4s'; }
+            await loadMusicList();
+            setTimeout(() => { if (btn) { btn.style.transform = ''; btn.style.transition = ''; } }, 500);
+        }
+
+        function onMusicSelectChange() {
+            const sel = document.getElementById('musicSelect');
+            const player = document.getElementById('musicPreviewPlayer');
+            const volBox = document.getElementById('musicVolBox');
+            const val = sel.value;
+            if (val) {
+                player.src = `/static/music/${encodeURIComponent(val)}`;
+                player.style.display = 'block';
+                volBox.style.display = 'block';
+            } else {
+                player.src = '';
+                player.style.display = 'none';
+                volBox.style.display = 'none';
+            }
+        }
+
+        function openMusicFolder() {
+            // Hiển thị đường dẫn folder để user biết thả file vào đâu
+            const msg = `Thả file nhạc nền (MP3/WAV) vào folder:\n\nstatic\\music\\\n\nTrong thư mục cài đặt app của bạn.\nSau đó bấm nút 🔄 để tải lại danh sách.`;
+            alert(msg);
+        }
+        // Load nhạc nền ngay khi trang mở
+        loadMusicList();
+
         function splitTextIntoPartsJS(text, maxWords = 2000) {
             if (!text || !text.trim()) return [];
             const paragraphs = text.trim().split(/\n+/);
@@ -4338,6 +4413,8 @@ const GENDER_TRANSLATIONS = {
                         pitch: (document.getElementById('pitchSlider').value >= 0 ? '+' : '') + document.getElementById('pitchSlider').value + 'Hz',
                         volume: (document.getElementById('volumeSlider').value >= 0 ? '+' : '') + document.getElementById('volumeSlider').value + '%',
                         pause_style: document.getElementById('pauseStyle').value,
+                        music_file: (document.getElementById('musicSelect').value || ''),
+                        music_volume: parseInt(document.getElementById('musicVolSlider').value || '20'),
                         force_retry: isRetry
                     })
                 });

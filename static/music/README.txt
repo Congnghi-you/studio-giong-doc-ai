@@ -1,0 +1,3 @@
+Thả file nhạc nền vào đây (MP3 hoặc WAV).
+Ví dụ: nhac_nen_1.mp3, lofi_beat.mp3, ...
+App sẽ tự động nhận diện và hiển thị trong danh sách chọn nhạc nền.

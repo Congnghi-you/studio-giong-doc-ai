@@ -34,6 +34,7 @@ app.config['MAX_CONTENT_LENGTH'] = 2048 * 1024 * 1024  # Cho phép upload file l
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
+MUSIC_DIR = os.path.join(BASE_DIR, "static", "music")
 TTS_WORK_DIR = os.path.join(tempfile.gettempdir(), "studio_tts_jobs")
 FFMPEG_PATH = os.path.join(BASE_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BASE_DIR, "ffmpeg.exe")) else (shutil.which("ffmpeg") or "ffmpeg")
 BILLING_CONFIG = saas_billing.BillingConfig()
@@ -973,6 +974,45 @@ async def generate_speech_async(text, voice, rate, pitch, volume, output_path, w
     print(f"[✓] Hoàn tất ghép {len(chunk_paths)} đoạn vào file: {os.path.basename(output_path)}", flush=True)
     shutil.rmtree(work_dir, ignore_errors=True)
 
+
+def mix_background_music(voice_path: str, music_path: str, output_path: str, music_volume_pct: int = 20) -> None:
+    """Mix nhạc nền vào file giọng đọc bằng ffmpeg.
+    
+    - Nhạc nền được loop tự động nếu ngắn hơn giọng đọc
+    - Âm lượng nhạc nền = music_volume_pct% (0-100), giọng đọc giữ nguyên 100%
+    - Output file thay thế voice_path (hoặc ghi vào output_path nếu khác)
+    """
+    if not os.path.exists(music_path):
+        raise FileNotFoundError(f"File nhạc nền không tồn tại: {music_path}")
+    if not os.path.exists(voice_path):
+        raise FileNotFoundError(f"File giọng đọc không tồn tại: {voice_path}")
+
+    # Chuyển % sang dB gain (0% = -inf, 20% ≈ -14dB, 50% ≈ -6dB, 100% = 0dB)
+    # Dùng công thức tuyến tính đơn giản: volume filter trực tiếp
+    music_vol = max(0, min(100, music_volume_pct)) / 100.0  # 0.0 - 1.0
+
+    tmp_output = output_path + ".mix_tmp.mp3"
+    cmd = [
+        FFMPEG_PATH, "-y",
+        "-i", voice_path,                      # input 0: giọng đọc
+        "-stream_loop", "-1",                  # loop nhạc nền vô hạn
+        "-i", music_path,                      # input 1: nhạc nền
+        "-filter_complex",
+        f"[1:a]volume={music_vol:.3f}[music];[0:a][music]amix=inputs=2:duration=first:dropout_transition=3[out]",
+        "-map", "[out]",
+        "-c:a", "libmp3lame",
+        "-q:a", "4",                           # chất lượng MP3 tốt
+        "-shortest",                           # kết thúc khi giọng đọc xong
+        tmp_output
+    ]
+    print(f"[♪] Mix nhạc nền: {os.path.basename(music_path)} (âm lượng {music_volume_pct}%)...", flush=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg mix nhạc nền thất bại: {result.stderr[-500:]}")
+    # Thay thế file gốc bằng file đã mix
+    shutil.move(tmp_output, output_path)
+    print(f"[✓] Mix nhạc nền hoàn tất: {os.path.basename(output_path)}", flush=True)
+
 @app.after_request
 def add_no_cache_headers(response):
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
@@ -1324,6 +1364,26 @@ def billing_webhook():
         app.logger.error("Paddle webhook processing failed: %s", error)
         return jsonify({"success": False, "error": "Unable to process billing event."}), 503
 
+# API: DANH SÁCH NHẠC NỀN CÓ SẴN
+@app.route("/api/music-list", methods=["GET"])
+def music_list():
+    """Trả về danh sách file nhạc nền trong folder static/music"""
+    os.makedirs(MUSIC_DIR, exist_ok=True)
+    allowed_ext = {".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac"}
+    files = []
+    for f in sorted(os.listdir(MUSIC_DIR)):
+        ext = os.path.splitext(f)[1].lower()
+        if ext in allowed_ext and not f.startswith(".") and not f.startswith("README"):
+            full_path = os.path.join(MUSIC_DIR, f)
+            size_kb = round(os.path.getsize(full_path) / 1024)
+            files.append({
+                "name": f,
+                "label": os.path.splitext(f)[0].replace("_", " ").replace("-", " "),
+                "url": f"/static/music/{f}",
+                "size_kb": size_kb,
+            })
+    return jsonify({"success": True, "files": files})
+
 @app.route("/api/split-preview", methods=["POST"])
 def split_preview():
     try:
@@ -1378,6 +1438,12 @@ def generate():
         custom_pitch = data.get("pitch")
         volume = data.get("volume", "+0%")
         pause_style = data.get("pause_style", "standard")
+        music_file = data.get("music_file", "")    # tên file nhạc nền (không có path)
+        music_volume = data.get("music_volume", 20) # % âm lượng nhạc nền (0-100)
+        try:
+            music_volume = max(0, min(100, int(music_volume)))
+        except (TypeError, ValueError):
+            music_volume = 20
 
         if not isinstance(volume, str) or not re.fullmatch(r"[+-](?:0|[1-9]\d?|100)%", volume):
             return jsonify({"success": False, "error": "Mức âm lượng không hợp lệ."}), 400
@@ -1477,6 +1543,19 @@ def generate():
             if reservation_created:
                 release_free_tts_usage(client_key, request_key, usage_day)
             return jsonify({"success": False, "error": "Không thể tạo file âm thanh."}), 500
+
+        # Mix nhạc nền nếu user đã chọn
+        if music_file and music_file.strip():
+            safe_music_name = os.path.basename(music_file.strip())
+            music_path = os.path.join(MUSIC_DIR, safe_music_name)
+            if os.path.exists(music_path):
+                try:
+                    mix_background_music(output_path, music_path, output_path, music_volume_pct=music_volume)
+                except Exception as mix_err:
+                    app.logger.warning("Mix nhạc nền thất bại (bỏ qua): %s", mix_err)
+                    print(f"[!] Mix nhạc nền thất bại (bỏ qua): {mix_err}", flush=True)
+            else:
+                print(f"[!] File nhạc nền không tìm thấy: {safe_music_name}", flush=True)
 
         try:
             audio_duration_seconds = get_media_duration_seconds(output_path)
